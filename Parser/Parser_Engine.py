@@ -2,16 +2,9 @@ from Grammar.grammar import Production, Terminal, Grammar, NonTerminal
 from collections import deque
 
 
-# P_item base class containing a production type object
-class P_Item:
-    def __init__(self, index, production):
-        self.index = index
-        self.production = production
-
-
-# ItemLR1 subclass of P_item to define items used on LR(1) parsing
-class ItemLR(P_Item):
-    def __init__(self, production, index, lookahead):
+# ItemLR1 to define items used on LR(1) parsing
+class ItemLR():
+    def __init__(self, production, index, lookahead=None):
         super().__init__(production)
         self.string = f"{production.head} --> "
         self.lookahead = lookahead
@@ -19,8 +12,6 @@ class ItemLR(P_Item):
 
         for i in range(index):
             self.string += f"{production[i]} "
-
-        self.string += '~'  # separate productions
 
         p_total = len(production)
         for i in range(index, p_total):
@@ -40,12 +31,12 @@ class ItemLR(P_Item):
 class State:
 
     def __init__(self, kernel):
-        self.kernel = kernel
-        self.items = set(kernel)
         self.string = ""
         self.next_states = {}
         self.expected_elements = {}
         self.number = 0
+        self.kernel = kernel
+        self.items = set(kernel)
 
         for item in kernel:
             self.string += f"{item} |"
@@ -69,20 +60,21 @@ class State:
             item = queue.popleft()
             if item.index == len(item.production):
                 continue
-            sym = item.production[item.index]
 
-            if sym in self.expected_elements:
-                self.expected_elements[sym].add(item)
+            element = item.production[item.index]
+
+            if element in self.expected_elements:
+                self.expected_elements[element].add(item)
             else:
-                self.expected_elements[sym] = {item}
+                self.expected_elements[element] = {item}
 
-            if not sym.is_terminal:
-                for i in items[sym]:
+            if not element.is_terminal:
+                for i in items[element]:
                     lookahead = item.lookahead if item.index + \
                                                   1 == len(item.production) else item.production[item.index + 1]
                     new_item = ItemLR(i.production, i.index, lookahead)
                     if new_item not in self.items:
-                        self.add_item(new_item)
+                        self.add_itemLR(new_item)
                         queue.append(new_item)
 
     def go_to(self, states, states_list, initial_items, queue, elements):
@@ -105,23 +97,22 @@ class State:
         self.next_states[elements] = new_state
 
 
-
 class Automata:
 
     def __init__(self, grammar: Grammar):
         self.grammar = grammar
 
-    def build(self):
+    def create(self):
 
-        start = NonTerminal('S')
+        start = NonTerminal('R')
         start += Production([self.grammar.first])
 
         initial_items = {start: [ItemLR(start[0], 0, Terminal('$'))]}
 
-        for non_terminal in self.grammar.Non_Terminals:
+        for non_terminal in self.grammar.get_non_terminals():
             initial_items[non_terminal] = []
             for prod in non_terminal.productions:
-                initial_items[non_terminal].append(P_Item(prod, 0))
+                initial_items[non_terminal].append(ItemLR(prod, 0))
 
         first_el = State(initial_items[start])
 
@@ -134,17 +125,17 @@ class Automata:
             state = queue.popleft()
             state.build(initial_items)
             for sym in state.expected_elements:
-                state.go_to(sym, states_dict, states_list, )
+                state.go_to(sym, states_dict, states_list)
 
         return states_list
 
 
-class TableActionGoTo:
+class Table_Go_To_Action:
     def __init__(self, grammar: Grammar):
         self.grammar = grammar
 
     def build(self):
-        states = Automata(self.grammar).get_states()
+        states = Automata(self.grammar).create()
 
         go_to = []
         action = []
@@ -152,26 +143,20 @@ class TableActionGoTo:
         for state in states:
             state_action = {}
             state_go_to = {}
-
-            for element_next in state.nexts:
-                if element_next.is_terminal:
-                    state_action[element_next.name] = ('S', state.nexts[element_next].number)
-                else:
-                    state_go_to[element_next.name] = state.nexts[element_next].number
-
             lookA_item = {}
+
             for element_item in state.items:
                 if element_item.index == len(element_item.production):
                     if element_item.lookahead in lookA_item:
                         raise Exception('There has been a Reduce-Reduce conflict')
                     lookA_item[element_item.lookahead] = element_item
 
-            for element_lookA in lookA_item:
-                if element_lookA in state_action:
-                    raise Exception('There has been a Shift-Reduce conflict')
-                state_action[element_lookA.name] = ('R', lookA_item[element_lookA].production.id)
-                if element_lookA.name == '$' and lookA_item[element_lookA].production.head.name == 'S':
-                    state_action[element_lookA.name] = ('OK',)
+            for next_element in state.next_states:
+                if next_element.is_terminal:
+                    state_action[next_element.name] = ('R', state.next_states[next_element].number)
+                else:
+                    state_go_to[next_element.name] = state.next_states[next_element].number
+
+            go_to.append(state_go_to)
 
             action.append(state_action)
-            go_to.append(state_go_to)

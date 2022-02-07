@@ -49,6 +49,9 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\HIDE\Battlefield-Simulator\Sim\Entities" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\HIDE\Battlefield-Simulator\Language-Management\Core" />
       <recent name="C:\HIDE\Battlefield-Simulator\Language-Management\Lexer" />
@@ -57,7 +60,7 @@
       <recent name="C:\HIDE\Battlefield-Simulator\Language-Management" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.AAAA">
+  <component name="RunManager" selected="Python.main">
     <configuration name="AAAA" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Battlefield-Simulator" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -102,8 +105,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Battlefield-Simulator" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main" />
         <item itemvalue="Python.AAAA" />
         <item itemvalue="Python.Console" />
       </list>
@@ -122,6 +148,7 @@
       <workItem from="1644129228736" duration="4480000" />
       <workItem from="1644137632107" duration="1184000" />
       <workItem from="1644183263982" duration="7410000" />
+      <workItem from="1644203298039" duration="2921000" />
     </task>
     <servers />
   </component>
@@ -145,22 +172,38 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1644131709288" />
-    <state width="1493" height="210" key="GridCell.Tab.0.bottom" timestamp="1644190572935">
+    <state width="1493" height="261" key="GridCell.Tab.0.bottom" timestamp="1644206243206">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="210" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1644190572935" />
-    <state width="1493" height="210" key="GridCell.Tab.0.center" timestamp="1644190572935">
+    <state width="1493" height="261" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1644206243206" />
+    <state width="1493" height="261" key="GridCell.Tab.0.center" timestamp="1644206243206">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="210" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1644190572935" />
-    <state width="1493" height="210" key="GridCell.Tab.0.left" timestamp="1644190572935">
+    <state width="1493" height="261" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1644206243206" />
+    <state width="1493" height="261" key="GridCell.Tab.0.left" timestamp="1644206243205">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="210" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1644190572935" />
-    <state width="1493" height="210" key="GridCell.Tab.0.right" timestamp="1644190572935">
+    <state width="1493" height="261" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1644206243205" />
+    <state width="1493" height="261" key="GridCell.Tab.0.right" timestamp="1644206243206">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="210" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1644190572935" />
+    <state width="1493" height="261" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1644206243206" />
+    <state width="1493" height="261" key="GridCell.Tab.1.bottom" timestamp="1644206243206">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="261" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1644206243206" />
+    <state width="1493" height="261" key="GridCell.Tab.1.center" timestamp="1644206243206">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="261" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1644206243206" />
+    <state width="1493" height="261" key="GridCell.Tab.1.left" timestamp="1644206243206">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="261" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1644206243206" />
+    <state width="1493" height="261" key="GridCell.Tab.1.right" timestamp="1644206243206">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="261" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1644206243206" />
     <state x="317" y="35" key="SettingsEditor" timestamp="1644130690633">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -172,6 +215,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Battlefield_Simulator$Console.coverage" NAME="Console Coverage Results" MODIFIED="1644186518112" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Visual" />
-    <SUITE FILE_PATH="coverage/Battlefield_Simulator$AAAA.coverage" NAME="AAAA Coverage Results" MODIFIED="1644189954223" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Sim" />
+    <SUITE FILE_PATH="coverage/Battlefield_Simulator$main.coverage" NAME="main Coverage Results" MODIFIED="1644206172454" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Battlefield_Simulator$AAAA.coverage" NAME="AAAA Coverage Results" MODIFIED="1644204620987" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Sim" />
   </component>
 </project>

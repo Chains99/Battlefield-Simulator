@@ -5,7 +5,7 @@ from typing import Dict, List
 
 class FactionBuilder:
     def __init__(self):
-        self.factions = Dict[int, Faction]
+        self.factions = {}
 
     def build_factions(self, soldiers : List[Soldier]):
         for soldier in soldiers:

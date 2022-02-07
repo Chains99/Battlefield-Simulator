@@ -3,7 +3,8 @@ from random import uniform
 
 class Weapon:
 
-    def __init__(self, name, weight, w_effective_range, w_max_range, effective_range_precision, max_range_precision, damage, damage_area, fire_rate, ammunition_capacity, current_ammo, reliability):
+    def __init__(self, name, weight, w_effective_range, w_max_range, effective_range_precision, max_range_precision,
+                 damage, damage_area, fire_rate, ammunition_capacity, current_ammo, reliability):
         self.name = name
         self.weight = weight
         self.w_effective_range = w_effective_range
@@ -19,7 +20,7 @@ class Weapon:
         media = 0
         for item in params:
             media += item
-        return media/len(params)
+        return media / len(params)
 
     # Parametros:
     # distance: distancia hacia el objetivo
@@ -39,7 +40,8 @@ class Weapon:
             else:
                 range_precision = 0
 
-        hit_chance = self._average_hit_chance([affinity, range_precision, s_precision, (1-target_concealment), (1-visibility_impairment)])
+        hit_chance = self._average_hit_chance(
+            [affinity, range_precision, s_precision, (1 - target_concealment), (1 - visibility_impairment)])
         damage = 0
         # Cada disparo capaz de realizar el arma en un turno acierta con la probabilidad: hit_chance
         # Cada disparo tiene una probabilidad (crit_chance) de realizar el doble de dano
@@ -70,7 +72,3 @@ default_weapons = {'Barret': ['Barret', 0.8, 800, 1500, 1, 0.7, 10, 0, 1, 10, 10
                    'Mp5': ['Mp5', 0.8, 300, 1000, 0.7, 0.4, 2, 0, 31, 31, 31, 1],  # sub rifle
                    'Beretta M9': ['Beretta M9', 0.2, 50, 100, 0.9, 0.6, 1, 0, 5, 15, 15, 1]}  # handguns
 # ( name, weight, w_effective_range, w_max_range, effective_range_precision, max_range_precision, damage, damage_area, fire_rate, ammunition_capacity, reliability)
-
-
-
-

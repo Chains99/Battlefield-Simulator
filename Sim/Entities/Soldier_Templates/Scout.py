@@ -1,4 +1,5 @@
-from Sim.Entities.Soldier_Templates import Soldier
+from Sim.Entities import Soldier
+
 
 class Scout(Soldier):
 

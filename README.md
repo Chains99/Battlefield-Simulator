@@ -7,3 +7,7 @@ Se planea incluir en la simulacion elementos realistas que afecten las capacidad
 Dada la escasez de conocimientos de diseño gráfico y disponibilidad de recursos y tiempo, se plantea un programa basado en líneas de comando(tipo consola), las cuales serán la forma del usuario de interactuar a través de los efectivos con el entorno.
 
 Se plantea además realizar un kit de herramientas para el desarrollo de "niveles" en los que se podrian definir sus características permitiéndonos definir el clima, el terreno, la cantidad de efectivos con los que cuenta la IA y sus posiciones en el entorno, entre otras.
+
+
+# Como ejecutarlo:
+[-]djisajsdai

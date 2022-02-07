@@ -17,7 +17,7 @@ class BattleField:
             self.current_state = self.sim.build_initial_state(self.sim.fractions, self.sim.ab.am, soldier_pos)
             self.started = True
 
-        while not self.finish:
+        if self.finish:
 
             next_move = minmax_search(self.sim, self.current_state)
 
@@ -26,8 +26,8 @@ class BattleField:
             self.move_view(next_move)
 
             if self.terminal_state():
-                break
-
+               return True
+        return False
     def move_view(self, move):
 
         if move == self.sim.ab.am.shoot_enemy:

@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+from Tests.Sim_Test.quick_tests import run_test
 
 """  MAIN   """
 
@@ -18,7 +19,7 @@ def execute():
                       expand_y=True,
                       write_only=True, autoscroll=True,
                       auto_refresh=True)],
-        [sg.Push(), sg.Button('Stop', key='Reset', button_color='red'),
+        [sg.Push(),
          sg.Button('Reset', key='Reset', button_color='grey'), sg.Button('Run', key='Run', button_color='green')]
 
     ]
@@ -31,7 +32,8 @@ def execute():
     ]
 
     # Window creation
-    stoped = False
+    runing = False
+    sim = None
     window = sg.Window("Project", layout, size=(1024, 720), finalize=True)  # window creation
     while True:
         event, values = window.read()
@@ -39,19 +41,18 @@ def execute():
         if event == sg.WIN_CLOSED:
             break
 
-        elif event != 'Stop' != 'Run' and stoped:
-            continue
-
         elif event == 'Reset':
-            stoped = False
+            runing = False
             window['Result'].update([])
 
-        elif event == 'Stop':
-            stoped = True
-            continue
+        elif runing and sim != None:
+            while(not sim[0].run_battlefield(sim[1])):
+                pass
+
 
         elif event == 'Run':
-            stoped = False
-            break
-
+            runing = True
+            sim = run_test(window['Result'])
+            while(not sim[0].run_battlefield(sim[1])):
+                pass
     window.close()

@@ -72,7 +72,7 @@ closedStraightBracket_t = Terminal(']', ']')
 # NonTerminals
 statements = NonTerminal('statements')
 statement = NonTerminal('statement')
-comparision = NonTerminal('comparison')
+comparison = NonTerminal('comparison')
 expression = NonTerminal('expression')
 expressions = NonTerminal('expressions')
 assign = NonTerminal('assign')

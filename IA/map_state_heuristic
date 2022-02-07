@@ -1,0 +1,25 @@
+Heuristica estado del mapa:
+
+Valor por Soldado:
+
+(allies/enemies related)
+allies in range: +h_value * allies_count
+enemies in sight: -h_value * enemies_count
+enemies in sight/ within effective range: +h_value * enemies_count
+enemies in sight/ within range: +(h_value * enemies_count)/2
+
+(weapon related)
+current ammo < fire rate: -h_value
+
+weapon damage\ at least 1 enemy in effective range: damage * fire_rate * weapon_aff * h_value
+XOR
+weapon damage\ at least 1 enemy in  range: (damage * fire_rate * h_value * weapon_aff)/2
+
+
+(survival related)
+concealment: +h_con_value * concealment_value
+remaining health: -h_health_value * lost_health
+
+
+
+

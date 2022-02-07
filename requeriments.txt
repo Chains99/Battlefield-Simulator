@@ -1,0 +1,5 @@
+numpy == numpy-1.20.1
+PySimpleGUI==4.56.0
+regex==2022.1.18
+
+

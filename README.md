@@ -9,5 +9,8 @@ Dada la escasez de conocimientos de diseño gráfico y disponibilidad de recurso
 Se plantea además realizar un kit de herramientas para el desarrollo de "niveles" en los que se podrian definir sus características permitiéndonos definir el clima, el terreno, la cantidad de efectivos con los que cuenta la IA y sus posiciones en el entorno, entre otras.
 
 
-# Como ejecutarlo:
-[-]djisajsdai
+## Como ejecutarlo:
+- Instale los paquetes y librerias definidos en requirements.txt.
+- Ejecute la aplicación mediante el comando en consola: python main.py
+- Cualquier cambio que se desee hacer al entorno de la simulación remítase a Tests\Sim_Tests\quick_tests.py donde podrá realizar los cambios.
+- Cualquier duda acerca de las entidades contenidas en la simulación, ver Entidades.pdf 

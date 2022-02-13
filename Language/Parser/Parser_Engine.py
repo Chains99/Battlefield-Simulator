@@ -3,7 +3,7 @@ from collections import deque
 
 
 # ItemLR1 to define items used on LR(1) parsing
-class ItemLR():
+class ItemLR:
     def __init__(self, production, index, lookahead=None):
         super().__init__(production)
         self.string = f"{production.head} --> "

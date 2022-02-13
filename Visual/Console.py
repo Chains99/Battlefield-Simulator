@@ -1,7 +1,17 @@
 import PySimpleGUI as sg
 from Tests.Sim_Test.quick_tests import run_test
+from Language.Lexer.Lexer import lexer
 
 """  MAIN   """
+
+
+def check_filepath(window, filepath):
+    if filepath == "":
+        window['Run'].update(visible=False)
+        window['Run_S'].update(visible=True)
+    else:
+        window['Run'].update(visible=True)
+        window['Run_S'].update(visible=False)
 
 
 def execute():
@@ -10,18 +20,25 @@ def execute():
 
     main_layout = [
         [sg.Text("Code: ")],
-        [sg.Multiline(key="Code", disabled=False, size=(80, 20), font='Courier 8', expand_x=True,
+        [sg.Multiline(key="_Code_", disabled=False, size=(80, 20), font='Courier 8', expand_x=True,
                       expand_y=True,
-                      write_only=True, autoscroll=True,
+                      autoscroll=True,
                       auto_refresh=True)],
+        [sg.Push(),
+         sg.In(size=(25, 1), enable_events=True, key="-LOADDIR-", visible=False),
+         sg.FileBrowse('Load', key='load', button_color='grey', file_types=(("SCR", ".scr"),)),
+                       sg.Button('Run', key='Run', button_color='green', visible=False),
+                       sg.In(size=(25, 1), enable_events=True, key="-SAVEDIR-", visible=False),
+                       sg.SaveAs("Run", key="Run_S", file_types=(("SCR", ".scr"),),
+                   button_color="green"),
+         ],
         [sg.Text("Output: ")],
         [sg.Multiline(key="Result", disabled=True, size=(80, 20), font='Courier 8', expand_x=True,
                       expand_y=True,
                       write_only=True, autoscroll=True,
                       auto_refresh=True)],
         [sg.Push(),
-         sg.Button('Reset', key='Reset', button_color='grey'), sg.Button('Run', key='Run', button_color='green')]
-
+         sg.Button('Reset', key='Reset', button_color='grey')]
     ]
 
     # App Layout
@@ -32,27 +49,55 @@ def execute():
     ]
 
     # Window creation
+    filepath = ""
     runing = False
     sim = None
-    window = sg.Window("Project", layout, size=(1024, 720), finalize=True)  # window creation
+    window = sg.Window("Project", layout, size=(1280, 720), finalize=True)  # window creation
     while True:
         event, values = window.read()
 
         if event == sg.WIN_CLOSED:
             break
 
+        elif event == '-SAVEDIR-':
+            runing = True
+            with open(values['-SAVEDIR-'], 'w', encoding='UTF8') as file:
+                file.write(values["_Code_"])
+                filepath = values['-SAVEDIR-']
+                _lexer = lexer()
+                code = values["_Code_"]
+                tokens = _lexer.get_token_manager('a', code)
+                window['Result'].print(tokens)
+            check_filepath(window, filepath)
+
+
         elif event == 'Reset':
+            check_filepath(window, filepath)
             runing = False
             window['Result'].update([])
 
-        elif runing and sim != None:
-            while(not sim[0].run_battlefield(sim[1])):
-                pass
+        # elif runing and sim != None:
+        #     while(not sim[0].run_battlefield(sim[1])):
+        #         pass
 
+        elif event == "-LOADDIR-":
+            try:
+                with open(values["-LOADDIR-"]) as file:
+                    script = file.read()
+                    window['_Code_'].update(script)
+                    filepath = values["-LOADDIR-"]
+            except:
+                sg.Popup('error')
+            check_filepath(window, filepath)
 
         elif event == 'Run':
-            runing = True
-            sim = run_test(window['Result'])
-            while(not sim[0].run_battlefield(sim[1])):
-                pass
+            check_filepath(window, filepath)
+            #runing = True
+            _lexer = lexer()
+            code = values["_Code_"]
+            tokens = _lexer.get_token_manager('a', values["_Code_"])
+            window['Result'].print(tokens)
+            # sim = run_test(window['Result'])
+            # while(not sim[0].run_battlefield(sim[1])):
+            #     pass
     window.close()

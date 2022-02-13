@@ -16,6 +16,9 @@ class Token:
         self.type = type
         self.location = location
 
+    def __str__(self):
+        return f"({self.value}, {self.type})"
+
 
 class TokenValues:
     # Keywords
@@ -66,6 +69,6 @@ class TokenValues:
 
     #
     Sequence = "Sequence"  # sequence
+
     def __init__(self):
         pass
-

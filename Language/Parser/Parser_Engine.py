@@ -145,11 +145,11 @@ class Table_Go_To_Action:
             state_go_to = {}
             lookA_item = {}
 
-            for element_item in state.items:
-                if element_item.index == len(element_item.production):
-                    if element_item.lookahead in lookA_item:
-                        raise Exception('There has been a Reduce-Reduce conflict')
-                    lookA_item[element_item.lookahead] = element_item
+            # for element_item in state.items:
+            #     if element_item.index == len(element_item.production):
+            #         if element_item.lookahead in lookA_item:
+            #             raise Exception('There has been a Reduce-Reduce conflict')
+            #         lookA_item[element_item.lookahead] = element_item
 
             for next_element in state.next_states:
                 if next_element.is_terminal:

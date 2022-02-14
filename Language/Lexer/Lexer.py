@@ -18,7 +18,8 @@ class lexer():
             ("print", TokenValues.Print),
             ("and", TokenValues.And),
             ("or", TokenValues.Or),
-            ("not", TokenValues.Not)
+            ("not", TokenValues.Not),
+            ("return", TokenValues.Return)
         ]
         Adders.register_keywords(self.analyser, keywords)
 

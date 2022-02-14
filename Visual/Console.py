@@ -5,18 +5,9 @@ from Language.Lexer.Lexer import lexer
 """  MAIN   """
 
 
-def check_filepath(window, filepath):
-    if filepath == "":
-        window['Run'].update(visible=False)
-        window['Run_S'].update(visible=True)
-    else:
-        window['Run'].update(visible=True)
-        window['Run_S'].update(visible=False)
-
-
 def execute():
     sg.theme("dark")
-    menu_def = [['&File', ['&Load']]]
+    menu_def = [['&File', ['&Nothing']]]
 
     main_layout = [
         [sg.Text("Code: ")],
@@ -27,10 +18,10 @@ def execute():
         [sg.Push(),
          sg.In(size=(25, 1), enable_events=True, key="-LOADDIR-", visible=False),
          sg.FileBrowse('Load', key='load', button_color='grey', file_types=(("SCR", ".scr"),)),
-                       sg.Button('Run', key='Run', button_color='green', visible=False),
-                       sg.In(size=(25, 1), enable_events=True, key="-SAVEDIR-", visible=False),
-                       sg.SaveAs("Run", key="Run_S", file_types=(("SCR", ".scr"),),
-                   button_color="green"),
+         sg.In(size=(25, 1), enable_events=True, key="-SAVEDIR-", visible=False),
+         sg.SaveAs("Save", key="Run_S", file_types=(("SCR", ".scr"),),
+                   button_color="blue"),
+         sg.Button('Run', key='Run', button_color='green'),
          ],
         [sg.Text("Output: ")],
         [sg.Multiline(key="Result", disabled=True, size=(80, 20), font='Courier 8', expand_x=True,
@@ -68,11 +59,9 @@ def execute():
                 code = values["_Code_"]
                 tokens = _lexer.get_token_manager('a', code)
                 window['Result'].print(tokens)
-            check_filepath(window, filepath)
 
 
         elif event == 'Reset':
-            check_filepath(window, filepath)
             runing = False
             window['Result'].update([])
 
@@ -88,13 +77,11 @@ def execute():
                     filepath = values["-LOADDIR-"]
             except:
                 sg.Popup('error')
-            check_filepath(window, filepath)
 
         elif event == 'Run':
-            with open(filepath, 'w', encoding='UTF8') as file:
-                file.write(values["_Code_"])
-            check_filepath(window, filepath)
-            #runing = True
+            # with open(filepath, 'w', encoding='UTF8') as file:
+            #     file.write(values["_Code_"])
+            # runing = True
             _lexer = lexer()
             code = values["_Code_"]
             tokens = _lexer.get_token_manager('a', values["_Code_"])

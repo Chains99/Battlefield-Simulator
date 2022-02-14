@@ -27,6 +27,7 @@ class TokenValues:
     Map = "Map"
     If = "If"
     Else = "Else"
+    Return = "Return"
 
     # Arithmetic Operators
     Add = "Addition"  # +

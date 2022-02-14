@@ -52,7 +52,7 @@ def execute():
     filepath = ""
     runing = False
     sim = None
-    window = sg.Window("Project", layout, size=(1280, 720), finalize=True)  # window creation
+    window = sg.Window("Project", layout, size=(1366, 768), finalize=True)  # window creation
     while True:
         event, values = window.read()
 
@@ -91,6 +91,8 @@ def execute():
             check_filepath(window, filepath)
 
         elif event == 'Run':
+            with open(filepath, 'w', encoding='UTF8') as file:
+                file.write(values["_Code_"])
             check_filepath(window, filepath)
             #runing = True
             _lexer = lexer()

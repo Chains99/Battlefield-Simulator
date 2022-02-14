@@ -51,19 +51,14 @@ def execute():
             break
 
         elif event == '-SAVEDIR-':
-            runing = True
             with open(values['-SAVEDIR-'], 'w', encoding='UTF8') as file:
                 file.write(values["_Code_"])
                 filepath = values['-SAVEDIR-']
-                _lexer = lexer()
-                code = values["_Code_"]
-                tokens = _lexer.get_token_manager('a', code)
-                window['Result'].print(tokens)
 
 
         elif event == 'Reset':
             runing = False
-            window['Result'].update([])
+            window['Result'].update("")
 
         # elif runing and sim != None:
         #     while(not sim[0].run_battlefield(sim[1])):

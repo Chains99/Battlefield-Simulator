@@ -3,6 +3,92 @@ from Language.Core.Core import ErrorCode
 from Language.Lexer.Token import Token, TokenType
 
 
+class token_reader:
+    def __init__(self, file_name, code):
+        self.file_name = file_name
+        self.code = code
+        self.lastLB = -1
+        self.pos = 0
+        self.line = 1
+
+    def get_codelocation(self):
+        return Code_Location(self.file_name, self.line, self.pos - self.lastLB)
+
+    def peek(self):
+        if (self.pos < 0 or self.pos >= len(self.code)):
+            return
+        return self.code[self.pos]
+
+    def eof(self):
+        return self.pos >= len(self.code)
+
+    def eol(self):
+        return self.eof() or self.code[self.pos] == '\n'
+
+    def ends_with(self, prefix):
+        if self.pos + len(prefix) > len(self.code):
+            return False
+        for i in range(0, len(prefix)):
+            if self.code[self.pos + i] != prefix[i]:
+                return False
+        return True
+
+    def read_any(self):
+        if self.eof:
+            pass
+
+        if self.eof():
+            self.line += 1
+            self.lastLB = self.pos
+        self.pos += 1
+        return self.code[self.pos - 1]
+
+    def read_blank(self):
+        if str.isspace(self.peek()):
+            self.read_any()
+            return True
+        return False
+
+    def read_until(self, end, allowLB, text):
+        text[0] = ""
+        while not self.match(end):
+            if not allowLB and (self.eof() or self.eol()):
+                return False
+            text[0] += self.read_any()
+        return True
+
+    def match(self, prefix):
+        if self.ends_with(prefix):
+            self.pos += len(prefix)
+            return True
+        return False
+
+    def is_valid_character(self, char, is_first_char):
+        return char == '_' or (str.isalpha(char) if is_first_char else str.isalnum(char))
+
+    def read_number(self, number):
+        number[0] = ""
+        while not self.eol() and str.isnumeric(self.peek()):
+            number[0] += self.read_any()
+        if (not self.eol() and self.match('.')):
+            number[0] += '.'
+            while not self.eol() and str.isdigit(self.peek()):
+                number[0] += self.read_any()
+        if len(number[0]) == 0:
+            return False
+
+        while not self.eol() and str.isalnum(self.peek()):
+            number[0] += self.read_any()
+        return len(number[0]) > 0
+
+    def read_id(self, id):
+        id[0] = ""
+        while not self.eol() and self.is_valid_character(self.peek(), len(id[0]) == 0):
+            id[0] += self.read_any()
+        return len(id) > 0
+
+
+
 class LexicalAnalyzer:
     def __init__(self):
         self.operators = {}
@@ -40,10 +126,10 @@ class LexicalAnalyzer:
         return False
 
     def match_text(self, stream, tokens, errors):
-        for start in sorted(self.comments.keys(), key=lambda start: len(start), reverse=True):
+        for start in sorted(self.texts.keys(), key=lambda start: len(start), reverse=True):
             text = [""]
             if stream.match(start):
-                if not stream.ReadUntil(self.texts.get(start), self.allowLB.get(start), text):
+                if not stream.read_until(self.texts.get(start), self.allowLB.get(start), text):
                     errors.append(CompilingError(stream.location, ErrorCode.expected, self.comments.get(start)))
                 tokens.append(Token(TokenType.Text, text, stream.get_codelocation))
                 return True
@@ -56,126 +142,43 @@ class LexicalAnalyzer:
                 return True
         return False
 
-    class token_reader:
-        def __init__(self, file_name, code):
-            self.file_name = file_name
-            self.code = code
-            self.lastLB = -1
-            self.pos = 0
-            self.line = 1
 
-        def get_codelocation(self):
-            return Code_Location(self.file_name, self.line, self.pos - self.lastLB)
-
-        def peek(self):
-            if (self.pos < 0 or self.pos >= len(self.code)):
-                return
-            return self.code[self.pos]
-
-        def eof(self):
-            return self.pos >= len(self.code)
-
-        def eol(self):
-            return self.eof() or self.code[self.pos] == '\n'
-
-        def ends_with(self, prefix):
-            if self.pos + len(prefix) > len(self.code):
-                return False
-            for i in range(0, len(prefix)):
-                if self.code[self.pos + i] != prefix[i]:
-                    return False
-            return True
-
-        def read_any(self):
-            if self.eof:
-                pass
-
-            if self.eof():
-                self.line += 1
-                self.lastLB = self.pos
-            self.pos += 1
-            return self.code[self.pos - 1]
-
-        def read_blank(self):
-            if str.isspace(self.peek()):
-                self.read_any()
-                return True
-            return False
-
-        def read_until(self, end, allowLB, text):
-            text[0] = ""
-            while not self.match(end):
-                if not allowLB and (self.eof() or self.eol()):
-                    return False
-                text[0] += self.read_any()
-            return True
-
-        def match(self, prefix):
-            if self.ends_with(prefix):
-                self.pos += len(prefix)
-                return True
-            return False
-
-        def is_valid_character(self, char, is_first_char):
-            return char == '_' or (str.isalpha(char) if is_first_char else str.isalnum(char))
-
-        def read_number(self, number):
-            number[0] = ""
-            while not self.eol() and str.isnumeric(self.peek()):
-                number[0] += self.read_any()
-            if (not self.eol() and self.match('.')):
-                number[0] += '.'
-                while not self.eol() and str.isdigit(self.peek()):
-                    number[0] += self.read_any()
-            if len(number[0]) == 0:
-                return False
-
-            while not self.eol() and str.isalnum(self.peek()):
-                number[0] += self.read_any()
-
-            return len(number[0]) > 0
-
-        def read_id(self, id):
-            id[0] = ""
-            while not self.eol() and self.is_valid_character(self.peek(), len(id[0]) == 0):
-                id[0] += self.read_any()
-            return len(id) > 0
 
     def get_tokens(self, file_name, code, errors):
-        tokens = []
-        stream = self.token_reader(file_name, code)
+            tokens = []
+            stream = token_reader(file_name, code)
 
-        while not stream.eof():
-            element = [""]
+            while not stream.eof():
+                element = [""]
 
-            if stream.read_blank():
-                continue
+                if stream.read_blank():
+                    continue
 
-            elif self.match_symbol(stream, tokens):
-                continue
+                elif self.match_symbol(stream, tokens):
+                    continue
 
-            elif self.match_text(stream, tokens, errors):
-                continue
+                elif self.match_text(stream, tokens, errors):
+                    continue
 
-            elif self.match_comment(stream, errors):
-                continue
+                elif self.match_comment(stream, errors):
+                    continue
 
-            if stream.read_number(element):
-                number = 0
-                if not element[0].replace('.', '', 1).isdigit():
-                    errors.Add(CompilingError(stream.get_codelocation(), ErrorCode.invalid, "Number format"))
-                tokens.append(Token(TokenType.Number, float(element[0]),
-                                    stream.get_codelocation()))
-                continue
-
-            if stream.read_id(element):
-                if self.keywordsDic.get(element[0]) is not None:
-                    tokens.append(Token(TokenType.Keyword, self.keywordsDic.get(element[0]),
+                if stream.read_number(element):
+                    number = 0
+                    if not element[0].replace('.', '', 1).isdigit():
+                        errors.Add(CompilingError(stream.get_codelocation(), ErrorCode.invalid, "Number format"))
+                    tokens.append(Token(TokenType.Number, float(element[0]),
                                         stream.get_codelocation()))
-                else:
-                    tokens.append(Token(TokenType.Identifier, element[0], stream.get_codelocation()))
-                continue
+                    continue
 
-            unknown_str = stream.read_any()
-            errors.Add(CompilingError(stream.get_codelocation(), ErrorCode.unknown, unknown_str))
-        return tokens
+                if stream.read_id(element):
+                    if self.keywordsDic.get(element[0]) is not None:
+                        tokens.append(Token(TokenType.Keyword, self.keywordsDic.get(element[0]),
+                                            stream.get_codelocation()))
+                    else:
+                        tokens.append(Token(TokenType.Identifier, element[0], stream.get_codelocation()))
+                    continue
+
+                unknown_str = stream.read_any()
+                errors.Add(CompilingError(stream.get_codelocation(), ErrorCode.unknown, unknown_str))
+            return tokens

@@ -5,6 +5,18 @@ from Language.Lexer.Lexer import lexer
 """  MAIN   """
 
 
+def run(runing, window, btf):
+    # si esta corriendo la simulcion ejecutamos un paso
+    if runing[0]:
+        # si el battlefield no ha sido creado, lo creamos
+        if btf[0] is None:
+            btf[0] = run_test(window['Result'])
+        finished = btf[0][0].run_battlefield(btf[1])
+        # comprobamos si termino la simulacion
+        if finished:
+            runing[0] = False
+
+
 def execute():
     sg.theme("dark")
     menu_def = [['&File', ['&Nothing']]]
@@ -41,11 +53,12 @@ def execute():
 
     # Window creation
     filepath = ""
-    runing = False
-    sim = None
+    runing = [False]
+    btf = [None]
     window = sg.Window("Project", layout, size=(1366, 768), finalize=True)  # window creation
+
     while True:
-        event, values = window.read()
+        event, values = window.read(timeout=100)
 
         if event == sg.WIN_CLOSED:
             break
@@ -57,7 +70,8 @@ def execute():
 
 
         elif event == 'Reset':
-            runing = False
+            runing = [False]
+            btf = [None]
             window['Result'].update("")
 
         # elif runing and sim != None:
@@ -73,15 +87,16 @@ def execute():
             except:
                 sg.Popup('error')
 
+        elif event == '__TIMEOUT__':
+            if runing[0]:
+                run(runing, window, btf)
+
         elif event == 'Run':
-            # with open(filepath, 'w', encoding='UTF8') as file:
-            #     file.write(values["_Code_"])
-            # runing = True
-            _lexer = lexer()
-            code = values["_Code_"]
-            tokens = _lexer.get_token_manager('a', values["_Code_"])
+            # mandamos a correr el proyecto(test por ahora)
+            # if not runing[0]:
+            #     runing[0] = True
+            #     run(runing, window, btf)
+            lex = lexer()
+            tokens = lex.get_token_manager("file", values['_Code_'])
             window['Result'].print(tokens)
-            # sim = run_test(window['Result'])
-            # while(not sim[0].run_battlefield(sim[1])):
-            #     pass
     window.close()

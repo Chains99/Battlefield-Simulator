@@ -19,7 +19,11 @@ class lexer():
             ("and", TokenValues.And),
             ("or", TokenValues.Or),
             ("not", TokenValues.Not),
-            ("return", TokenValues.Return)
+            ("return", TokenValues.Return),
+            ("Number", TokenValues.Number),
+            ("True", TokenValues._True),
+            ("False", TokenValues._False),
+            ("String", TokenValues.Number)
         ]
         Adders.register_keywords(self.analyser, keywords)
 

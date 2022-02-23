@@ -1,3 +1,5 @@
+from collections import deque
+
 from Language.Core.Core import CompilingError, Code_Location
 from Language.Core.Core import ErrorCode
 from Language.Lexer.Token import Token, TokenType
@@ -88,7 +90,6 @@ class token_reader:
         return len(id) > 0
 
 
-
 class LexicalAnalyzer:
     def __init__(self):
         self.operators = {}
@@ -125,60 +126,58 @@ class LexicalAnalyzer:
                 return True
         return False
 
-    def match_text(self, stream, tokens, errors):
+    def match_text(self, stream, tokens: deque, errors):
         for start in sorted(self.texts.keys(), key=lambda start: len(start), reverse=True):
             text = [""]
             if stream.match(start):
                 if not stream.read_until(self.texts.get(start), self.allowLB.get(start), text):
                     errors.append(CompilingError(stream.location, ErrorCode.expected, self.comments.get(start)))
-                tokens.append(Token(TokenType.Text, text, stream.get_codelocation))
+                tokens.append(Token("Text", text, TokenType.Text, stream.get_codelocation))
                 return True
         return False
 
-    def match_symbol(self, stream, tokens):
+    def match_symbol(self, stream, tokens: deque):
         for op in sorted(self.operators.keys(), key=lambda op: len(op), reverse=True):
             if stream.match(op):
-                tokens.append(Token(TokenType.Symbol, self.operators.get(op), stream.get_codelocation))
+                tokens.append(Token(self.operators.get(op), op, TokenType.Symbol, stream.get_codelocation))
                 return True
         return False
 
-
-
     def get_tokens(self, file_name, code, errors):
-            tokens = []
-            stream = token_reader(file_name, code)
+        tokens = deque()
+        stream = token_reader(file_name, code)
 
-            while not stream.eof():
-                element = [""]
+        while not stream.eof():
+            element = [""]
 
-                if stream.read_blank():
-                    continue
+            if stream.read_blank():
+                continue
 
-                elif self.match_symbol(stream, tokens):
-                    continue
+            elif self.match_symbol(stream, tokens):
+                continue
 
-                elif self.match_text(stream, tokens, errors):
-                    continue
+            elif self.match_text(stream, tokens, errors):
+                continue
 
-                elif self.match_comment(stream, errors):
-                    continue
+            elif self.match_comment(stream, errors):
+                continue
 
-                if stream.read_number(element):
-                    number = 0
-                    if not element[0].replace('.', '', 1).isdigit():
-                        errors.Add(CompilingError(stream.get_codelocation(), ErrorCode.invalid, "Number format"))
-                    tokens.append(Token(TokenType.Number, float(element[0]),
+            elif stream.read_number(element):
+                number = 0
+                if not element[0].replace('.', '', 1).isdigit():
+                    errors.Add(CompilingError(stream.get_codelocation(), ErrorCode.invalid, "Number format"))
+                tokens.append(Token("Number", element[0], TokenType.Number,
+                                    stream.get_codelocation()))
+                continue
+
+            elif stream.read_id(element):
+                if self.keywordsDic.get(element[0]) is not None:
+                    tokens.append(Token(self.keywordsDic.get(element[0]), element[0], TokenType.Keyword,
                                         stream.get_codelocation()))
-                    continue
+                else:
+                    tokens.append(Token('Identifier', element[0], TokenType.Identifier, stream.get_codelocation()))
+                continue
 
-                if stream.read_id(element):
-                    if self.keywordsDic.get(element[0]) is not None:
-                        tokens.append(Token(TokenType.Keyword, self.keywordsDic.get(element[0]),
-                                            stream.get_codelocation()))
-                    else:
-                        tokens.append(Token(TokenType.Identifier, element[0], stream.get_codelocation()))
-                    continue
-
-                unknown_str = stream.read_any()
-                errors.Add(CompilingError(stream.get_codelocation(), ErrorCode.unknown, unknown_str))
-            return tokens
+            unknown_str = stream.read_any()
+            errors.Add(CompilingError(stream.get_codelocation(), ErrorCode.unknown, unknown_str))
+        return tokens

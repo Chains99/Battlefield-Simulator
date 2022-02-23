@@ -11,9 +11,10 @@ class TokenType(enum.Enum):
 
 
 class Token:
-    def __init__(self, type, value, location):
-        self.value = value
+    def __init__(self, value, lexeme, type, location):
         self.type = type
+        self.value = value
+        self.lexeme = lexeme
         self.location = location
 
     def __str__(self):
@@ -22,12 +23,21 @@ class Token:
 
 class TokenValues:
     # Keywords
-    Soldier = "Soldier"
-    Weapon = "Weapon"
+    Def = "Def"
     Map = "Map"
+    Return = "Return"
     If = "If"
     Else = "Else"
-    Return = "Return"
+    While = "While"
+
+    # Types
+    Soldier = "Soldier"
+    Weapon = "Weapon"
+    Number = "Number"
+    String = "String"
+    Bool = "Bool"
+    _True = "True"
+    _False = "False"
 
     # Arithmetic Operators
     Add = "Addition"  # +
@@ -69,7 +79,7 @@ class TokenValues:
     Print = "Print"  # print
 
     #
-    Sequence = "Sequence"  # sequence
+    List = "List"  # sequence
 
     def __init__(self):
         pass

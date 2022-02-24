@@ -1,4 +1,9 @@
 import PySimpleGUI as sg
+
+from language.grammar.grammar import Grammar
+from language.lexer.Token import Token, TokenType
+from language.parser import parser
+from language.parser.lr1_parser import LR1Parser
 from tests.Sim_Test.quick_tests import run_test
 from language.lexer.Lexer import lexer
 
@@ -96,7 +101,15 @@ def execute():
             # if not runing[0]:
             #     runing[0] = True
             #     run(runing, window, btf)
+
+            #tokenizing
             lex = lexer()
             tokens = lex.get_token_manager("file", values['_Code_'])
+            tokens += Token("EOF", "EOF", TokenType.EOF)
+
+            #parsing
+            grammar = Grammar([])
+            parser = LR1Parser(grammar)
+            ast = parser.parse(tokens)
             window['Result'].print(tokens)
     window.close()

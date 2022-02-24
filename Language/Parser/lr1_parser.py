@@ -1,7 +1,8 @@
 from copy import error
+from lib2to3.pgen2 import grammar
 from Language.Lexer.Token import Token
 from typing import Set,Dict,List,Tuple,Union,Deque
-from Language.Grammar.grammar import Grammar,Production,Symbol,NonTerminal, Terminal, bfs_start
+from Language.Grammar.grammar import Grammar,Production,Symbol,NonTerminal, Terminal
 from Language.Parser.lr1_item import LR1Item
 import json
 
@@ -67,9 +68,15 @@ class LR1Table:
         self._table = lr1_table
 
     def extend_grammar(self):
-        new_production=Production([bfs_start])
-
+        new_production=Production([self.grammar.start])
+        a=self.grammar.start.productions
+        print(a)
+        b=a[0]
+        c=b.ast_node_builder
+        
+        new_production.set_builder(self.grammar.start.productions[0].get_ast_node_builder())
         new_non_terminal=NonTerminal('S', [new_production])
+        self.grammar.start=new_non_terminal
 
     
     def get_all_lr1_items(self) ->List[LR1Item]:

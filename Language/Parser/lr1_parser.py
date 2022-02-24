@@ -9,15 +9,15 @@ from typing import List, Deque, Tuple
 class LR1Parser(Parser):
     def __init__(self, grammar: Grammar):
         super().__init__(grammar)
-        self.table=LR1Table(grammar)
+        self._table=LR1Table(grammar)
 
     def parse(self, token_list: Deque[Token]):
-        table = self.lr1_table
+        table=self._table
         stack: List[Tuple[Symbol, int]] = []
         i = 0
-        while len(token_list)>0:
-            token = token_list[i]
 
+        while i < len(token_list):
+            token = token_list[i]
             current_state = stack[-1][1] if stack else 0
             table_val = table[current_state, token.type]
             
@@ -38,7 +38,7 @@ class LR1Parser(Parser):
 
                 # Apply reduction
                 new_head = reduce_prod.head.copy()
-                new_head.set_ast(reduce_prod.build_ast(items))
+                new_head.set_ast(reduce_prod.get_ast_node_builder(items))
 
 
                 # Check next state

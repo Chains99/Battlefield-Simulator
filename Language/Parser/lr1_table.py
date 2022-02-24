@@ -1,5 +1,5 @@
 from lib2to3.pgen2 import grammar
-from typing import Set,Dict,List
+from typing import Set,Dict,List,Tuple,Union
 from Language.Grammar.grammar import Grammar,Production,Symbol,NonTerminal, Terminal, bfs_start
 from Language.Parser.lr1_item import LR1Item
 import json
@@ -13,7 +13,7 @@ class LR1Table:
         self.dict_states_id: Dict[int,List[LR1Item]]={}
         self.dict_states_hash={}
         self.dict_clousure_hash={}
-        self.dict_lr1_items={}
+        self.dict_lr1_items: Dict[Production, int, Terminal]={}
         self.extend_grammar()
 
         return self.build_table()
@@ -24,12 +24,53 @@ class LR1Table:
         self.follow=self.calculate_follow()
         lr1_items=self.get_all_lr1_items()
 
+        self._lr_items = {}
+        for item in lr1_items:
+            for follow in self._follow[item.prod.head]:
+                new_lr_item = LR1Item(item.prod, item.dot_pos, follow)
+                self._lr_items[item.prod, item.dot_pos, follow] = new_lr_item
+
+        init_state = self._closure(
+            {
+                self._lr_items[
+                    self.grammar.start_expr.prod_0,
+                    0,
+                    self._follow[self.grammar.start_expr][0],
+                ]
+            }
+        )
+
+        self._states_by_id = {0: init_state}
+
+        lr1_table: Dict[Tuple[int, str], Union[str, int, Production]] = {}
+        current_state = 0
+        while current_state < len(self._states_by_id):
+            state = self.dict_states_id[current_state]
+            for item in state:
+                if item.get_symbol_at_dot() is None:
+                    val = "OK" if item.production.head.name == "S`" else item.prod
+                    table_key = (current_state, item.lookahead.name)
+                else:
+                    val = self.go_to(current_state, item.get_symbol_at_dot())
+                    table_key = (current_state, item.get_symbol_at_dot)
+
+                cont_val = lr1_table.get(table_key, None)
+
+                if cont_val is not None and cont_val != val:
+                    raise ValueError(
+                        f"LR1 table already contains "
+                        f"{table_key} -> {cont_val.__repr__()}  *** {val.__repr__()}"
+                    )
+                lr1_table[table_key] = val
+            current_state += 1
+        self._table = lr1_table
+
     def extend_grammar():
         new_production=Production(bfs_start)
         new_non_terminal=NonTerminal('S', list(new_production))
 
     
-    def get_all_lr1_items(self):
+    def get_all_lr1_items(self) ->List[LR1Item]:
         lr1_items = []
         self._item_prods = {}
         for prod in self.grammar.get_productions():
@@ -64,7 +105,7 @@ class LR1Table:
                         break
         return first       
 
-    def calculate_follow(self):
+    def calculate_follow(self,first=None):
         if first is None:
             first = self.calculate_first()
 
@@ -131,8 +172,15 @@ class LR1Table:
         self.dict_clousure_hash[hash] = closure
         return closure
 
-    def is_in_first(self):
-        pass
+    def is_in_first(self, terminal,symbols):
+        for symbol in symbols:
+            if isinstance(symbol, Symbol) and symbol.is_terminal:
+                return symbol == terminal
+            if terminal in self.first[symbol]:
+                return True
+            if "EPS" not in self.first[symbol]:
+                break
+        return False
 
     def get_items_hash(self,items:Set[LR1Item]):
         return sum(hash(i) for i in items)

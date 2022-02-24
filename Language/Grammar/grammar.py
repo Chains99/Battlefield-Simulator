@@ -1,12 +1,7 @@
 from typing import List, Dict, Set, Optional, Callable
 from abc import ABCMeta, abstractmethod
 
-from language.parser.ast import build_statements, build_simple_statements, build_break, build_continue, \
-    build_ternary_expression, build_expressions_1, build_expressions_2, build_func_def_1, build_func_def_2, \
-    build_if_def_1, build_if_def_2, build_if_def_3, build_elif_def_1, build_elif_def_2, build_elif_def_3, \
-    build_else_def, build_while_def, build_and, build_or, build_inversion, build_comparison, build_aritmetic_expression, \
-    build_basic_1, build_basic_2, build_basic_3, build_Variable, build_Bool, build_None, build_Number, build_list_1, \
-    build_list_2
+from Language.Parser.ast import *
 
 
 class Symbol(metaclass=ABCMeta):
@@ -50,7 +45,7 @@ class Production:
     def __init__(self, symbols: List[Symbol], ast_node_builder=None):
         self.head: NonTerminal = None
         self.symbols: List[Symbol] = symbols
-        ast_node_builder = ast_node_builder
+        self.ast_node_builder = ast_node_builder
 
     def get_terminals(self) -> Set[Terminal]:
         terminals: Set = set()
@@ -68,7 +63,7 @@ class Production:
         return self.ast_node_builder
 
     def copy(self):
-        pass
+        return Production(self.symbols,self.ast_node_builder)
 
 
 class NonTerminal(Symbol):
@@ -86,6 +81,9 @@ class NonTerminal(Symbol):
 
     def set_ast(self, ast):
         self._ast = ast
+
+    def copy(self):
+        return NonTerminal(self.name,self.productions)
 
 
 class Grammar:

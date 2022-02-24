@@ -103,8 +103,8 @@ def execute():
 
             #tokenizing
             lex = lexer()
-            tokens = lex.get_token_manager("file", values['_Code_'])
-            tokens += Token("EOF", "EOF", TokenType.EOF)
+            tokens = lex.get_token_manager("file", values['_Code_']).tokens
+            tokens.append(Token("EOF", "EOF", TokenType.EOF))
 
             #parsing
             grammar = Grammar(non_term_heads)

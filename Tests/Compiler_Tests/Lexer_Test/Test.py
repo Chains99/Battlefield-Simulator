@@ -1,4 +1,4 @@
-from language.lexer.Lexer import lexer
+from Language.lexer.Lexer import lexer
 
 code = "a = 5+4;"
 lex = lexer()

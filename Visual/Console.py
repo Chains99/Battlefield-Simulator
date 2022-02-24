@@ -3,22 +3,21 @@ import PySimpleGUI as sg
 from Language.Grammar.grammar import Grammar,non_term_heads
 from Language.Lexer.Token import Token, TokenType
 from Language.Parser.lr1_parser import LR1Parser
-from Tests.Sim_Test.quick_tests import run_test
 from Language.Lexer.Lexer import lexer
 
 """  MAIN   """
 
 
-def run(runing, window, btf):
-    # si esta corriendo la simulcion ejecutamos un paso
-    if runing[0]:
-        # si el battlefield no ha sido creado, lo creamos
-        if btf[0] is None:
-            btf[0] = run_test(window['Result'])
-        finished = btf[0][0].run_battlefield(btf[1])
-        # comprobamos si termino la simulacion
-        if finished:
-            runing[0] = False
+# def run(runing, window, btf):
+#     # si esta corriendo la simulcion ejecutamos un paso
+#     if runing[0]:
+#         # si el battlefield no ha sido creado, lo creamos
+#         if btf[0] is None:
+#             btf[0] = run_test(window['Result'])
+#         finished = btf[0][0].run_battlefield(btf[1])
+#         # comprobamos si termino la simulacion
+#         if finished:
+#             runing[0] = False
 
 
 def execute():
@@ -93,7 +92,8 @@ def execute():
 
         elif event == '__TIMEOUT__':
             if runing[0]:
-                run(runing, window, btf)
+                pass
+                # run(runing, window, btf)
 
         elif event == 'Run':
             # mandamos a correr el proyecto(test por ahora)

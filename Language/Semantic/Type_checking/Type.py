@@ -1,4 +1,4 @@
-from language.semantic.Type_checking.context import Context
+from Language.semantic.Type_checking.context import Context
 
 
 class Type:

@@ -1,4 +1,4 @@
-from Sim.Entities import Soldier
+from sim.Entities import Soldier
 
 
 class Scout(Soldier):

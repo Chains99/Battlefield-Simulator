@@ -1,6 +1,6 @@
-from Sim.A_star.A_star import a_star
-from Sim.A_star.A_star import euclidean_distance
-from Sim.Entities.Utilities import Sight
+from sim.A_star.A_star import a_star
+from sim.A_star.A_star import euclidean_distance
+from sim.Entities.Utilities import Sight
 
 
 class Soldier:

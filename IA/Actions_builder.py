@@ -1,5 +1,5 @@
 from IA.Action_manager import ActionManager
-from Sim.A_star.A_star import euclidean_distance
+from sim.A_star.A_star import euclidean_distance
 from IA.Faction import Faction
 
 

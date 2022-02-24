@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
-from Tests.Sim_Test.quick_tests import run_test
-from Language.Lexer.Lexer import lexer
+from tests.Sim_Test.quick_tests import run_test
+from language.lexer.Lexer import lexer
 
 """  MAIN   """
 

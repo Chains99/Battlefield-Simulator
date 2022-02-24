@@ -228,7 +228,7 @@ def build_script_file(tokens: List[str], nodes: List):
     nodes.append(script)
 
 
-def build_statements1(tokens: List[str], nodes: List):
+def build_statements(tokens: List[str], nodes: List):
     statements = nodes.pop()
     statement = nodes.pop()
     statements = Statements(statement, statements)
@@ -250,20 +250,20 @@ def build_break(tokens: List[str], nodes: List):
     nodes.append(Break())
 
 
-def build_params1(tokens: List[str], nodes: List):
+def build_params_1(tokens: List[str], nodes: List):
     params = nodes.pop()
     type = nodes.pop()
     params = Params(type.type, tokens[len(tokens) - 2], params)
     nodes.append(params)
 
 
-def build_params2(tokens: List[str], nodes: List):
+def build_params_2(tokens: List[str], nodes: List):
     type = nodes.pop()
     params = Params(type.type, tokens[len(tokens) - 1], None)
     nodes.append(params)
 
 
-def build_func_def1(tokens: List[str], nodes: List):
+def build_func_def_1(tokens: List[str], nodes: List):
     name = tokens[len(tokens) - 8]
     block = nodes.pop()
     params = get_params([], nodes.pop())
@@ -275,7 +275,7 @@ def build_func_def1(tokens: List[str], nodes: List):
     nodes.append(func_def)
 
 
-def build_func_def2(tokens: List[str], nodes: List):
+def build_func_def_2(tokens: List[str], nodes: List):
     name = tokens[len(tokens) - 6]
     block = nodes.pop()
     return_type = nodes.pop()
@@ -297,7 +297,7 @@ def build_continue(tokens: List[str], nodes: List):
     nodes.append(Continue())
 
 
-def build_if_def1(tokens: List[str], nodes: List):
+def build_if_def_1(tokens: List[str], nodes: List):
     elif_def = nodes.pop()
     block = nodes.pop()
     expression = nodes.pop()
@@ -310,7 +310,7 @@ def build_if_def1(tokens: List[str], nodes: List):
     nodes.append(branch)
 
 
-def build_if_def2(tokens: List[str], nodes: List):
+def build_if_def_2(tokens: List[str], nodes: List):
     else_def = nodes.pop()
     block = nodes.pop()
     expression = nodes.pop()
@@ -321,7 +321,7 @@ def build_if_def2(tokens: List[str], nodes: List):
     nodes.append(branch)
 
 
-def build_if_def3(tokens: List[str], nodes: List):
+def build_if_def_3(tokens: List[str], nodes: List):
     block = nodes.pop()
     expression = nodes.pop()
 
@@ -331,7 +331,7 @@ def build_if_def3(tokens: List[str], nodes: List):
     nodes.append(branch)
 
 
-def build_elif_def1(tokens: List[str], nodes: List):
+def build_elif_def_1(tokens: List[str], nodes: List):
     elif_def = nodes.pop()
     block = nodes.pop()
     expression = nodes.pop()
@@ -342,7 +342,7 @@ def build_elif_def1(tokens: List[str], nodes: List):
     nodes.append(elif_def)
 
 
-def build_elif_def2(tokens: List[str], nodes: List):
+def build_elif_def_2(tokens: List[str], nodes: List):
     else_def = nodes.pop()
     block = nodes.pop()
     expression = nodes.pop()
@@ -353,7 +353,7 @@ def build_elif_def2(tokens: List[str], nodes: List):
     nodes.append(elif_def)
 
 
-def build_elif_def3(tokens: List[str], nodes: List):
+def build_elif_def_3(tokens: List[str], nodes: List):
     block = nodes.pop()
     expression = nodes.pop()
 
@@ -396,25 +396,25 @@ def build_assign(tokens: List[str], nodes: List):
     nodes.append(assign)
 
 
-def build_return1(tokens: List[str], nodes: List):
+def build_return_1(tokens: List[str], nodes: List):
     expression = nodes.pop()
     return_stm = Return(expression)
     nodes.append(return_stm)
 
 
-def build_return2(tokens: List[str], nodes: List):
+def build_return_2(tokens: List[str], nodes: List):
     return_stm = Return(None)
     nodes.append(return_stm)
 
 
-def build_expressions1(tokens: List[str], nodes: List):
+def build_expressions_1(tokens: List[str], nodes: List):
     expressions = nodes.pop()
     expression = nodes.pop()
     expressions = Expressions(expression, expressions)
     nodes.append(expressions)
 
 
-def build_expressions2(tokens: List[str], nodes: List):
+def build_expressions_2(tokens: List[str], nodes: List):
     expression = nodes.pop()
     expressions = Expressions(expression, None)
     nodes.append(expressions)
@@ -430,7 +430,7 @@ def build_ternary_expression(tokens: List[str], nodes: List):
     nodes.append(ternexp)
 
 
-def build_disjunction(tokens: List[str], nodes: List):
+def build_or(tokens: List[str], nodes: List):
     right = nodes.pop()
     left = nodes.pop()
 
@@ -439,7 +439,7 @@ def build_disjunction(tokens: List[str], nodes: List):
     nodes.append(binexp)
 
 
-def build_conjuction(tokens: List[str], nodes: List):
+def build_and(tokens: List[str], nodes: List):
     right = nodes.pop()
     left = nodes.pop()
 
@@ -473,7 +473,7 @@ def build_aritmetic_expression(tokens: List[str], nodes: List):
     nodes.append(arith_exp)
 
 
-def build_args1(tokens: List[str], nodes: List):
+def build_args_1(tokens: List[str], nodes: List):
     exp = nodes.pop()
     name = tokens[len(tokens) - 1]
 
@@ -482,7 +482,7 @@ def build_args1(tokens: List[str], nodes: List):
     nodes.append(args)
 
 
-def build_args2(tokens: List[str], nodes: List):
+def build_args_2(tokens: List[str], nodes: List):
     expressions = nodes.pop()
     exp = nodes.pop()
 
@@ -491,7 +491,7 @@ def build_args2(tokens: List[str], nodes: List):
     nodes.append(args)
 
 
-def build_args3(tokens: List[str], nodes: List):
+def build_args_3(tokens: List[str], nodes: List):
     exp = nodes.pop()
 
     args = Arguments(exp, None, [])
@@ -499,7 +499,7 @@ def build_args3(tokens: List[str], nodes: List):
     nodes.append(args)
 
 
-def build_args4(tokens: List[str], nodes: List):
+def build_args_4(tokens: List[str], nodes: List):
     exp = Variable('self')
     name = tokens[len(tokens) - 1]
 
@@ -530,12 +530,12 @@ def build_list1(tokens: List[str], nodes: List):
     nodes.append(exp_list)
 
 
-def build_list2(tokens: List[str], nodes: List):
+def build_list_2(tokens: List[str], nodes: List):
     exp_list = _List([])
     nodes.append(exp_list)
 
 
-def build_functions1(tokens: List[str], nodes: List):
+def build_functions_1(tokens: List[str], nodes: List):
     functions = nodes.pop()
     func = nodes.pop()
 
@@ -544,7 +544,7 @@ def build_functions1(tokens: List[str], nodes: List):
     nodes.append(functions)
 
 
-def build_functions2(tokens: List[str], nodes: List):
+def build_functions_2(tokens: List[str], nodes: List):
     func = nodes.pop()
 
     functions = Functions(func, None)

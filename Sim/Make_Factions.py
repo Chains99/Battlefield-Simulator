@@ -1,5 +1,5 @@
 from IA.Faction import Faction
-from Sim.Entities.Soldier import Soldier
+from sim.Entities.Soldier import Soldier
 from typing import Dict, List
 
 

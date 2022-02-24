@@ -1,4 +1,5 @@
-from Language.Semantic.Type_checking.Context import Context
+from language.semantic.Type_checking.context import Context
+
 
 class Type:
     def __init__(self, context: Context, name: str, parent=None):

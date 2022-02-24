@@ -1,4 +1,4 @@
-from Sim.Entities.Terrain import Terrain
+from sim.Entities.Terrain import Terrain
 
 
 def hear_soldiers(point, h_range, terrain_map):

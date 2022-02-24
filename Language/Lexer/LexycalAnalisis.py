@@ -1,8 +1,8 @@
 from collections import deque
 
-from Language.Core.Core import CompilingError, Code_Location
-from Language.Core.Core import ErrorCode
-from Language.Lexer.Token import Token, TokenType
+from language.core.Core import CompilingError, Code_Location
+from language.core.Core import ErrorCode
+from language.lexer.Token import Token, TokenType
 
 
 class token_reader:

@@ -1,1 +1,1 @@
-from Language import Parser
+from language import parser

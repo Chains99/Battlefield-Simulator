@@ -1,8 +1,8 @@
-from Sim.Entities.Soldier import Soldier
-from Sim.Entities.Map import Map
-from Sim.Entities.Weather import Weather
-from Sim.Entities.Weapon import Weapon
-from Sim.A_star.A_star import euclidean_distance
+from sim.Entities.Soldier import Soldier
+from sim.Entities.Map import Map
+from sim.Entities.Weather import Weather
+from sim.Entities.Weapon import Weapon
+from sim.A_star.A_star import euclidean_distance
 from math import inf
 
 

@@ -473,7 +473,7 @@ def build_aritmetic_expression(tokens: List[str], nodes: List):
     nodes.append(arith_exp)
 
 
-def build_args_1(tokens: List[str], nodes: List):
+def build_basic_1(tokens: List[str], nodes: List):
     exp = nodes.pop()
     name = tokens[len(tokens) - 1]
 
@@ -482,7 +482,7 @@ def build_args_1(tokens: List[str], nodes: List):
     nodes.append(args)
 
 
-def build_args_2(tokens: List[str], nodes: List):
+def build_basic_2(tokens: List[str], nodes: List):
     expressions = nodes.pop()
     exp = nodes.pop()
 
@@ -491,7 +491,7 @@ def build_args_2(tokens: List[str], nodes: List):
     nodes.append(args)
 
 
-def build_args_3(tokens: List[str], nodes: List):
+def build_basic_3(tokens: List[str], nodes: List):
     exp = nodes.pop()
 
     args = Arguments(exp, None, [])
@@ -499,7 +499,7 @@ def build_args_3(tokens: List[str], nodes: List):
     nodes.append(args)
 
 
-def build_args_4(tokens: List[str], nodes: List):
+def build_basic_4(tokens: List[str], nodes: List):
     exp = Variable('self')
     name = tokens[len(tokens) - 1]
 
@@ -524,7 +524,7 @@ def build_None(tokens: List[str], nodes: List):
     nodes.append(_None())
 
 
-def build_list1(tokens: List[str], nodes: List):
+def build_list_1(tokens: List[str], nodes: List):
     expressions = nodes.pop()
     exp_list = _List(get_expressions([], expressions))
     nodes.append(exp_list)

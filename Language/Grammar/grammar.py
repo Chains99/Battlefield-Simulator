@@ -75,7 +75,6 @@ class NonTerminal(Symbol):
 
     def __iadd__(self, prod: Production):
         self.productions.append(prod)
-        print(prod.symbols)
         self._terminals_set.update(prod.get_terminals())
         prod.head = self
         return self

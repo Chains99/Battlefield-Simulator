@@ -63,11 +63,11 @@ class Production:
         return self.ast_node_builder
 
     def copy(self):
-        return Production(self.symbols,self.ast_node_builder)
+        return Production(self.symbols, self.ast_node_builder)
 
 
 class NonTerminal(Symbol):
-    def __init__(self, name: str, prodList: List[Production]=None):
+    def __init__(self, name: str, prodList: List[Production] = None):
         super().__init__(name)
         self.name = name
         self.productions = prodList if prodList is not None else []
@@ -83,7 +83,7 @@ class NonTerminal(Symbol):
         self._ast = ast
 
     def copy(self):
-        return NonTerminal(self.name,self.productions)
+        return NonTerminal(self.name, self.productions)
 
 
 class Grammar:
@@ -107,7 +107,7 @@ class Grammar:
 
 # Terminals
 eof = Terminal("EOF", "EOF")
-identifier = ('IDENTIFIER')
+identifier = Terminal('IDENTIFIER')
 semicolon_t = Terminal(';', ';')
 comma_t = Terminal(',', ',')
 none_t = Terminal('None', 'None')
@@ -150,7 +150,6 @@ openStraightBracket_t = Terminal('[', '[')
 closedStraightBracket_t = Terminal(']', ']')
 continue_t = Terminal('continue', 'continue')
 
-
 # NonTerminals
 pow_nt = NonTerminal("pow")
 disjunction = NonTerminal("disjunction")
@@ -177,9 +176,7 @@ factor = NonTerminal('factor')
 basic = NonTerminal('basic')
 fun_type = NonTerminal('fun_type')
 list_t = NonTerminal('List')
-
-
-
+def_nt = NonTerminal('Def')
 
 # Productions
 
@@ -259,6 +256,11 @@ conjunction += Production([inversion])
 inversion += Production([not_t, inversion], build_inversion)
 inversion += Production([comparison])
 
+def_nt += Production([type_nt, identifier, assign_t, expression], build_decl)
+
+assign += Production([identifier, assign_t, expression], build_assign)
+
+
 comparison += Production([sum_nt, eq_t, sum_nt], build_comparison)
 comparison += Production([sum_nt, ne_t, sum_nt], build_comparison)
 comparison += Production([sum_nt, le_t, sum_nt], build_comparison)
@@ -304,5 +306,6 @@ list_t += Production([openStraightBracket_t, closedStraightBracket_t], build_lis
 # grammar start
 bfs_start += Production([statements])
 
-non_term_heads=[bfs_start,statements,statement,expressions,expression,fun_def,fun_type,params,basic,atom,
-pow_nt,factor,term,sum_nt,comparison,inversion,disjunction,type_nt,while_def,elif_def,if_def]
+non_term_heads = [bfs_start, statements, statement, expressions, expression, fun_def, fun_type, params, basic, atom,
+                  pow_nt, factor, term, sum_nt, comparison, inversion, disjunction, type_nt, while_def, elif_def,
+                  if_def, assign, def_nt]

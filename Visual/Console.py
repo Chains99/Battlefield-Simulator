@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 
-from Language.Grammar.grammar import Grammar,non_term_heads
+from Language.Grammar.grammar import Grammar,non_term_heads,bfs_start
 from Language.Lexer.Token import Token, TokenType
 from Language.Parser.lr1_parser import LR1Parser
 from Language.Lexer.Lexer import lexer
@@ -107,7 +107,7 @@ def execute():
             tokens.append(Token("EOF", "EOF", TokenType.EOF))
 
             #parsing
-            grammar = Grammar(non_term_heads)
+            grammar = Grammar(non_term_heads,bfs_start)
             parser = LR1Parser(grammar)
             ast = parser.parse(tokens)
             window['Result'].print(tokens)

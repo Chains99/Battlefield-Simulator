@@ -87,8 +87,9 @@ class NonTerminal(Symbol):
 
 
 class Grammar:
-    def __init__(self, non_terminal_list: List[NonTerminal]):
+    def __init__(self, non_terminal_list: List[NonTerminal],start:NonTerminal):
         self.non_terminal_list = non_terminal_list
+        self.start=start
 
     def get_productions(self) -> List[Production]:
         prods = []
@@ -107,7 +108,7 @@ class Grammar:
 
 # Terminals
 eof = Terminal("EOF", "EOF")
-identifier = Terminal('IDENTIFIER')
+identifier = Terminal('IDENTIFIER', 'IDENTIFIER')
 semicolon_t = Terminal(';', ';')
 comma_t = Terminal(',', ',')
 none_t = Terminal('None', 'None')
@@ -308,4 +309,4 @@ bfs_start += Production([statements])
 
 non_term_heads = [bfs_start, statements, statement, expressions, expression, fun_def, fun_type, params, basic, atom,
                   pow_nt, factor, term, sum_nt, comparison, inversion, disjunction, type_nt, while_def, elif_def,
-                  if_def, assign, def_nt]
+                  if_def, assign, def_nt, list_t,conjunction]

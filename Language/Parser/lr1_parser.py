@@ -16,8 +16,8 @@ class LR1Table:
         self.dict_clousure_hash={}
         self.dict_lr1_items: Dict[Production, int, Terminal]={}
         self.extend_grammar()
+        self.build_table()
 
-        return self.build_table()
 
     
     def build_table(self):
@@ -27,16 +27,16 @@ class LR1Table:
 
         self._lr_items = {}
         for item in lr1_items:
-            for follow in self._follow[item.prod.head]:
-                new_lr_item = LR1Item(item.prod, item.dot_pos, follow)
-                self._lr_items[item.prod, item.dot_pos, follow] = new_lr_item
+            for follow in self.follow[item.production.head]:
+                new_lr_item = LR1Item(item.production, item.dot_index, follow)
+                self._lr_items[item.production, item.dot_index, follow] = new_lr_item
 
-        init_state = self._closure(
+        init_state = self.closure(
             {
                 self._lr_items[
                     self.grammar.start_expr.prod_0,
                     0,
-                    self._follow[self.grammar.start_expr][0],
+                    self.follow[self.grammar.start_expr][0],
                 ]
             }
         )
@@ -123,8 +123,8 @@ class LR1Table:
         if first is None:
             first = self.calculate_first()
 
-            follow = {non_term.name: Set[Terminal] for non_term in self.grammar.non_terminal_list}
-            follow[bfs_start.name].add(Terminal("$"))
+            follow = {non_term.name: non_term._terminals_set for non_term in self.grammar.non_terminal_list}
+            follow[bfs_start.name].add(Terminal("$","$"))
 
             change = True
             while change:
@@ -153,10 +153,6 @@ class LR1Table:
         self.dict_states_id[number] = items
         self.dict_states_hash[hash_] = number
         return number
-
-    def build_table(self):
-        self.first= self.calculate_first()
-        self.follow=self.calculate_follow()
 
     def closure(self, items: Set[LR1Item]):
         hash = self.get_items_hash(items)
@@ -209,6 +205,8 @@ class LR1Table:
         clausure = self.closure(new_items_set)
         return self.get_no_state(clausure)
 
+    def __getitem__(self, key):
+        return self._table.get(key,None)
         
 
 

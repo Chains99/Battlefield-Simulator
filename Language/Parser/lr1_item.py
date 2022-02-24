@@ -1,4 +1,4 @@
-from syntax_analyzer.bfs_grammar.grammar import Production,Symbol
+from Language.Grammar.grammar import Production,Symbol
 
 class LR1Item:
     def __init__(self, production: Production, dot_index: int, lookahead):

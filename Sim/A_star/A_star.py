@@ -1,4 +1,4 @@
-from sim.A_star.heap import node_heap,heapify_down,heapify_up,extract_min,append_node
+from Sim.A_star.heap import node_heap,heapify_down,heapify_up,extract_min,append_node
 from math import inf
 from math import pow
 

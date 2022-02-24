@@ -1,5 +1,5 @@
-from sim.A_star.A_star import euclidean_distance
-from sim.Entities.Soldier import Soldier
+from Sim.A_star.A_star import euclidean_distance
+from Sim.Entities.Soldier import Soldier
 
 
 def new_changed_tuple(tuple_to_change, index_changes_list):

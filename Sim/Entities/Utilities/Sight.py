@@ -1,6 +1,6 @@
 import numpy as np
 from itertools import chain
-from sim.Entities.Utilities.aabb_segment_box_collision import detect_box_segment_collision
+from Sim.Entities.Utilities.aabb_segment_box_collision import detect_box_segment_collision
 
 
 # Parametros:

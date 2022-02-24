@@ -1,15 +1,15 @@
-from sim.Entities.Soldier import Soldier
-from sim.Entities.Weapon import Weapon, default_weapons
-from sim.Entities.Map import Map
-from sim.Entities.Weather import Weather
-from sim.Entities.Weapon import Weapon
+from Sim.Entities.Soldier import Soldier
+from Sim.Entities.Weapon import Weapon, default_weapons
+from Sim.Entities.Map import Map
+from Sim.Entities.Weather import Weather
+from Sim.Entities.Weapon import Weapon
 from IA.Faction import Faction
 from IA.simulation import SimulationManager
 from IA.simulation import HeuristicManager
-from sim.battlefield import BattleField
-from sim.Make_Factions import FactionBuilder
+from Sim.battlefield import BattleField
+from Sim.Make_Factions import FactionBuilder
 from IA.MinMax import minmax_search
-from sim.A_star.A_star import euclidean_distance
+from Sim.A_star.A_star import euclidean_distance
 from math import inf
 from IA.State import SimulationState
 from IA.Action_manager import ActionManager

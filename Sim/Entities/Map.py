@@ -1,4 +1,4 @@
-from sim.Entities.Terrain import Terrain
+from Sim.Entities.Terrain import Terrain
 from math import inf
 
 

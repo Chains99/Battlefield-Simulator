@@ -1,5 +1,6 @@
 
 *.pyc
+*.xml
 docs/llncs.log
 docs/llncs.aux
 docs/llncs.synctex.gz

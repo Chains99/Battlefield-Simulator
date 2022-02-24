@@ -19,7 +19,7 @@ class LR1Parser(Parser):
             token = token_list[i]
 
             current_state = stack[-1][1] if stack else 0
-            table_val = table[current_state, token.token_type]
+            table_val = table[current_state, token.type]
             
             if table_val == "OK":
                 break

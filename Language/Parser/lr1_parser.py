@@ -66,9 +66,10 @@ class LR1Table:
             current_state += 1
         self._table = lr1_table
 
-    def extend_grammar():
-        new_production=Production(bfs_start)
-        new_non_terminal=NonTerminal('S', list(new_production))
+    def extend_grammar(self):
+        new_production=Production([bfs_start])
+
+        new_non_terminal=NonTerminal('S', [new_production])
 
     
     def get_all_lr1_items(self) ->List[LR1Item]:
@@ -85,8 +86,8 @@ class LR1Table:
         return lr1_items
 
     def calculate_first(self):
-        first = {prod.head.name: Set[Terminal] for prod in self.grammar.get_productions()}
-        prod_first = {prod: Set[Terminal] for prod in self.grammar.get_productions()}
+        first = {prod.head.name: prod.head._terminals_set for prod in self.grammar.get_productions()}
+        prod_first = {prod: prod.head._terminals_set for prod in self.grammar.get_productions()}
 
         change = True
         while change:
@@ -94,14 +95,26 @@ class LR1Table:
             for prod in self.grammar.get_productions():
                 head=prod.head
                 head_name=prod.head.name
+
                 for item in prod.symbols:
-                    if item.is_terminal:
-                        change |= first[head_name].add(item)
+                    if item.is_terminal():
+
+                        set_=first[head_name]
+                        len_set_before=len(set_)
+                        set_.add(item)
+                        len_set_after=len(set_)
+                        change |= len_set_before!=len_set_after
                         prod_first[prod].add(item)
                         break
+
                     if item != head:
-                        change |= first[head.name].update(first[item.name])
+                        set_=first[item.name]
+                        len_set_before=len(set_)
+                        set_.update(first[item.name])
+                        len_set_after=len(set_)
+                        change |= len_set_before!=len_set_after
                         prod_first[prod].update(first[item.name])
+
                     if "EPS" not in first[head.name]:
                         break
         return first       

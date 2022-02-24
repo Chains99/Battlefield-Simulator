@@ -8,6 +8,7 @@ class TokenType(enum.Enum):
     Keyword = 4
     Identifier = 5
     Symbol = 6
+    EOF = "EOF"
 
 
 class Token:

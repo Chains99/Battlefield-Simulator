@@ -1,6 +1,6 @@
 from abc import ABCMeta,abstractmethod
-from syntax_analyzer.bfs_grammar.grammar import Grammar
-from lexical_analyzer.Token import Token
+from Language.Grammar.grammar import Grammar
+from Language.Lexer.Token import Token
 from typing import List
 
 
@@ -9,5 +9,5 @@ class Parser(metaclass=ABCMeta):
         self.grammar = grammar
 
     @abstractmethod
-    def parse(self, token_list: List[Token]) -> AST:
+    def parse(self, token_list: List[Token]):
         pass

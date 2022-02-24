@@ -1,4 +1,3 @@
-from lib2to3.pgen2 import grammar
 from typing import Set,Dict,List,Tuple,Union
 from Language.Grammar.grammar import Grammar,Production,Symbol,NonTerminal, Terminal, bfs_start
 from Language.Parser.lr1_item import LR1Item

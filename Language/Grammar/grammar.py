@@ -1,4 +1,4 @@
-from typing import List, Dict, Set, Optional, Callable
+from typing import List, Dict, Set, Callable
 from abc import ABCMeta, abstractmethod
 
 from Language.Parser.ast import *
@@ -37,7 +37,7 @@ class Terminal(Symbol):
         return Terminal(self.name, self.value)
 
     def __repr__(self) -> str:
-        return f"T-{super().__repr__()}"
+        return f"{self.value}"
 
 
 class Production:
@@ -51,7 +51,7 @@ class Production:
         terminals: Set = set()
         for symbol in self.symbols:
             if (isinstance(symbol, Terminal)):
-                terminals.update(symbol)
+                terminals.add(symbol)
         return terminals
 
     def set_builder(self, func: Callable):
@@ -67,14 +67,15 @@ class Production:
 
 
 class NonTerminal(Symbol):
-    def __init__(self, name: str, prodsList: Optional[List[Production]]):
+    def __init__(self, name: str, prodList: List[Production]=None):
         super().__init__(name)
         self.name = name
-        self.productions = prodsList
+        self.productions = prodList if prodList is not None else []
         self._terminals_set: Set = set()
 
     def __iadd__(self, prod: Production):
         self.productions.append(prod)
+        print(prod.symbols)
         self._terminals_set.update(prod.get_terminals())
         prod.head = self
         return self
@@ -120,7 +121,6 @@ false_t = Terminal('false', 'false')
 while_t = Terminal('while', 'while')
 break_t = Terminal('break', 'break')
 return_t = Terminal('return', 'return')
-fun_type = Terminal('fun_type', 'fun_type')
 number_t = Terminal('Number', 'Number')
 name_t = Terminal('name', 'name')
 bool_t = Terminal('bool', 'bool')
@@ -150,7 +150,7 @@ closedCurlyBraces_t = Terminal('}', '}')
 openStraightBracket_t = Terminal('[', '[')
 closedStraightBracket_t = Terminal(']', ']')
 continue_t = Terminal('continue', 'continue')
-list_t = Terminal('List', 'List')
+
 
 # NonTerminals
 pow_nt = NonTerminal("pow")
@@ -176,9 +176,11 @@ sum_nt = NonTerminal("sum")
 term = NonTerminal('term')
 factor = NonTerminal('factor')
 basic = NonTerminal('basic')
+fun_type = NonTerminal('fun_type')
+list_t = NonTerminal('List')
 
-# grammar start
-bfs_start += Production(statements)
+
+
 
 # Productions
 
@@ -299,3 +301,9 @@ atom += Production([list_t])
 
 list_t += Production([openStraightBracket_t, expressions, closedStraightBracket_t], build_list_1)
 list_t += Production([openStraightBracket_t, closedStraightBracket_t], build_list_2)
+
+# grammar start
+bfs_start += Production([statements])
+
+non_term_heads=[bfs_start,statements,statement,expressions,expression,fun_def,fun_type,params,basic,atom,
+pow_nt,factor,term,sum_nt,comparison,inversion,disjunction,type_nt,while_def,elif_def,if_def]

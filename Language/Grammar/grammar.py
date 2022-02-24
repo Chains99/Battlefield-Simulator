@@ -87,9 +87,9 @@ class NonTerminal(Symbol):
 
 
 class Grammar:
-    def __init__(self, non_terminal_list: List[NonTerminal],start:NonTerminal):
+    def __init__(self, non_terminal_list: List[NonTerminal], start: NonTerminal):
         self.non_terminal_list = non_terminal_list
-        self.start=start
+        self.start = start
 
     def get_productions(self) -> List[Production]:
         prods = []
@@ -102,6 +102,9 @@ class Grammar:
         for non_term in self.non_terminal_list:
             terminals.update(non_term._terminals_set)
         return terminals
+
+    def set_builder(self, func: Callable):
+        self.ast_node_builder = func
 
 
 # GRAMMAR
@@ -261,7 +264,6 @@ def_nt += Production([type_nt, identifier, assign_t, expression], build_decl)
 
 assign += Production([identifier, assign_t, expression], build_assign)
 
-
 comparison += Production([sum_nt, eq_t, sum_nt], build_comparison)
 comparison += Production([sum_nt, ne_t, sum_nt], build_comparison)
 comparison += Production([sum_nt, le_t, sum_nt], build_comparison)
@@ -305,8 +307,9 @@ list_t += Production([openStraightBracket_t, expressions, closedStraightBracket_
 list_t += Production([openStraightBracket_t, closedStraightBracket_t], build_list_2)
 
 # grammar start
-bfs_start += Production([statements])
+bfs_start += Production([statements, eof], build_script_file)
+bfs_start += Production([eof])
 
 non_term_heads = [bfs_start, statements, statement, expressions, expression, fun_def, fun_type, params, basic, atom,
                   pow_nt, factor, term, sum_nt, comparison, inversion, disjunction, type_nt, while_def, elif_def,
-                  if_def, assign, def_nt, list_t,conjunction]
+                  if_def, assign, def_nt, list_t, conjunction]

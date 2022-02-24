@@ -1,31 +1,84 @@
-from typing import List, Dict
+from typing import List, Dict, Set
+from abc import ABCMeta, abstractmethod
+
+class Symbol(metaclass=ABCMeta):
+    def __init__(self,name:str) -> None:
+        self.name=name
+
+    def is_terminal(self) -> bool:
+        return isinstance(self,Terminal)
+
+    def __repr__(self) -> str:
+        return self.name
+    
+    def __hash__(self) -> int:
+        return self.__repr__()
+
+    @abstractmethod
+    def copy(self):
+        pass
 
 
-class Terminal:
-    def __init__(self, name: str, value: str):
-        self.name = name
-        self.value = value
+class Terminal(Symbol):
+    def __init__(self, name: str, value: str) -> None:
+        super().__init__(name)
+        self.value=value
+    
+    def copy(self):
+        return Terminal(self.name, self.value)
+
+    def __repr__(self) -> str:
+        return f"T-{super().__repr__()}"
 
 
 class Production:
 
-    def __init__(self, terminals: List[Terminal]):
-        self.terminals = terminals
+    def __init__(self, symbols: List[Symbol],):
+        self.head: NonTerminal = None
+        self.symbols: List[Symbol] = symbols
+
+    def get_terminals(self) -> Set[Terminal]:
+        terminals: Set = {}
+        for symbol in self.symbols:
+            if(isinstance(symbol,Terminal)):
+                terminals.update(symbol)
+        return terminals
+        
+    
+    def copy(self):
+        pass
 
 
-class NonTerminal:
+class NonTerminal(Symbol):
     def __init__(self, name: str, prodsList: List[Production]):
         self.name = name
         self.productions = prodsList
+        self._terminals_set: Set={}
 
     def __iadd__(self, prod: Production):
-        self.add(prod)
+        self.productions.append(prod)
+        self._terminals_set.update(prod.get_terminals())
+        prod.head=self
         return self
 
 
 class Grammar:
-    def __init__(self, nonTList: List[NonTerminal]):
-        self.nonTList = nonTList
+    def __init__(self, non_terminal_list: List[NonTerminal]):
+        self.non_terminal_list = non_terminal_list
+    
+    def get_productions(self) -> List[Production]:
+        prods=[]
+        for non_term in self.non_terminal_list:
+            prods.extend(non_term.productions)
+        return prods
+
+    def get_terminals(self) -> Set[Terminal]:
+        terminals={}
+        for non_term in self.non_terminal_list:
+            terminals.update(non_term._terminals_set)
+        return terminals
+
+    
 
 
 # GRAMMAR
@@ -70,6 +123,7 @@ openStraightBracket_t = Terminal('[', '[')
 closedStraightBracket_t = Terminal(']', ']')
 
 # NonTerminals
+bfs_start=NonTerminal('bfs_start')
 statements = NonTerminal('statements')
 statement = NonTerminal('statement')
 comparison = NonTerminal('comparison')
@@ -85,6 +139,10 @@ while_def = NonTerminal('while_def')
 type_nt = NonTerminal('type', 'type')
 atom = NonTerminal('atom')
 params = NonTerminal('params')
+
+
+# grammar start
+bfs_start += Production(statements)
 
 # Productions
 

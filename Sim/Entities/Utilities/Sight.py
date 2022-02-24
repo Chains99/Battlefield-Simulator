@@ -81,6 +81,9 @@ def detect_obstruction(point_a, point_b, terrain_map):
                     tmp = item
                     break
 
+        if tmp == point_b:
+            break
+
         # Comprobamos si existe una obstruccion de vision en point_a
         if detect_sight_obstruction(point_a, point_b, tmp, terrain_map):
             return True
@@ -131,7 +134,7 @@ def east_visible_squares(point, v_range, terrain_map):
         for j in range(top, bottom + 1):
             yield j, point[1] + i
 
-
+"""
 def squares_within_range(point, v_range, terrain_map, orientation):
 
     if orientation == 'north':
@@ -144,3 +147,16 @@ def squares_within_range(point, v_range, terrain_map, orientation):
         return east_visible_squares(point, v_range, terrain_map)
     # orientation == all
     return chain(north_visible_squares(point, v_range, terrain_map), west_visible_squares(point, v_range, terrain_map), south_visible_squares(point, v_range, terrain_map), east_visible_squares(point, v_range, terrain_map))
+"""
+
+
+def squares_within_range(point, v_range, terrain_map, orientation):
+
+    top = max(point[0] - v_range, 0)
+    bottom = min(point[0] + v_range, len(terrain_map) - 1)
+    left = max(point[1] - v_range, 0)
+    right = min(point[1] + v_range, len(terrain_map[0]) - 1)
+
+    for i in range(top, bottom + 1):
+        for j in range(left, right + 1):
+            yield i, j

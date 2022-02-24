@@ -27,9 +27,9 @@ class HeuristicManager:
                  enemies_in_sight_hvalue=1,
                  enemies_in_range_hvalue=1,
                  low_ammo_hvalue=0.5,
-                 concealment_hvalue=1,
+                 concealment_hvalue=5,
                  remaining_hvalue=2,
-                 dead_hvalue=30,
+                 dead_hvalue=5,
                  damage_dealt_hvalue=2):
 
         self.damage_hvalue = damage_hvalue
@@ -38,26 +38,40 @@ class HeuristicManager:
         self.enemies_in_range_hvalue = enemies_in_range_hvalue
         self.low_ammo_hvalue = low_ammo_hvalue
         self.concealment_hvalue = concealment_hvalue
-        self.remaining_hvalue = remaining_hvalue
+        self.remaining_health_hvalue = remaining_hvalue
         self.dead_soldier_hvalue = dead_hvalue
         self.damage_dealt_hvalue = damage_dealt_hvalue
 
-    def evaluate_state(self, state, fraction_turn, fractions):
+    def evaluate_state(self, state, fraction_turn, fractions, map):
         state_hvalue = 0
+
+        # FACTION TURN POINTS
         state_hvalue += self._evaluate_soldiers_damage(state, fraction_turn)
         state_hvalue += self._nearby_soldiers_hvalue(state, fraction_turn)
-        state_hvalue += self._evaluate_soldier_survival_chance(state, fraction_turn)
+        state_hvalue += self._evaluate_soldier_survival_chance(state, fraction_turn, map)
         state_hvalue += self._evaluate_damage_dealt(state, fraction_turn, fractions)
+
+        op_faction = None
+        for faction in fractions:
+            if faction.id != fraction_turn.id:
+                op_faction = faction
+                break
+
+        # OPOSITE FACTION POINT
+        state_hvalue -= self._evaluate_soldiers_damage(state, op_faction)
+        state_hvalue -= self._nearby_soldiers_hvalue(state, op_faction)
+        state_hvalue -= self._evaluate_soldier_survival_chance(state, op_faction, map)
+        state_hvalue -= self._evaluate_damage_dealt(state, op_faction, fractions)
 
         return state_hvalue
 
     def _evaluate_damage_dealt(self, state, fraction_turn, fractions):
         total_hvalue = 0
-        frac_keys = [*state.team_variables.keys()]
+        frac_keys = [*state.alive_soldiers.keys()]
         # amount of dead soldiers
         for item in frac_keys:
             if item != fraction_turn.id:
-                total_hvalue += (len(fractions[item].soldiers) - state.team_variables[item]) * self.dead_soldier_hvalue
+                total_hvalue += (len(fractions[item].soldiers) - state.alive_soldiers[item]) * self.dead_soldier_hvalue
 
         # amount of lost health
         for frac in fractions:
@@ -66,7 +80,6 @@ class HeuristicManager:
                     total_hvalue += (sold.health - state.soldier_variables[sold.id][10]) * self.damage_dealt_hvalue
 
         return total_hvalue
-
 
     def _evaluate_soldiers_damage(self, state, fraction_turn):
         total_hvalue = 0
@@ -106,16 +119,18 @@ class HeuristicManager:
 
         return total_hvalue
 
-    def _evaluate_soldier_survival_chance(self, state, fraction_turn):
+    def _evaluate_soldier_survival_chance(self, state, fraction_turn, map):
         total_hvalue = 0
 
         for soldier in fraction_turn.soldiers:
             concealment = state.soldier_variables[soldier.id][9]
             remaining_health = state.soldier_variables[soldier.id][10]
+            sol_pos = state.soldier_positions[soldier.id]
+            terrain_camouflage = map.terrain_matrix[sol_pos[0]][sol_pos[1]].camouflage
 
-            total_hvalue += concealment * self.concealment_hvalue
+            total_hvalue += min(concealment * terrain_camouflage, 0.95) * self.concealment_hvalue
             if remaining_health > 0:
-                total_hvalue += remaining_health * self.remaining_hvalue
+                total_hvalue += remaining_health * self.remaining_health_hvalue
             else:
                 total_hvalue -= self.dead_soldier_hvalue
 
@@ -128,8 +143,9 @@ class SimulationManager:
     def __init__(self, fractions_list, weather, sim_map, heuristics, max_depth):
         self.fractions = fractions_list
         self.current_turn = 0
+        self.weather = weather
+        self.sim_map = sim_map
         self.ab = ActionBuilder(weather, sim_map)
-        self.heuristic = heuristics
         self.max_depth = max_depth
 
     def next_turn(self):
@@ -139,18 +155,24 @@ class SimulationManager:
             self.current_turn = 0
         return fraction_turn
 
+    def set_on_next_turn(self, previous_turn):
+        if previous_turn == len(self.fractions)-1:
+            self.current_turn = 0
+        else:
+            self.current_turn = previous_turn + 1
+
     def fraction_actions(self, fraction, state):
         return self.ab.all_fraction_actions(fraction, state)
 
     def evaluate_state(self, state, fraction):
-        return self.heuristic.evaluate_state(state, fraction, self.fractions)
+        return fraction.heuristic.evaluate_state(state, fraction, self.fractions, self.sim_map)
 
     def is_terminal(self, state, depth):
         if depth >= self.max_depth:
             return True
 
         for item in self.fractions:
-            if state.team_variables[item.id] == 0:
+            if state.alive_soldiers[item.id] == 0:
                 return True
 
         return False
@@ -158,6 +180,7 @@ class SimulationManager:
     def build_initial_state(self, fractions, action_manager, soldier_positions):
 
         state = SimulationState()
+        state.building = True
 
         # positions
         for sol_pos in soldier_positions:
@@ -167,7 +190,7 @@ class SimulationManager:
 
         for fraction in fractions:
 
-            state.team_variables[fraction.id] = len(fraction.soldiers)
+            state.alive_soldiers[fraction.id] = len(fraction.soldiers)
             state.team_variables_moved[fraction.id] = 0
             state.soldier_moved[fraction.id] = {}
             state.soldier_died[fraction.id] = {}
@@ -231,6 +254,7 @@ class SimulationManager:
                     state.soldier_ammo_per_weapon[soldier.id][weapon.name] = soldier.weapon_ammo[weapon.name]
                     state.soldier_weapons_current_ammo[soldier.id][weapon.name] = weapon.current_ammo
 
+        state.building = False
         return state
 
     def is_soldier_available(self, fraction, soldier, state):
@@ -244,6 +268,10 @@ class SimulationManager:
 
         result_state = action[0](*action[1])
 
+        # if is an empty action
+        if action[0] == self.ab.am.empty_action:
+            return result_state
+
         soldier = action[1][0]
         result_state.team_variables_moved[fraction.id] += 1
         result_state.soldier_moved[soldier.team][soldier.id] = True
@@ -253,10 +281,6 @@ class SimulationManager:
             # if soldier dead
             if result_state.soldier_variables[item][10] <= 0:
                 sold_inst = result_state.soldiers_in_map[item]
-                if not result_state.soldier_died[sold_inst.team][sold_inst.id]:
-                    # then sold_inst is dead
-                    result_state.soldier_died[sold_inst.team][sold_inst.id] = True
-                    result_state.team_variables[sold_inst.team] -= 1
 
         if self.needed_reset(result_state):
             result_state = self.reset_moves(result_state)

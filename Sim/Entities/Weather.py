@@ -5,6 +5,7 @@ class Weather:
         self.state = state
         self.wind_speed = wind_speed
         self.wind_direction = wind_direction
+        # float value:  1 < value < 2
         self.visibility_impairment = visibility_impairment
         self.temperature = temperature
         self.humidity = humidity

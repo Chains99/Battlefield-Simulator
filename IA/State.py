@@ -42,7 +42,7 @@ class SimulationState:
         """
         dictionary team_id : alive soldiers
         """
-        self.team_variables = {}
+        self.alive_soldiers = {}
 
         """
         dictionary team_id : moved soldiers amount
@@ -51,8 +51,6 @@ class SimulationState:
 
         """
         dictionary soldier id: dictionary weapon name : ammo
-        tuples values:
-        soldier ammo for each weapon sort by soldier.weapons order
         """
         self.soldier_ammo_per_weapon = {}
         """
@@ -73,6 +71,8 @@ class SimulationState:
         dictionary fraction id: dictionary soldier id : bool 
         """
         self.soldier_died = {}
+
+        self.building = False
 
     def _copy_list(self, list_to_copy):
         new_list = []
@@ -99,7 +99,7 @@ class SimulationState:
         st.reverse_soldier_positions = self._copy_dic(self.reverse_soldier_positions)
         st.soldier_positions = self._copy_dic(self.soldier_positions)
         st.soldiers_in_map = self._copy_dic(self.soldiers_in_map)
-        st.team_variables = self._copy_dic(self.team_variables)
+        st.alive_soldiers = self._copy_dic(self.alive_soldiers)
         st.team_variables_moved = self._copy_dic(self.team_variables_moved)
         st.soldier_variables = self._copy_dic(self.soldier_variables)
         st.soldier_str_variables = self._copy_dic(self.soldier_str_variables)

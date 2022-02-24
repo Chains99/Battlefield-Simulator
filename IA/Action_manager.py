@@ -15,7 +15,7 @@ class ActionManager:
         self.weather = weather
         self.map = sim_map
     """
-    Soldier_Templates actions
+    Soldier actions
     """
 
     def _soldier_pos_matrix(self, state):
@@ -34,18 +34,58 @@ class ActionManager:
             soldier_pos_mat[pos[0]][pos[1]] = True
         return soldier_pos_mat
 
+    def melee_attack(self, soldier, enemy_pos, state):
+        result_state = state.copy_state()
+        enemy = state.reverse_soldier_positions[enemy_pos]
+
+        damage = soldier.melee_damage
+
+        # NEW STATE
+        change_en = [(10, state.soldier_variables[enemy.id][10] - damage)]
+        en_tuple = new_changed_tuple(state.soldier_variables[enemy.id], change_en)
+        result_state.soldier_variables[enemy.id] = en_tuple
+
+        if state.soldier_variables[enemy.id][10] - damage <= 0:
+            result_state.alive_soldiers[enemy.team] -= 1
+            result_state.soldier_died[enemy.team][enemy.id] = True
+
+        return result_state
+
     def shoot_enemy(self, soldier, enemy_pos, state):
         result_state = state.copy_state()
 
         pos1 = state.soldier_positions[soldier.id]
         enemy = state.reverse_soldier_positions[enemy_pos]
 
+        # PRE SIMULATION
         current_ammo_in_instance = soldier.equipped_weapon.current_ammo
         current_ammo_in_state = state.soldier_variables[soldier.id][5]
+        inst_weapon = soldier.equipped_weapon
+        st_weapon = inst_weapon
+        st_weapon_name = state.soldier_str_variables[soldier.id][2]
+
+        # If current equipped weapon is different
+        if st_weapon_name != soldier.equipped_weapon.name:
+            new_weapon_state = self.change_weapon(soldier, st_weapon_name, state)
+            current_ammo_in_state = new_weapon_state.soldier_variables[soldier.id][5]
+            for wp in soldier.weapons:
+                if wp.name == st_weapon_name:
+                    current_ammo_in_instance = wp.current_ammo
+                    soldier.equipped_weapon = wp
+                    st_weapon = wp
+                    break
+
+        # SET STATE VALUES
+        soldier.equipped_weapon.current_ammo = current_ammo_in_state
 
         # SIMULATE SHOT
-        damage = soldier.shoot(euclidean_distance(pos1, enemy_pos), self.weather.visibility_impairment, enemy.concealment)
+        terrain_camouflage = self.map.terrain_matrix[enemy_pos[0]][enemy_pos[1]].camouflage
+        damage, shots_landed = soldier.shoot(euclidean_distance(pos1, enemy_pos), self.weather.visibility_impairment, min(enemy.concealment * terrain_camouflage, 0.95))
+
+        # REVERT CHANGES
         soldier.equipped_weapon.current_ammo = current_ammo_in_instance
+        soldier.equipped_weapon = inst_weapon
+
         new_current_ammo = current_ammo_in_state - min(current_ammo_in_state, state.soldier_variables[soldier.id][4])
 
         # NEW STATE
@@ -60,7 +100,8 @@ class ActionManager:
         result_state.soldier_weapons_current_ammo[soldier.id][state.soldier_str_variables[soldier.id][2]] = new_current_ammo
 
         if state.soldier_variables[enemy.id][10] - damage <= 0:
-            result_state.team_variables[enemy.team] -= 1
+            result_state.alive_soldiers[enemy.team] -= 1
+            result_state.soldier_died[enemy.team][enemy.id] = True
 
         return result_state
 
@@ -110,7 +151,8 @@ class ActionManager:
         result_state.soldier_variables[soldier.id] = new_changed_tuple(state.soldier_variables[soldier.id], change_sol)
         result_state.soldier_str_variables[soldier.id] = new_changed_tuple(state.soldier_str_variables[soldier.id], change_str_sol)
 
-
+        #result_state.soldier_moved[soldier.team][soldier.id] = True
+        #result_state.team_variables_moved[soldier.team] += 1
 
         return result_state
 
@@ -177,6 +219,9 @@ class ActionManager:
         result_state.soldier_variables[soldier.id] = new_changed_tuple(state.soldier_variables[soldier.id], change_sol)
         result_state.soldier_str_variables[soldier.id] = new_changed_tuple(state.soldier_str_variables[soldier.id], change__str_sol)
 
+        #result_state.soldier_moved[soldier.team][soldier.id] = True
+        #result_state.team_variables_moved[soldier.team] += 1
+
         return result_state
 
     def reload(self, soldier, state):
@@ -190,7 +235,7 @@ class ActionManager:
         weapon_ammo = state.soldier_ammo_per_weapon[soldier.id][weapon_name]
 
         # SIMULATE ACTION
-        to_reload = min(current_ammo, max_ammo-current_ammo)
+        to_reload = min(weapon_ammo, max_ammo-current_ammo)
 
         new_current_ammo = current_ammo + to_reload
         new_weapon_ammo = weapon_ammo - to_reload
@@ -201,6 +246,10 @@ class ActionManager:
         result_state.soldier_weapons_current_ammo[soldier.id][weapon_name] = new_current_ammo
         result_state.soldier_ammo_per_weapon[soldier.id][weapon_name] = new_weapon_ammo
         result_state.soldier_variables[soldier.id] = new_changed_tuple(state.soldier_variables[soldier.id], change_sol)
+
+        #result_state.soldier_moved[soldier.team][soldier.id] = True
+        #result_state.team_variables_moved[soldier.team] += 1
+
         return result_state
 
     def change_weapon(self, soldier, weapon_name, state):
@@ -212,7 +261,7 @@ class ActionManager:
         new_variables = self.change_weapon_variables(soldier, state)
 
         position = state.soldier_positions[soldier.id]
-        enemies_pos = soldier.detect_enemies(position, self.map.terrain_matrix, state.reverse_soldier_positions)
+        enemies_pos = soldier.detect_enemies(position, self.map.terrain_matrix, state)
         count_er = 0
         count_ner = 0
         for enemy_pos in enemies_pos:
@@ -233,13 +282,17 @@ class ActionManager:
         result_state.soldier_variables[soldier.id] = new_changed_tuple(state.soldier_variables[soldier.id], change_sol)
         result_state.soldier_str_variables[soldier.id] = new_changed_tuple(state.soldier_str_variables[soldier.id], [(2, weapon_name)])
         result_state.soldier_weapons_current_ammo[soldier.id][weapon_name] = new_variables[3]
+
+        #result_state.soldier_moved[soldier.team][soldier.id] = True
+        #result_state.team_variables_moved[soldier.team] += 1
+
         return result_state
 
     """
-    Soldier_Templates information
+    Soldier information
     """
     def detect_enemies(self, soldier, state):
-        return soldier.detect_enemies(state.soldier_positions[soldier.id], self.map.terrain_matrix, state.reverse_soldier_positions)
+        return soldier.detect_enemies(state.soldier_positions[soldier.id], self.map.terrain_matrix, state)
 
     def detect_allies(self, soldier, state):
         return soldier.detect_allies(state.soldier_positions[soldier.id], self.map.terrain_matrix, state.reverse_soldier_positions)
@@ -330,6 +383,38 @@ class ActionManager:
     def detect_objects(self, soldier, state):
         return soldier.detect_object(state.soldier_positions[soldier.id], self.map.terrain_matrix)
 
+    def real_melee_attack(self, soldier, enemy_pos, state):
+        result_state = state.copy_state()
+        enemy = state.reverse_soldier_positions[enemy_pos]
+
+        damage = soldier.melee_damage
+
+        enemy.take_damage(damage)
+
+        # NEW STATE
+        change_en = [(10, state.soldier_variables[enemy.id][10] - damage), (11, enemy.precision)]
+        en_tuple = new_changed_tuple(state.soldier_variables[enemy.id], change_en)
+        result_state.soldier_variables[enemy.id] = en_tuple
+
+        if state.soldier_variables[enemy.id][10] - damage <= 0:
+            result_state.alive_soldiers[enemy.team] -= 1
+            result_state.soldier_died[enemy.team][enemy.id] = True
+
+        kill = False
+        if state.soldier_variables[enemy.id][10] - damage <= 0:
+            kill = True
+            result_state.alive_soldiers[enemy.team] -= 1
+            result_state.soldier_died[enemy.team][enemy.id] = True
+
+        if kill:
+            k = 1
+        else:
+            k = 0
+
+        stats = [('kills', k)]
+
+        return result_state, stats
+
     def real_shoot_enemy(self, soldier, enemy_pos, state):
         result_state = state.copy_state()
 
@@ -337,10 +422,11 @@ class ActionManager:
         enemy = state.reverse_soldier_positions[enemy_pos]
 
         # SHOOT
-        damage = soldier.shoot(euclidean_distance(pos1, enemy_pos), self.weather.visibility_impairment, enemy.concealment)
+        damage, landed_shots = soldier.shoot(euclidean_distance(pos1, enemy_pos), self.weather.visibility_impairment, enemy.concealment)
+        enemy.take_damage(damage)
 
         # NEW STATE
-        change_en = [(10, state.soldier_variables[enemy.id][10] - damage)]
+        change_en = [(10, state.soldier_variables[enemy.id][10] - damage), (11, enemy.precision)]
         change_sol = [(5, soldier.equipped_weapon.current_ammo)]
 
         sol_tuple = new_changed_tuple(state.soldier_variables[soldier.id], change_sol)
@@ -350,10 +436,25 @@ class ActionManager:
         result_state.soldier_variables[enemy.id] = en_tuple
         result_state.soldier_weapons_current_ammo[soldier.id][state.soldier_str_variables[soldier.id][2]] = soldier.equipped_weapon.current_ammo
 
+        kill = False
         if state.soldier_variables[enemy.id][10] - damage <= 0:
-            result_state.team_variables[enemy.team] -= 1
+            kill = True
+            result_state.alive_soldiers[enemy.team] -= 1
+            result_state.soldier_died[enemy.team][enemy.id] = True
 
-        return result_state
+        # CALCULATE STATS
+        # damage dealt
+        d = damage
+        # shots fired
+        sf = min(state.soldier_variables[soldier.id][4], state.soldier_variables[soldier.id][5])
+        if kill:
+            k = 1
+        else:
+            k = 0
+
+        stats = [('kills', k), ('shots', sf), ('shots landed', landed_shots), ('shots missed', sf - landed_shots)]
+
+        return result_state, stats
 
     def real_move(self, soldier, position, state):
 
@@ -388,7 +489,9 @@ class ActionManager:
         result_state.soldier_variables[soldier.id] = new_changed_tuple(state.soldier_variables[soldier.id], change_sol)
         result_state.soldier_str_variables[soldier.id] = new_changed_tuple(state.soldier_str_variables[soldier.id], change_str_sol)
 
-        return result_state
+        stats = [('distance traveled', euclidean_distance(sol_position, new_pos))]
+
+        return result_state, stats
 
     def real_change_stance(self, soldier, stance, state):
 
@@ -414,6 +517,9 @@ class ActionManager:
         result_state.soldier_str_variables[soldier.id] = new_changed_tuple(state.soldier_str_variables[soldier.id],
                                                                            change__str_sol)
 
+        #result_state.soldier_moved[soldier.team][soldier.id] = True
+        #result_state.team_variables_moved[soldier.team] += 1
+
         return result_state
 
     def real_reload(self, soldier, state):
@@ -428,6 +534,10 @@ class ActionManager:
         result_state.soldier_ammo_per_weapon[soldier.id][soldier.equipped_weapon.name] = soldier.weapon_ammo[soldier.equipped_weapon.name]
         result_state.soldier_weapons_current_ammo[soldier.id][soldier.equipped_weapon.name] = soldier.equipped_weapon.current_ammo
         result_state.soldier_variables[soldier.id] = new_changed_tuple(state.soldier_variables[soldier.id], change_sol)
+
+        #result_state.soldier_moved[soldier.team][soldier.id] = True
+        #result_state.team_variables_moved[soldier.team] += 1
+
         return result_state
 
     def real_change_weapon(self, soldier, weapon_name, state):
@@ -441,7 +551,7 @@ class ActionManager:
         new_variables = self.change_weapon_variables(soldier, state)
 
         position = state.soldier_positions[soldier.id]
-        enemies_pos = soldier.detect_enemies(position, self.map.terrain_matrix, state.reverse_soldier_positions)
+        enemies_pos = soldier.detect_enemies(position, self.map.terrain_matrix, state)
         count_er = 0
         count_ner = 0
         for enemy_pos in enemies_pos:
@@ -462,4 +572,12 @@ class ActionManager:
         result_state.soldier_variables[soldier.id] = new_changed_tuple(state.soldier_variables[soldier.id], change_sol)
         result_state.soldier_str_variables[soldier.id] = new_changed_tuple(state.soldier_str_variables[soldier.id], [(2, weapon_name)])
         result_state.soldier_weapons_current_ammo[soldier.id][weapon_name] = new_variables[3]
+
+        #result_state.soldier_moved[soldier.team][soldier.id] = True
+        #result_state.team_variables_moved[soldier.team] += 1
+
         return result_state
+
+    def empty_action(self, state):
+
+        return state

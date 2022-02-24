@@ -40,21 +40,27 @@ class Weapon:
             else:
                 range_precision = 0
 
+        sol_improved_precision = min(s_precision * affinity, 0.95)
+        target_improved_concealment = min(target_concealment * visibility_impairment, 0.95)
+
         hit_chance = self._average_hit_chance(
-            [affinity, range_precision, s_precision, (1 - target_concealment), (1 - visibility_impairment)])
+            [sol_improved_precision, range_precision, 1 - target_improved_concealment])
+
         damage = 0
+        shots_landed = 0
         # Cada disparo capaz de realizar el arma en un turno acierta con la probabilidad: hit_chance
         # Cada disparo tiene una probabilidad (crit_chance) de realizar el doble de dano
         for i in range(min(self.fire_rate, self.current_ammo)):
             self.current_ammo -= 1
             shot = uniform(0, 1)
             if shot <= hit_chance:
+                shots_landed += 1
                 damage += self.damage
                 crit = uniform(0, 1)
                 if crit <= crit_chance:
                     damage += self.damage
 
-        return damage
+        return damage, shots_landed
 
     # Recarga una cantidad de municion: ammo_amount
     def load_ammo(self, ammo_amount):

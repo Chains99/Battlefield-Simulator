@@ -1,6 +1,7 @@
-from sim.A_star.A_star import a_star
-from sim.A_star.A_star import euclidean_distance
-from sim.Entities.Utilities import Sight
+from Sim.A_star.A_star import a_star
+from Sim.A_star.A_star import euclidean_distance
+from Sim.Entities.Utilities import Sight
+from random import uniform
 
 
 class Soldier:
@@ -8,7 +9,7 @@ class Soldier:
     id = 0
 
     def __init__(self, health, vision_range, precision, move_speed, crit_chance, orientation, stance, max_load,
-                 concealment, team):
+                 concealment, melee_damage, team):
         self.id = Soldier.id
         Soldier.id += 1
         self.health = health
@@ -35,6 +36,8 @@ class Soldier:
         self.weapons = []
         # dictionary weapon name: remaining ammo
         self.weapon_ammo = {}
+
+        self.melee_damage = melee_damage
 
     def detect_object_next(self, position, terrain_map):
         squares = Sight.squares_within_range(position, 1, terrain_map, 'all')
@@ -68,11 +71,16 @@ class Soldier:
         if path is None:
             return position
         # Cada casilla que se avanza resta speed al soldado, con 0 speed no puede avanzar mas
+        first_step = False
+
         for item in path:
-            if speed < 0:
-                return position
             position = item
             speed -= restriction_map[item[0]][item[1]]
+            if speed < 0:
+                if not first_step:
+                    first_step = True
+                    continue
+                return position
 
         self.detect_object_next(position, terrain_map)
         return position
@@ -81,22 +89,33 @@ class Soldier:
     # pos: posicion central del campo de vision
     # terrain_map: matriz de terrenos
     # Devuelve una lista de enemigos en el rango de vision
-    def detect_enemies(self, position, terrain_map, reverse_sol_pos):
+    def detect_enemies(self, position, terrain_map, state):
 
         # Encontramos todas las casillas en el rango de vision
         squares = Sight.squares_within_range(position, self.vision_range, terrain_map, 'all')
         enemies = []
         # Encontramos si existen soldados enemigos en el rango de vision
-        sol_pos = [*reverse_sol_pos.keys()]
+        sol_pos = [*state.reverse_soldier_positions.keys()]
         for item in squares:
             # Si en esa posicion hay un soldado
             if item in sol_pos:
                 # Si el soldado no es del mismo equipo es enemigo
-                if self.team != reverse_sol_pos[item].team:
+                if self.team != state.reverse_soldier_positions[item].team:
                     if not Sight.detect_obstruction(position, item, terrain_map):
-                        enemies.append(item)
+                        # chance of missing because of concealment and camouflage
+                        if self._try_detect_enemy(item, terrain_map, state):
+                            enemies.append(item)
 
         return enemies
+
+    def _try_detect_enemy(self, enemy_pos, terrain_map, state):
+        if state.building:
+            return True
+        chance = uniform(0, 1)
+        enemy_concealment = state.soldier_variables[state.reverse_soldier_positions[enemy_pos].id][9]
+        if chance < min(enemy_concealment * terrain_map[enemy_pos[0]][enemy_pos[1]].camouflage, 0.95):
+            return False
+        return True
 
     # Parametros:
     # pos: posicion central del campo de vision
@@ -142,13 +161,17 @@ class Soldier:
         if self.equipped_weapon.name in self.w_affinities.keys():
             aff = self.w_affinities[self.equipped_weapon.name]
 
-        damage = self.equipped_weapon.fire(distance, self.precision, visibility, target_concealment, aff,
+        damage, shots_landed = self.equipped_weapon.fire(distance, self.precision, visibility, target_concealment, aff,
                                            self.crit_chance)
 
-        return damage
+        return damage, shots_landed
 
     def take_damage(self, damage):
         self.current_health -= damage
+        if self.current_health <= self.health/2:
+            # 20% less precision and movement
+            self.precision *= 0.8
+            self.move_speed = int(self.move_speed * 0.8)
 
     def reload(self):
         ammo = self.weapon_ammo[self.equipped_weapon.name]

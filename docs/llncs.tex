@@ -1,0 +1,231 @@
+% This is LLNCS.DEM the demonstration file of
+% the LaTeX macro package from Springer-Verlag
+% for Lecture Notes in Computer Science,
+% version 2.4 for LaTeX2e as of 16. April 2010
+%
+\documentclass{llncs}
+%
+\usepackage{makeidx}  % allows for indexgeneration
+%
+\begin{document}
+%
+\frontmatter          % for the preliminaries
+%
+\pagestyle{headings}  % switches on printing of running heads
+\addtocmark{Hamiltonian Mechanics} % additional mark in the TOC
+
+
+\section{Mapa}
+
+El mapa donde se lleva a cabo la simulaci\'on consiste por una matriz de $n$ filas y $m$ columnas. Cada elemento de esta matriz es un componente de tipo \emph{Terrain} que describe las caracter\'isticas de cada casilla del mapa con los siguientes atributos:\\
+
+\begin{itemize}
+\item[•] \emph{height}: Valor entero positivo que representa la altura de la casilla.
+\item[•] \emph{m restriction}: Valor entero que representa el costo de movimiento que supone moverse desde esta casilla a una casilla adyacente.
+\item[•] \emph{camouflage}: Valor entre $1$ y $2$ que afecta las probabilidades que tiene un soldado que ocupe la casilla de ser detectado y tambi\'en de que un disparo enemigo hacia este soldado falle.
+\item[•] \emph{terrain object} Referencia al objeto que se encuentra en la casilla, en caso de que no se encuentre ning\'un objeto el par\'ametro ser\'a \emph{None}
+
+\end{itemize}
+
+El mapa se crea instanciando la clase \emph{Map} con los par\'ametros \emph{rows}: cantidad de filas y \emph{cols}: cantidad de columnas. Con estos par\'ametros se crea una matriz de \emph{Terrain} con propiedades predefinidas para ser modificados luego antes de comenzar la simulaci\'on.
+
+\subsection{Distancia en el mapa}
+
+Para definir las cordenadas de una posici\'on en el mapa se trata este como un espacio cuadriculado. Considerando las filas como el eje $x$ y las columnas como el eje $y$. Se define el \'area de una casilla en la coordenada $(x, y)$ como la intersecci\'on del \'area comprendida entre $x$ y $x+1$ y el \'area comprendida entre $y$ y $y+1$.
+El espacio que ocupa cada casilla de terreno es de $1 m^2$, para calcular la distancia entre dos casillas se utiliza la distancia euclideana entre las coordenadas de ambas casillas.\\
+
+El elemento que define las dificultades que presenta el clima durante las acciones de un soldado es la clase \emph{Weather}. Sus propiedades son estado, velocidad del viento, direcci\'on del viento, afectaci\'on a la visi\'on, temperatura, humedad. Estas propiedades son iguales en todas las regiones del mapa, un cambio en el estado del clima se representa a trav\'es de una modificaci\'on de estas propiedades.
+
+\section{Armas}
+
+Las armas que utilizan los soldados en la simulaci\'on se definen a traves de la clase \emph{Weapon} con las siguientes propiedades: 
+
+\begin{itemize}
+\item[•] \emph{name}: String con el nombre del arma que funciona como identificador de esta dentro de las armas en el inventario de un soldado. Un soldado no puede tener dos armas con el mismo nombre.
+\item[•] \emph{weight}: Valor entero que representa el peso que suma el arma a la capacidad de carga de un soldado.
+\item[•] \emph{w effective precision}: Valor entre $0$ y $1$ que representa el valor \'optimo de precisi\'on del arma.
+\item[•] \emph{max range precision}: Valor entre $0$ y $1$ que representa la precisi\'on del arma fuera de su rango \'optimo.
+\item[•] \emph{w effective range}: Valor entero que representa el rango (en metros) en que tiene efecto la precisi\'on efectiva del arma.
+\item[•] \emph{w max range}: Valor entero que representa el rango (en metros) m\'aximo que alcanza un disparo del arma.
+\item[•] \emph{damage}: Valor que representa el da\~no a la salud que ocasiona cada disparo individual del arma.
+\item[•] \emph{fire rate}: Valor entero que indica la cantidad de disparo que puede realizar el arma en una acci\'on.
+\item[•] \emph{ammunition capacity}: Valor entero que indica la cantidad de munici\'on m\'axima que puede tener equipada el arma.
+\item[•] \emph{current ammo}: Valor que indica la cantidad de munici\'on actualmente equipada en el arma.
+
+\end{itemize}
+
+
+\subsection{Acciones del arma}
+
+El arma solo tiene definida una acci\'on fundamental, la acci\'on de disparar a trav\'es del m\'etodo \emph{fire} que determina la probabilidad de acertar en base a los siguientes par\'ametros:
+
+\begin{itemize}
+\item[•] Precisi\'on del soldado.
+\item[•] Precisi\'on del arma.
+\item[•] Par\'ametro de ocultamieno del objetivo.
+\end{itemize}
+
+La precisi\'on del arma est\'a influenciada por la distancia entre el arma y el objetivo, obtiene su valor \'optimo si la distancia es menor o igual que el rango efectivo del arma, en caso de que el valor de la distancia se encuentre entre el l\'imite del rango y el efectivo y el rango m\'aximo se emplea el segundo valor de precisi\'on del arma, orientado a ser menos efectivo.
+
+La precisi\'on del soldado puede ser altera seg\'un la postura del este y la afinidad con el arma.
+
+El ocultamiento del objetivo se ve afectado por un mayor n\'umero de factores. Adem\'as de su valor de base se toma en cuenta la postura del objetivo, el camuflaje de la casilla del mapa en que se encuentra, el par\'ametro de afectaci\'on de la visi\'on del clima y si el objetivo tiene un objeto con el cual cubrirse.
+
+Por u\'ltimo cada soldado tiene tambi\'en una probabilidad de ocacionar un golpe cr\'tico por el doble de da\~no. Esta probabilidad se aplica individualmente a cada disparo en la acci\'on.
+
+\section{Soldados}
+
+La clase \emph{Soldier} representa los soldados, que son agentes de la simulaci\'on. De cada soldado posee las siguientes propiedades: $id$ \'unico, su vida total, su vida actual, su rango de visi\'on, su precisi\'on, velocidad de movimiento, probabilidad de golpe cr\'itico, afinidad con diferentes armas, orientaci\'on, postura, carga m\'axima, ocultamiento, equipo al que pertenece, armas en el inventario y arma equipada.
+
+\begin{itemize}
+\item[•] \emph{id}: Valor entero que representa un identificador del soldado en la simulaci\'on.
+\item[•] \emph{health}: Valor entero que indica la vida m\'axima del soldado.
+\item[•] \emph{current health}: Valor entero que indica la vida actual del soldado.
+\item[•] \emph{vision range}: Valor entero que representa el rango (en metros) de la visi\'on del soldado.
+\item[•] \emph{precision}: Valor entre $0$ y $1$ que representa la precision base de un soldado. Esta se ve afectada luego por diferentes factores durante la acci\'on de disparo.
+\item[•] \emph{move speed}: Valor entero que indica la velocidad de movimiento del soldado. Este valor se ve afectado luego por la restricci\'on de movimiento del terreno.
+\item[•] \emph{crit chance}: Valor entre $0$ y $1$ que indica la probalidad del soldado de ocacionar un da\~no cr\'itico con un disparo.
+\item[•] \emph{weapon affinities}: Diccionario que usa el nombre de un arma como llave y contiene un valor entre $1$ y $2$ que representa un bono a la precisi\'on del soldado con ciertas armas de su preferencia.
+\item[•] \emph{stance}: String de $3$ posibles valores \emph{crouching}, \emph{lying}, \emph{standing} que representan las diferentes posturas que puede tomar un soldado en una casilla. Est\'as afectan la precision y el ocultamiento del soldado.
+\item[•] \emph{max load}: Valor que indica la capacidad m\'axima de carga del soldado.
+\item[•] \emph{concealment}: Valor entre $0$ y $1$ que representa el ocultamiento del soldado, que influye que lo detecten y la probabilidad de que diparos enemigos fallen.
+\item[•] \emph{team}: Valor entero que corresponde al identificador de la facci\'on a la que pertenece el soldado.
+\item[•] \emph{weapons}: Lista con las armas en el inventario del soldado.
+\item[•]\emph{equipped weapon}: Referencia al arma que el soldado tiene equipada actualmente.
+\item[•] \emph{weapon ammo}: Diccionario que toma como llaves el nombre de un arma y contiene un valor que representa la munici\'on de repuesto para cada arma en el inventario del soldado.
+\end{itemize}
+
+El soldado tiene definidos tambi\'en una serie de acciones capaces de realizar como moverse a otra casilla, disparar, recargar, cambiar de arma y cambiar de postura. Tambi\'en es capaz de analizar su entorno como buscar soldados enemigos en su campo de visi\'on, buscar aliados cercanos y detectar objetos cercanos.
+
+La acci\'on de moverse a otra casilla est\'a afectada por la velocidad de movimiento del soldado y las restricciones de movimiento de las casillas del camino que se encuentre hacie el objetivo. El camino se obtiene a trav\'es de un algoritmo $A^*$ que busca el camino \'optimo, definiendo \'optimo como el camino cuya suma de restricciones sea la menor.
+
+Las acciones de detectar objetos o soldados utilizan un algoritmo de detecci\'on de colisiones entre caja y segmento. Si una casilla en la linea de visi\'on entre el soldado y el objetivo a detectar, est\'a ocupada por un objeto, no se detecta el objetivo.
+
+Las acciones de cambio de postura afectan la precisi\'on y ocultamiento del soldado seg\'un la postura que adopte.
+
+\subsection{M\'etodos complementarios de la clase Soldier}
+
+La clase soldado implementa una serie de m\'etodos complementarios que son usados constantemente a lo largo de la simulaci\'on para apoyar y adquirir el conocimiento necesario para realizar algunas de sus acciones.\\
+
+\emph{M\'etodos de detecci\'on}: Los m\'etodos de detecci\'on implementabos se basan en la simulaci\'on del sentido de visi\'on de un soldado. Se considera el \'area de visi\'on de un soldado como un cuadrado compuesto por casillas del mapa con lados de longitud igual al doble del rango de visi\'on del soldado m\'as una unidad, tomando como centro del cuadrado la casilla en la que se encuentra el soldado. 
+
+Para determinar si el soldado es capaz de ver el objeto o soldado en una casilla dentro de su \'area de visi\'on se comprueba que no exista un obst\'aculo que obstruya la visi\'on del soldado en la l\'inea de visi\'on. Para lograr esto se utiliza un algoritmo de detecci\'on de colisiones basado en considerar una casilla como un \emph{Axis Aligned Bounding Box} (\emph{AABB}) y determinar si existe una colisi\'on con la l\'inea de visi\'on del soldado representada por un vector. Se considera que la visi\'on del soldado est\'a obstruida si existe un objeto en alguna de la casillas con las que colisiona su l\'inea de visi\'on hacia el objetivo a detectar.
+
+Cuando se intentar detectar soldados enemigos se toma en cuenta una probabilidad de fallo basada en los p\'arametros de ocultamiento del soldado objetivo y los factores que influyen sobre \'el.
+Los m\'etodos de detecci\'on se aplican para soldados enemigos, soldados aliados y objetos en el mapa.\\
+
+\emph{M\'etodo de toma de da\~no}: M\'etodo que debilita al soldado seg\'un el da\~no que recibe. Si la salud actual de un soldado es inferior a la mitad de su salud m\'axima, la precisi\'on y velocidad de movimiento de este pasan a ser menos efectivas.
+
+\subsection{Acciones del soldado}
+
+Las posibles acciones de los soldados marcan todo el desarrollo de la simulaci\'on, dado que son los \'unicos agentes que act\'uan sobre ella. Todos los resultados obtenibles partiendo un estado de la simulaci\'on dependen del conjunto de acciones que un soldado puede realizar, en ese conjunto est\'an definidas las siguienes acciones:\\
+
+\emph{Acciones de movimiento}: Se define cualquier intento de traslado de un soldado desde una casilla $A$ a una casilla $B$ como una acci\'on de movimiento.
+ Existen 2 par\'ametros fundamentales que definen el resultado de una acci\'on de movimiento hacia una casilla objetivo. La velocidad de movimiento del soldado que realiza la acci\'on y la restricci\'on de movimiento de las casillas por las que el soldado pase.
+ La velocidad de movimiento consiste en un valor entero que representa de cierta forma la cantidad de movimiento que el soldado puede utilizar durante la acci\'on.
+ La restricci\'on de movimiento de una casilla representa el costo de movimiento que gasta un soldado para moverse a una casilla adyacente.
+ Antes de comenzar el traslado del soldado el primer objetivo a cumplir es obtener el camino m\'as corto, o mejor dicho es menos costoso desde el punto de partida hasta el objetivo. Definimos este camino \'optimo como la secuencia de casillas con inicio en el punto y partida y final en el objetivo cuya sumatoria de valores de restricci\'on de movimiento sea la menor.\\
+ 
+Para hallar el camino \'optim se utiliza un algoritmo un algoritmo de $A^\star$ sobre la matriz de terrenos utilizando como heur\'istica las distancia euclidieanas entre las casillas y el objetivo.
+
+Una vez decido el camino el soldado comienza a avanzar descontado la restricci\'on de movimiento de su capacidad de moverse cada vez que se mueve a una casilla adyacente. Si la casilla en la que se encuentra supera su velocidad de movimiento restante el soldado se detiene y concluye su acci\'on.\\
+
+\emph{Acciones de disparo}: La acciones de disparo se basan en el empleo de m\'etodo \emph{fire} del arma equipada descrito anteriormente. Recibiendo los par\'ametros de distancia, visibilad y ocultamiento del objetivo se llama al m\'etodo \emph{fire} que retorna el da\~no total realizado por el arma.\\
+
+\emph{Acciones de cambio de postura}: Conjunto de acciones orientado a alternar entre las 3 posibles posturas de un soldado, ajustando los par\'ametros de precisi\'on y ocultamiento del soldado seg\'un la postura tomada.\\
+
+\emph{Acciones de cambio de arma}: Conjunto de posibles acciones que cambian el arma equipada de un soldado por una arma diferente que tenga en el inventario.\\
+
+\emph{Acci\'on de recargar}: Acci\'on sencilla que recarga las balas del arma equipada del soldado seg\'un las balas restantes en el inventario del soldado.
+ 
+\section{Facciones}
+
+Se definen las facciones como los diferentes equipos de soldados. La simulaci\'on se basa en el enfrentamiento de dos facciones. Las funciones de una facci\'on consisten en listar sus soldados en el mapa adem\'as de mantener un registro de los logros de sus soldados durante la simulaci\'on.
+
+ 
+\chapter{Simulaci\'on}
+
+El objetivo a simular es el enfrentamiento entre dos facciones de soldados en el mapa definido hasta que uno de los bandos se quede sin soldados vivos. El desarrollo de la simulaci\'on se basa en rondas y turnos, definiendo una ronda como el tiempo que demoran todos los soldados de la simulaci\'on en realizar una acci\'on. Un soldado no puede tomar una acci\'on 2 veces en la misma ronda. Luego las 2 facciones que se enfrentan se alternan los turnos, un turno consiste en la realizaci\'on de una acci\'on por parte de un soldado de la facci\'on. Si todos los soldados de la facci\'on que le toque moverse ya se movieron esta ronda pero faltan soldados por moverse, la facci\'on pasa el turno sin realizar ninguna acci\'on.
+
+\section{Estados de la simulaci\'on}
+
+Una herramienta que definir\'a el transcurso de la simulaci\'on son los estados de esta. Definimos un estado de la simulaci\'on a trav\'es de la clase \emph{State}. Una instancia de esta clase consiste en una serie de componentes que describen la situaci\'on en que se encuentra la simulaci\'on con todo detalle. Estos componentes son los siguientes:\\
+
+\begin{itemize}
+\item[•] \emph{soldier variables}: Diccionario que usa como llave el \emph{id} de un soldado y contiene una tupla de valores que caracterizan al soldado en ese momento concreto de la simulaci\'on. Estos valores son: cantidad enemigos en rango de visi\'on, cantidad aliados en rango, cantidad enemigos en rango efectivo, cantidad enemigos dentro del rango m\'axmimo, cadencia de fuego, munici\'on actual equipada, capacidad de munici\'on del arma equipada, rango efectivo del arma, da\~no del arma, ocultamiento, vida actual y precisi\'on.
+\item[•] \emph{soldier str variables}: Diccionario que usa como llave el \emph{id} de un soldado y contiene una tupla de \emph{strings} para describir los siguientes valores: postura del soldado, si se encuentra junto a un objeto, nombre del arma equipada.
+\item[•] \emph{soldier positions}: Diccionario que usa como llave el \emph{id} de un soldado y contiene la coordena de la casilla del mapa en la que se encuentra.
+\item[•] \emph{soldier reverse positions}: Diccionario que usa como llave una coordenada y contiene el soldado que se encuenre en ella, en caso de existir un soldado en esa casilla en ese estado de la simulaci\'on.
+\item[•] \emph{soldiers in map}: Diccionario que usa como llave el \emph{id} de un soldado y contiene una referencia a la instancia del soldado.
+\item[•] \emph{alive soldiers}: Diccionario que usa como llave el \emph{id} de una facci\'on y contiene la cantidad de soldados vivos actualmente que pertenecen a esta.
+\item[•] \emph{team variables moved}: Diccionario que usa como llave el \emph{id} de una facci\'on y contiene la cantidad de soldados de esa facci\'on que ya se han movido esta ronda.
+\item[•] \emph{soldier ammo per weapon}: Diccionario que usa como llave el \emph{id} de un soldado y contiene un segundo diccionario que usa como llave el nombre del arma y contiene la cantidad de munici\'on restantes en el inventario del soldado.
+\item[•] \emph{soldier weapons current ammo}:  Diccionario que usa como llave el \emph{id} de un soldado y contiene un segundo diccionario que usa como llave el nombre del arma y contiene la cantidad de munici\'on actualmente equipada en las armas inventario del soldado.
+\item[•] \emph{soldier weapons}: Diccionario que usa como llave el \emph{id} de un soldado y contiene un segundo diccionario que usa como llave el nombre del arma y contiene una referencia a la instancia del arma.
+\item[•] \emph{soldier moved}: Diccionario que usa como llave el \emph{id} de un soldado y contiene un \emph{bool} que indica si ya se movi\'o esta ronda.
+\item[•] \emph{soldier died}: Diccionario que usa como llave el \emph{id} de un soldado y contiene un \emph{bool} que indica si el soldado est\'a muerto en este estado de la simulaci\'on.
+
+\end{itemize}
+
+La para manejar la simulaci\'on se define clase \emph{SimulationManager} con el objetivo de controlar los turnos y rondas de la simulaci\'on.
+
+\emph{SimulationManager} se encarga de crear el estado inicial de la simulaci\'on basado en las caracter\'isticas iniciales de los soldados, el mapa y las posiciones de los soldados en el mapa. Maneja los resultados de las acciones y la evaluaci\'on de los estados, tema que se tratar\'a m\'as adelante.
+
+
+\section{Manejo de acciones}
+
+Para simular las acciones descritas anteriormentes se define la clase \emph{ActionManager} con el objetivo de manejar los par\'ametros necesarios para la ejecuci\'on de una acci\'on y generar el nuevo estado de la simulaci\'on que resultante. Debido a la naturaleza de la simulaci\'on existen diferentes posibles estados resultantes de realizar una acci\'on concreta partiendo de un estado de la simulaci\'on.
+
+Como una herramienta para poder indentificar las mejores acciones a tomar durante un estado de la simulaci\'on, el \emph{ActionManager} define una manera de llevar a cabo una acci\'on concreta sin realizar cambios "f\'isicos" en la simulaci\'on, este m\'etodo se basa en revertir estos cambios al estado incial y quedarse solamente con el estado de la simulaci\'on resultante. Un estado de la simulaci\'on tiene toda la informaci\'on necesaria para realizar cualquier acci\'on definida.
+
+
+
+\section{Comportamiento de los soldados}
+
+Durante un turno de la simulaci\'on se requieren conocer todas las posibles acciones que los soldados de la facci\'on pueden realizar, con ese objetivo se define la clase \emph{ActionBuilder} que se encarga de recoger todas estas posibles acciones y los par\'ametros necesearios para llevarse a cabo cada una. Las posibles acciones de un soldado se dividen en acciones de disparo a los enemigo en rango de su arma equipada, ya sea efectivo o no, acciones de cambio de arma, cambio de postura, recargas de arma y acciones de movimiento. En esta \'ultimas se consideran como opciones principales movimiento que te acerquen a un soldado en su campo de visi\'on, moverte hacia un objeto cercano para buscar m\'as probabilidades de supervivencia y un movimiento que siempre consideran es simplemente dirigirse hacia el centro del mapa.
+
+El comportamiento de un soldado, est\'a afectado principalmente por los intereses de la facci\'on a la que pertenece. Un soldado solo puede definir acciones a tomar basado en su conocimiento individual de su entorno, pero la decisi\'on sobre que acci\'on realizar\'a el soldado la toma la facci\'on en su turno correspondiente.
+
+\subsection{¿C\'omo se encuentra la mejor acci\'on a tomar?}
+
+La acci\'on que m\'as beneficie a la facci\'on que corresponde su turno se busca apony\'andose en un algoritmo de b\'usqueda adversarial \emph{MinMax}.
+
+Basandose en el sistema de turnos de la simulaci\'on el algoritmo el algoritmo utiliza simulaciones de la posibles acciones a tomar, alternando los turnos de las facciones hasta explorar todas las combinaciones de acciones llegando a una profundidad definida previamente. Utilizando un m\'etodo para evaluar los estados que resulten de simular estas series de acciones se obtiene la acci\'on que m\'as beneficia a la facci\'on que corresponde actuar y que al mismo tiempo permita beneficiarse lo menor posible a la facci\'on enemiga.
+
+Debido a la naturaleza de la simulaci\'on, el resultado obtenido puede no ser definitivo, la simulaci\'on de una acci\'on tiene diferentes posibles estados como resultado pero el algoritmo solo eval\'ua el resultado obtenido de una simulaci\'on
+ concreta. Esto abre paso a que se el caso de que aunque una acci\'on $A$ tenga en sus posibles resultados una media de evaluaci\'on m\'as beneficiosa para la facci\'on que una acci\'on $B$ si el resultado de la acci\'on $B$ fue mejor que el de la acci\'on $A$ en el momento de evaluaci\'on, se tomar\'a la acci\'on $B$. Aunque luego durante la ejecuci\'on "real" de la acci\'on no se obtenga este resultado.
+
+\section{¿C\'omo evaluar un estado?}
+
+Para ser capaces de evaluar que tan beneficioso es una estado para una facci\'on se define una heur\'istica manejada por la clase \emph{HeuristicManager} que consiste en una serie de valores asignados a diferentes aspectos de la simulaci\'on. Estos valores son los siguientes:
+
+\begin{itemize}
+\item[•] \emph{damage hvalue}: Valor asignado al da\~no que es capaz de ocasionar un soldado. Toma como referencia las caracter\'isticas del arma equipada y la precisi\'on y afinidad del soldado con el arma. Un mayor valor de este par\'ametro probablemente cree una tendencia a mantener a los soldados de la facci\'on con las mejores condiciones antes de un combate. Tomando medida como el cambio a la que considere mejor arma, recargar con frecuencia, etc.
+\item[•] \emph{allies hvalue}: Valor asignado a la cantidad de aliados cerca del soldado. Un mayor valor de este par\'ametro
+ puede crear una tendencia a los soldados de la facci\'on a andar en grupos.
+\item[•] \emph{enemies in range hvalue}: Valor asignado a la cantidad de enemigos en el rango efectivo del arma equipada del soldado.
+\item[•] \emph{enemies in sight hvalue}: Valor asignado a la cantidad de enemigos en el rango de visi\'on del soldado. Este valor se eval\'ua de forma negativa. Puede ser compensado por los enemigos dentro del rango del arma.
+\item[•] \emph{low ammo hvalue}: Valor asignado a la cantidad de munici\'on restante en el arma equipada. Este valor inlfuye la tendencia a mantener el arma cargada.
+\item[•] \emph{concealment hvalue}: Valor asignado al ocultamiento del soldado. Un mayor valor de este par\'ametro puede crear una tendencia a los soldados a priorizar la supervivencia. Puede lograrlo con diferentes tipos de acciones como cambiar de postura, moverse a zonas con mayor camuflaje, etc.
+\item[•] \emph{remaining health hvalue}: Valor asignado a la cantidad de salud restante del soldado.
+\item[•] \emph{dead soldier hvalue}: Valor asignado a la cantidad de soldados enemigos muertos. Aunque matar soldados enemigos sea el objetivo fundamental de una facci\'on un valor bajo en este par\'ametro puede crear tendencias a priorizar acciones relacionadas con otros aspectos.
+\item[•] \emph{damage dealt hvalue}: Valor asignado a la cantidad de da\~no realizado a los soldados de la facci\'on enemiga. Al igual que el par\'ametro anterior este valor influye la agresividad de una facci\'on.
+
+\end{itemize}
+
+Estas heur\'isticas est\'an vinculadas a una facci\'on. Durante el algoritmo de \emph{MinMax} se eval\'uan los estados en base a los criterios de la heur\'istica de la facci\'on a la que le corresponde el turno. Se eval\'uan sus movimientos seg\'un los estados resultados m\'as beneficiosos. A la hora de evaluar estados resultados de una acci\'on enemiga se utiliza el mismo m\'etodo lo cual permite que cada facci\'on tenga su propia interpretaci\'on de que acciones enemigas resultan m\'as problematicas.
+
+Esto permite influenciar los comportamientos de las 2 facciones de forma independiente. Permitiendo que surgan nuevas estrategias basadas en el enfrentamiento de los intereses de ambas facciones.
+
+
+
+\clearpage
+\addtocmark[2]{Author Index} % additional numbered TOC entry
+\renewcommand{\indexname}{Author Index}
+\printindex
+\clearpage
+\addtocmark[2]{Subject Index} % additional numbered TOC entry
+\markboth{Subject Index}{Subject Index}
+\renewcommand{\indexname}{Subject Index}
+% \input{subjidx.tex}
+\end{document}

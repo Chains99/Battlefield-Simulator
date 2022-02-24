@@ -65,7 +65,7 @@ class Production:
     def get_ast_node_builder(self):
         if self.ast_node_builder is None:
             raise ValueError("Builder function not set.")
-        return self.set_builder
+        return self.ast_node_builder
 
     def copy(self):
         pass

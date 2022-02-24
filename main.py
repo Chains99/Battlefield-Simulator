@@ -1,4 +1,4 @@
-from visual.Console import execute
+from Visual.Console import execute
 
-#if __name__ == '__main__':
-#    execute()
+if __name__ == '__main__':
+    execute()

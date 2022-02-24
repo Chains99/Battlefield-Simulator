@@ -1,8 +1,8 @@
-from language.lexer import LexycalAnalisis
-from language.lexer.TokenManager import Token_Manager
-from language.core.Core import Output_info
-from language.core import Adders
-from language.lexer.Token import TokenValues
+from Language.Lexer import LexycalAnalisis
+from Language.Lexer.TokenManager import Token_Manager
+from Language.Core.Core import Output_info
+from Language.Core import Adders
+from Language.Lexer.Token import TokenValues
 
 
 class lexer():

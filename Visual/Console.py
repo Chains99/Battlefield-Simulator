@@ -1,11 +1,11 @@
 import PySimpleGUI as sg
 
-from language.grammar.grammar import Grammar
-from language.lexer.Token import Token, TokenType
-from language.parser import parser
-from language.parser.lr1_parser import LR1Parser
-from tests.Sim_Test.quick_tests import run_test
-from language.lexer.Lexer import lexer
+from Language.Grammar.grammar import Grammar
+from Language.Lexer.Token import Token, TokenType
+from Language.Parser import parser
+from Language.Parser.lr1_parser import LR1Parser
+from Tests.Sim_Test.quick_tests import run_test
+from Language.Lexer.Lexer import lexer
 
 """  MAIN   """
 

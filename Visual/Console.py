@@ -2,7 +2,6 @@ import PySimpleGUI as sg
 
 from Language.Grammar.grammar import Grammar,non_term_heads
 from Language.Lexer.Token import Token, TokenType
-from Language.Parser import parser
 from Language.Parser.lr1_parser import LR1Parser
 from Tests.Sim_Test.quick_tests import run_test
 from Language.Lexer.Lexer import lexer

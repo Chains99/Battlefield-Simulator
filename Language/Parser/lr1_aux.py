@@ -77,8 +77,6 @@ class State:
             aux = aux[1:] if len(aux) >= 1 else []
             sym = item.get_symbol_at_dot()
 
-            sym =item.get_symbol_at_dot()
-
             if sym is None:
                 continue
             if sym in self.expected_symbols:

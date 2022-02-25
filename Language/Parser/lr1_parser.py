@@ -1,31 +1,30 @@
 from copy import error
 from lib2to3.pgen2 import grammar
 from Language.Lexer.Token import Token
-from typing import Set,Dict,List,Tuple,Union,Deque
-from Language.Grammar.grammar import Grammar,Production,Symbol,NonTerminal, Terminal
+from typing import Set, Dict, List, Tuple, Union, Deque
+from Language.Grammar.grammar import Grammar, Production, Symbol, NonTerminal, Terminal
 from Language.Parser.lr1_item import LR1Item
 import json
 
+
 class LR1Table:
-    def __init__(self,grammar: Grammar):
-        self.grammar=grammar
-        self.first: Dict[str,Set[Terminal]] =None
-        self.follow: Dict[str,Set[Terminal]] =None
-        self._hash=None
-        self.dict_states_id: Dict[int,List[LR1Item]]={}
-        self.dict_states_hash={}
-        self.dict_clousure_hash={}
-        self.dict_lr1_items: Dict[Production, int, Terminal]={}
-        self.dict_item_prods={}
+    def __init__(self, grammar: Grammar):
+        self.grammar = grammar
+        self.first: Dict[str, Set[Terminal]] = None
+        self.follow: Dict[str, Set[Terminal]] = None
+        self._hash = None
+        self.dict_states_id: Dict[int, List[LR1Item]] = {}
+        self.dict_states_hash = {}
+        self.dict_clousure_hash = {}
+        self.dict_lr1_items: Dict[Production, int, Terminal] = {}
+        self.dict_item_prods = {}
         self.extend_grammar()
         self.build_table()
 
-
-    
     def build_table(self):
-        self.first=self.calculate_first()
-        self.follow=self.calculate_follow()
-        lr1_items=self.get_all_lr1_items()
+        self.first = self.calculate_first()
+        self.follow = self.calculate_follow()
+        lr1_items = self.get_all_lr1_items()
 
         self.dict_lr1_items = {}
         for item in lr1_items:
@@ -38,7 +37,7 @@ class LR1Table:
                 self.dict_lr1_items[
                     self.grammar.start.productions[0],
                     0,
-                    list(self.follow[self.grammar.start.name])[0] ,
+                    list(self.follow[self.grammar.start.name])[0],
                 ]
             }
         )
@@ -69,15 +68,14 @@ class LR1Table:
         self._table = lr1_table
 
     def extend_grammar(self):
-        new_production=Production([self.grammar.start])   
+        new_production = Production([self.grammar.start])
         new_production.set_builder(self.grammar.start.productions[0].get_ast_node_builder())
-        new_non_terminal=NonTerminal('S', [new_production])
-        new_production.head=new_non_terminal
-        self.grammar.start=new_non_terminal
+        new_non_terminal = NonTerminal('S', [new_production])
+        new_production.head = new_non_terminal
+        self.grammar.start = new_non_terminal
         self.grammar.non_terminal_list.append(new_non_terminal)
 
-    
-    def get_all_lr1_items(self) ->List[LR1Item]:
+    def get_all_lr1_items(self) -> List[LR1Item]:
         lr1_items = []
         self.dict_item_prods = {}
         for prod in self.grammar.get_productions():
@@ -98,44 +96,43 @@ class LR1Table:
         while change:
             change = False
             for prod in self.grammar.get_productions():
-                head=prod.head
-                head_name=prod.head.name
+                head = prod.head
+                head_name = prod.head.name
 
                 for item in prod.symbols:
                     if item.is_terminal():
-
-                        set_=first[head_name]
-                        len_set_before=len(set_)
+                        set_ = first[head_name]
+                        len_set_before = len(set_)
                         set_.add(item)
-                        len_set_after=len(set_)
-                        change |= len_set_before!=len_set_after
+                        len_set_after = len(set_)
+                        change |= len_set_before != len_set_after
                         prod_first[prod].add(item)
                         break
 
                     if item != head:
-                        set_=first[item.name]
-                        len_set_before=len(set_)
+                        set_ = first[item.name]
+                        len_set_before = len(set_)
                         set_.update(first[item.name])
-                        len_set_after=len(set_)
-                        change |= len_set_before!=len_set_after
+                        len_set_after = len(set_)
+                        change |= len_set_before != len_set_after
                         prod_first[prod].update(first[item.name])
 
                     if "EPS" not in first[head.name]:
                         break
-        return first       
+        return first
 
-    def calculate_follow(self,first=None):
+    def calculate_follow(self, first=None):
         if first is None:
             first = self.calculate_first()
 
             follow = {non_term.name: non_term._terminals_set for non_term in self.grammar.non_terminal_list}
-            follow[self.grammar.start.name].add(Terminal("$","$"))
+            follow[self.grammar.start.name].add(Terminal("$", "$"))
 
             change = True
             while change:
                 change = False
                 for prod in self.grammar.get_productions():
-                    prod_head=prod.head
+                    prod_head = prod.head
                     for i, item in enumerate(prod.symbols):
                         next_item = prod.symbols[i + 1] if i + 1 < len(prod.symbols) else None
                         if item.is_terminal:
@@ -150,7 +147,7 @@ class LR1Table:
                                 change |= follow[item.name].update(follow[prod_head] - "EPS")
             return follow
 
-    def get_no_state(self,items:Set[LR1Item]) -> int: 
+    def get_no_state(self, items: Set[LR1Item]) -> int:
         hash_ = self.get_items_hash(items)
         if hash_ in self.dict_states_hash:
             return self.dict_states_hash[hash_]
@@ -173,7 +170,7 @@ class LR1Table:
                 if next_item is None or next_item.is_terminal:
                     continue
                 lookahead = item.lookahead
-                rest = item.production.symbols[item.dot_index + 1 :]
+                rest = item.production.symbols[item.dot_index + 1:]
                 rest.append(lookahead)
                 for prod in self._item_prods[next_item.name]:
                     for fol in self._follow[next_item]:
@@ -187,7 +184,7 @@ class LR1Table:
         self.dict_clousure_hash[hash] = closure
         return closure
 
-    def is_in_first(self, terminal,symbols):
+    def is_in_first(self, terminal, symbols):
         for symbol in symbols:
             if isinstance(symbol, Symbol) and symbol.is_terminal:
                 return symbol == terminal
@@ -197,7 +194,7 @@ class LR1Table:
                 break
         return False
 
-    def get_items_hash(self,items:Set[LR1Item]):
+    def get_items_hash(self, items: Set[LR1Item]):
         return sum(hash(i) for i in items)
 
     def go_to(self, state_id: int, symbol: Symbol):
@@ -211,17 +208,16 @@ class LR1Table:
         return self.get_no_state(clausure)
 
     def __getitem__(self, key):
-        return self._table.get(key,None)
-        
+        return self._table.get(key, None)
 
 
 class LR1Parser:
     def __init__(self, grammar: Grammar):
-        self.grammar=grammar
-        self._table=LR1Table(grammar)
+        self.grammar = grammar
+        self._table = LR1Table(grammar)
 
     def parse(self, token_list: Deque[Token]):
-        table=self._table
+        table = self._table
         stack: List[Tuple[Symbol, int]] = []
         i = 0
 
@@ -229,7 +225,7 @@ class LR1Parser:
             token = token_list[i]
             current_state = stack[-1][1] if stack else 0
             table_val = table[current_state, token.type]
-            
+
             if table_val == "OK":
                 break
             if isinstance(table_val, int):
@@ -248,7 +244,6 @@ class LR1Parser:
                 # Apply reduction
                 new_head = reduce_prod.head.copy()
                 new_head.set_ast(reduce_prod.get_ast_node_builder(items))
-
 
                 # Check next state
                 left_state = stack[-1][1] if stack else 0

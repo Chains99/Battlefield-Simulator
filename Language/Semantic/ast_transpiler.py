@@ -1,8 +1,8 @@
 from io import StringIO
-from Language.Parser.ast import Script, Expression, Variable, Number, Bool, _None, _List, FuncDef, If, El_if_se, \
+from Language.parser.ast import Script, Expression, Variable, Number, Bool, _None, _List, FuncDef, If, El_if_se, \
     WhileDef, Decl, Assign, Return, Continue, Break, BinaryExpression, TernaryExpression, Arguments
-from Language.Semantic.Type_checking.context import Context
-from Language.Semantic.Visitor import visitor
+from Language.semantic.Type_checking.context import Context
+from Language.semantic.Visitor import visitor
 
 
 class ASTtranspile:

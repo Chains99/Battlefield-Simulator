@@ -166,7 +166,7 @@ class LexicalAnalyzer:
                 number = 0
                 if not element[0].replace('.', '', 1).isdigit():
                     errors.Add(CompilingError(stream.get_codelocation(), ErrorCode.invalid, "Number format"))
-                tokens.append(Token("Number", element[0], TokenType.Number,
+                tokens.append(Token("number", element[0], TokenType.Number,
                                     stream.get_codelocation()))
                 continue
 

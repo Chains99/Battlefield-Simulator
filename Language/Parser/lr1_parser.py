@@ -19,6 +19,7 @@ class LR1Parser:
         tokens_stack = []
         states_id_stack = [0]
         ast = []
+        grammar_prod = self.grammar.get_productions()
 
         while len(tokens) > 0:
             token = tokens[0]
@@ -28,8 +29,6 @@ class LR1Parser:
             if token.value not in current_state_actions:
                 raise Exception(
                     f'Unexpected token {token.value} with value {token.lexeme} and type {token.type}')
-
-            grammar_prod = self.grammar.get_productions()
 
             action = current_state_actions[token.value]
             if action[0] == 'S':

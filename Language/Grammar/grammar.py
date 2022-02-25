@@ -169,6 +169,7 @@ closedCurlyBraces_t = Terminal('}', '}')
 openStraightBracket_t = Terminal('[', '[')
 closedStraightBracket_t = Terminal(']', ']')
 continue_t = Terminal('continue', 'continue')
+number = Terminal("number", "number")
 
 # NonTerminals
 pow_nt = NonTerminal("pow")
@@ -271,6 +272,10 @@ type_nt += Production([name_t])
 type_nt += Production([number_t])
 type_nt += Production([list_t])
 
+list_t += Production([openStraightBracket_t, expressions, closedStraightBracket_t], build_list_1)
+list_t += Production([openStraightBracket_t, closedStraightBracket_t], build_list_2)
+
+
 # logical accumulators
 disjunction += Production([conjunction, or_t, disjunction], build_or)
 disjunction += Production([conjunction])
@@ -305,7 +310,7 @@ term += Production([factor])
 
 factor += Production([add_t, factor])
 factor += Production([sub_t, factor])
-factor += Production([pow_t])
+factor += Production([pow_nt])
 
 pow_nt += Production([basic, pow_t, factor], build_aritmetic_expression)
 pow_nt += Production([basic])
@@ -321,11 +326,8 @@ atom += Production([identifier], build_Variable)
 atom += Production([true_t], build_Bool)
 atom += Production([false_t], build_Bool)
 atom += Production([none_t], build_None)
-atom += Production([number_t], build_Number)
+atom += Production([number], build_Number)
 atom += Production([list_t])
-
-list_t += Production([openStraightBracket_t, expressions, closedStraightBracket_t], build_list_1)
-list_t += Production([openStraightBracket_t, closedStraightBracket_t], build_list_2)
 
 # grammar start
 bfs_start += Production([statements, eof], build_script_file)

@@ -23,7 +23,7 @@ class lexer():
             ("Number", TokenValues.Number),
             ("True", TokenValues._True),
             ("False", TokenValues._False),
-            ("String", TokenValues.Number)
+            ("String", TokenValues.String)
         ]
         Adders.register_keywords(self.analyser, keywords)
 

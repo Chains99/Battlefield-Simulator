@@ -42,6 +42,8 @@ class TokenValues:
     _True = "true"
     _False = "falsetrue"
 
+    number = "number"
+
     # Arithmetic Operators
     Add = "+"  # +
     Sub = "-"  # -

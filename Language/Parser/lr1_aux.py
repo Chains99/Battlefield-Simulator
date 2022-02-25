@@ -48,7 +48,7 @@ class State:
         self._repr = "".join(f"{item} |" for item in items)
         self.items = set(items)
         self.nexts: Dict[Symbol, State] = {}
-        self.expected_symbols: Dict[Symbol,Set[LR1Item]] = {}
+        self.expected_symbols: Dict[Symbol, Set[LR1Item]] = {}
         self.number: int = 0
         self.hash: int = hash(self._repr)
 
@@ -74,6 +74,7 @@ class State:
 
         while len(self.list_items) != 0:
             item = aux[0]
+            aux = aux[1:] if len(aux) != 1 else []
             if item.dot_index == len(item.production.symbols):
                 continue
             sym = item.get_symbol_at_dot()
@@ -88,7 +89,7 @@ class State:
                     lookahead = item.lookahead if item.dot_index + \
                                                   1 == len(item.production.symbols) else item.production.symbols[
                         item.dot_index + 1]
-                    new_item = LR1Item(i.production, i.index, lookahead)
+                    new_item = LR1Item(i.production, i.dot_index, lookahead)
                     if new_item not in self.items:
                         self.add_item(new_item)
                         aux.append(new_item)

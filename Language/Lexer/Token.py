@@ -25,62 +25,64 @@ class Token:
 class TokenValues:
     # Keywords
     Def = "Def"
-    Map = "Map"
     Return = "Return"
-    If = "If"
-    Else = "Else"
+    If = "if"
+    Else = "else"
+    Elif = "elif"
     While = "While"
 
     # Types
+    Map = "Map"
     Soldier = "Soldier"
     Weapon = "Weapon"
     Number = "Number"
     String = "String"
     Bool = "Bool"
-    _True = "True"
-    _False = "False"
+
+    _True = "true"
+    _False = "falsetrue"
 
     # Arithmetic Operators
-    Add = "Addition"  # +
-    Sub = "Subtract"  # -
-    Mul = "Multiplication"  # *
-    Div = "Division"  # /
-    Mod = "Modulus"  # %
+    Add = "+"  # +
+    Sub = "-"  # -
+    Mul = "*"  # *
+    Div = "/"  # /
+    Mod = "%"  # %
 
     # Comparative Operators
-    Less = "Less"  # <
-    LessOrEquals = "LEqual"  # <=
-    Greater = "Greater"  # >
-    GreaterOrEquals = "GEqual"  # >=
-    Equals = "Equals"  # ==
-    NotEquals = "NEquals"  # !=
+    Less = "<"  # <
+    LessOrEquals = "<="  # <=
+    Greater = ">"  # >
+    GreaterOrEquals = ">="  # >=
+    Equals = "=="  # ==
+    NotEquals = "!="  # !=
 
     # Logical Operators
-    And = "And"  # and
-    Or = "Or"  # or
-    Not = "Not"  # !
-    # self.Dots = "Dots"
+    And = "and"  # and
+    Or = "or"  # or
+    Not = "not"  # !
+    dot = "dot"
 
     # Assignment
-    Assign = "Assign"  # =
+    Assign = "="  # =
 
     # Separators
-    ValueSeparator = "ValueSeparator"  # ,
-    StatementSeparator = "StatementSeparator"  # ;
+    ValueSeparator = ","  # ,
+    StatementSeparator = ";"  # ;
 
     #
-    OpenBracket = "OpenBracket"  # (
-    ClosedBracket = "ClosedBracket"  # )
-    OpenCurlyBraces = "OpenCurlyBraces"  # {
-    ClosedCurlyBraces = "ClosedCurlyBraces"  # }
-    OpenStraightBracket = "StraightBracket"  # [
-    ClosedStraightBracket = "ClosedStraightBracket"  # ]
+    OpenBracket = "("  # (
+    ClosedBracket = ")"  # )
+    OpenCurlyBraces = "{"  # {
+    ClosedCurlyBraces = "}"  # }
+    OpenStraightBracket = "["  # [
+    ClosedStraightBracket = "]"  # ]
 
     #
     Print = "Print"  # print
 
     #
-    List = "List"  # sequence
+    List = "List"  # list
 
     def __init__(self):
         pass

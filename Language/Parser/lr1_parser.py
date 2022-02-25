@@ -9,13 +9,14 @@ import json
 class LR1Table:
     def __init__(self,grammar: Grammar):
         self.grammar=grammar
-        self.first=None
-        self.follow=None
+        self.first: Dict[str,Set[Terminal]] =None
+        self.follow: Dict[str,Set[Terminal]] =None
         self._hash=None
         self.dict_states_id: Dict[int,List[LR1Item]]={}
         self.dict_states_hash={}
         self.dict_clousure_hash={}
         self.dict_lr1_items: Dict[Production, int, Terminal]={}
+        self.dict_item_prods={}
         self.extend_grammar()
         self.build_table()
 
@@ -26,27 +27,27 @@ class LR1Table:
         self.follow=self.calculate_follow()
         lr1_items=self.get_all_lr1_items()
 
-        self._lr_items = {}
+        self.dict_lr1_items = {}
         for item in lr1_items:
-            for follow in self.follow[item.production.head]:
+            for follow in self.follow[item.production.head.name]:
                 new_lr_item = LR1Item(item.production, item.dot_index, follow)
-                self._lr_items[item.production, item.dot_index, follow] = new_lr_item
+                self.dict_lr1_items[item.production, item.dot_index, follow] = new_lr_item
 
         init_state = self.closure(
             {
-                self._lr_items[
-                    self.grammar.start_expr.prod_0,
+                self.dict_lr1_items[
+                    self.grammar.start.productions[0],
                     0,
-                    self.follow[self.grammar.start_expr][0],
+                    list(self.follow[self.grammar.start.name])[0] ,
                 ]
             }
         )
 
-        self._states_by_id = {0: init_state}
+        self.dict_states_id = {0: init_state}
 
         lr1_table: Dict[Tuple[int, str], Union[str, int, Production]] = {}
         current_state = 0
-        while current_state < len(self._states_by_id):
+        while current_state < len(self.dict_states_id):
             state = self.dict_states_id[current_state]
             for item in state:
                 if item.get_symbol_at_dot() is None:
@@ -68,28 +69,25 @@ class LR1Table:
         self._table = lr1_table
 
     def extend_grammar(self):
-        new_production=Production([self.grammar.start])
-        a=self.grammar.start.productions
-        print(a)
-        b=a[0]
-        c=b.ast_node_builder
-        
+        new_production=Production([self.grammar.start])   
         new_production.set_builder(self.grammar.start.productions[0].get_ast_node_builder())
         new_non_terminal=NonTerminal('S', [new_production])
+        new_production.head=new_non_terminal
         self.grammar.start=new_non_terminal
+        self.grammar.non_terminal_list.append(new_non_terminal)
 
     
     def get_all_lr1_items(self) ->List[LR1Item]:
         lr1_items = []
-        self._item_prods = {}
+        self.dict_item_prods = {}
         for prod in self.grammar.get_productions():
             for dot_pos in range(len(prod.symbols) + 1):
                 item_prod = prod
                 slr_item = LR1Item(item_prod, dot_pos)
                 lr1_items.append(slr_item)
-                if prod.head not in self._item_prods:
-                    self._item_prods[prod.head] = []
-                self._item_prods[prod.head.name].append(item_prod)
+                if prod.head not in self.dict_item_prods:
+                    self.dict_item_prods[prod.head] = []
+                self.dict_item_prods[prod.head].append(item_prod)
         return lr1_items
 
     def calculate_first(self):
@@ -131,7 +129,7 @@ class LR1Table:
             first = self.calculate_first()
 
             follow = {non_term.name: non_term._terminals_set for non_term in self.grammar.non_terminal_list}
-            follow[bfs_start.name].add(Terminal("$","$"))
+            follow[self.grammar.start.name].add(Terminal("$","$"))
 
             change = True
             while change:

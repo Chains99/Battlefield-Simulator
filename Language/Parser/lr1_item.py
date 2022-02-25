@@ -25,7 +25,7 @@ class LR1Item:
     
     def get_symbol_at_dot(self)->Symbol:
         if self.dot_index<len(self.production.symbols):
-            return self.production[self.dot_index]
+            return self.production.symbols[self.dot_index]
         return None
 
 

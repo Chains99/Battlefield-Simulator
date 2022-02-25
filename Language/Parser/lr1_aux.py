@@ -9,7 +9,7 @@ class NFA:
 
         start=self.grammar.start
 
-        initial_items = {start: [LR1Item(start.productions[0], 0, Terminal('$'))]}
+        initial_items = {start: [LR1Item(start.productions[0], 0, Terminal('$','$'))]}
 
         for non_term in self.grammar.non_terminal_list:
             initial_items[non_term] = []

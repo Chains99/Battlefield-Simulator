@@ -267,10 +267,10 @@ while_def += Production(
     [while_t, openBracket_t, expression, closedBracket_t, openCurlyBraces_t, statements, closedCurlyBraces_t],
     build_while_def)
 
-type_nt += Production([bool_t])
-type_nt += Production([name_t])
-type_nt += Production([number_t])
-type_nt += Production([list_t])
+type_nt += Production([bool_t], build_type)
+type_nt += Production([name_t], build_type)
+type_nt += Production([number_t], build_type)
+type_nt += Production([list_t], build_type)
 
 list_t += Production([openStraightBracket_t, expressions, closedStraightBracket_t], build_list_1)
 list_t += Production([openStraightBracket_t, closedStraightBracket_t], build_list_2)
@@ -286,7 +286,7 @@ conjunction += Production([negation])
 negation += Production([not_t, negation], build_inversion)
 negation += Production([comparison])
 
-def_nt += Production([type_nt, identifier, assign_t, expression], build_decl)
+def_nt += Production([type_nt, identifier, assign_t, expression], build_def)
 
 assign += Production([identifier, assign_t, expression], build_assign)
 

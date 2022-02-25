@@ -7,13 +7,13 @@ from Language.Semantic.Visitor import visitor
 
 class ASTtranspile:
     def __init__(self):
-        self.file = StringIO(str())
+        self.file = ''
         self.tabs_counter = 0
 
-    def write(self, string: str):
+    def write(self, text: str):
         tabs = ''
         tabs += ['\t' for i in range(self.tabs_counter)]
-        self.file.write(tabs + string)
+        self.file += tabs + text
 
     @visitor(Script)
     def transpile(self, node: Script, context: Context):

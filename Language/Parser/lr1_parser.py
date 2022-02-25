@@ -31,10 +31,14 @@ class LR1Parser:
                     f'Unexpected token {token.value} with value {token.lexeme} and type {token.type}')
 
             action = current_state_actions[token.value]
-            if action[0] == 'S':
+            if action[0] == 'OK':
+                return ast[0]
+
+            elif action[0] == 'S':
                 states_id_stack.append(action[1])
                 tokens_stack.append(token.lexeme)
                 tokens = tokens[1:] if len(tokens) >= 1 else []
+
             else:
                 prod = grammar_prod[action[1]]
                 if prod.ast_node_builder is not None:
@@ -48,9 +52,6 @@ class LR1Parser:
                         f"Non recognized tokens sequence starting with {prod.head.name}")
                 tokens_stack.append(prod.head.name)
                 states_id_stack.append(state_go_to[prod.head.name])
-
-            if action[0] == 'OK':
-                return ast[0]
 
     # method to remove production tokens and associated states from their respective stacks
     @staticmethod

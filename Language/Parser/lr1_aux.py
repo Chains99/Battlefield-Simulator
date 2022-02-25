@@ -146,7 +146,7 @@ class LR1Table:
             for lookahead in dict_lookahead_item:
                 state_action[lookahead.name] = ('R', dict_lookahead_item[lookahead].production.pos)
                 if lookahead.name == '$' and dict_lookahead_item[lookahead].production.head.name == 'S':
-                    state_action[lookahead.name] = ('OK')
+                    state_action[lookahead.name] = ('OK', -1)
 
             self.action_table.append(state_action)
             self.go_to_table.append(state_go_to)

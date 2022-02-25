@@ -376,7 +376,7 @@ def build_while_def(tokens: List[str], nodes: List):
     nodes.append(while_def)
 
 
-def build_decl(tokens: List[str], nodes: List):
+def build_def(tokens: List[str], nodes: List):
     expression = nodes.pop()
     type = nodes.pop()
     name = tokens[len(tokens) - 3]

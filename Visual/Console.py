@@ -110,5 +110,6 @@ def execute():
             grammar = Grammar(non_term_heads,bfs_start)
             parser = LR1Parser(grammar)
             ast = parser.parse(tokens)
+            python_code = ast.tr
             window['Result'].print(tokens)
     window.close()

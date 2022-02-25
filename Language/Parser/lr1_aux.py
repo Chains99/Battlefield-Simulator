@@ -26,7 +26,7 @@ class NFA:
         dict_states = {initial_state: initial_state}
         list_states_aux = list_states[:]
 
-        while len(list_states_aux) != 0:
+        while len(list_states_aux) > 0:
             state = list_states_aux[0]
             list_states_aux = list_states_aux[1:] if len(list_states_aux) >= 1 else []
 
@@ -68,7 +68,7 @@ class State:
     def build(self, initial_items: Dict[NonTerminal, List[LR1Item]]):
         aux = self.list_items[:]
 
-        while len(aux) != 0:
+        while len(aux) > 0:
             item = aux[0]
             aux = aux[1:] if len(aux) >= 1 else []
             sym = item.get_symbol_at_dot()

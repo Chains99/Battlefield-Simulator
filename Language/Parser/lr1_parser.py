@@ -4,10 +4,11 @@ from Language.Grammar.grammar import Grammar
 from Language.Parser.lr1_aux import LR1Table
 from typing import List
 
+
 class LR1Parser:
     def __init__(self, grammar: Grammar):
         self.grammar = grammar
-        self.table=LR1Table(grammar)
+        self.table = LR1Table(grammar)
         self.actions_table = self.table.action_table
         self.go_to_table = self.table.go_to_table
         self.final = Token('$', '$', TokenType.Symbol)
@@ -16,7 +17,7 @@ class LR1Parser:
         tokens.append(Token('$', '$', TokenType.Symbol))
         tokens_stack = []
         states_id_stack = [0]
-        nodes = []
+        ast = []
 
         while len(tokens) > 0:
             token = tokens[0]
@@ -37,7 +38,7 @@ class LR1Parser:
             else:
                 prod = grammar_prod[action[1]]
                 if prod.ast_node_builder is not None:
-                    prod.ast_node_builder(tokens_stack, nodes)
+                    prod.ast_node_builder(tokens_stack, ast)
 
                 self.remove_prod(len(prod), states_id_stack, tokens_stack)
 
@@ -49,9 +50,9 @@ class LR1Parser:
                 states_id_stack.append(state_go_to[prod.head.name])
 
             if action[0] == 'OK':
-                return nodes[0]
+                return ast[0]
 
-    # method to remove production tokens and asociated states from their respective stacks
+    # method to remove production tokens and associated states from their respective stacks
     @staticmethod
     def remove_prod(counter, states, tokens):
         for i in range(counter):

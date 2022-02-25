@@ -12,9 +12,6 @@ class lexer():
         keywords = [
             ("if", TokenValues.If),
             ("else", TokenValues.Else),
-            ("Weapon", TokenValues.Weapon),
-            ("Soldier", TokenValues.Soldier),
-            ("Map", TokenValues.Map),
             ("print", TokenValues.Print),
             ("and", TokenValues.And),
             ("or", TokenValues.Or),

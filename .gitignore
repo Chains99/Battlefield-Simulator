@@ -9,5 +9,3 @@ docs/llncs.synctex.gz
 *.out
 *.toc
 *.log
-*.py
-*.iml

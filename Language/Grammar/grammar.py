@@ -46,7 +46,7 @@ class Production:
         self.head: NonTerminal = None
         self.symbols: List[Symbol] = symbols
         self.ast_node_builder = ast_node_builder
-        self.id: int = -1
+        self.pos: int = 0
 
     def get_terminals(self) -> Set[Terminal]:
         terminals: Set = set()
@@ -102,8 +102,16 @@ class Grammar:
     def get_productions(self) -> List[Production]:
         prods = []
         for non_term in self.non_terminal_list:
+            self.update_pos(non_term.productions, prods)
             prods.extend(non_term.productions)
         return prods
+
+
+    def update_pos(self, productions, prods_l):
+        pos = len(prods_l)
+        for prod in productions:
+            prod.pos = pos
+            pos += 1
 
     def get_terminals(self) -> Set[Terminal]:
         terminals = set()

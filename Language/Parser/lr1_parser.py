@@ -8,6 +8,7 @@ from typing import List
 class LR1Parser:
     def __init__(self, grammar: Grammar):
         self.grammar = grammar
+        p = grammar.get_productions()
         self.table = LR1Table(grammar)
         self.actions_table = self.table.action_table
         self.go_to_table = self.table.go_to_table
@@ -40,7 +41,7 @@ class LR1Parser:
                 if prod.ast_node_builder is not None:
                     prod.ast_node_builder(tokens_stack, ast)
 
-                self.remove_prod(len(prod), states_id_stack, tokens_stack)
+                self.remove_prod(len(prod.symbols), states_id_stack, tokens_stack)
 
                 state_go_to = self.go_to_table[states_id_stack[-1]]
                 if prod.head.name not in state_go_to:

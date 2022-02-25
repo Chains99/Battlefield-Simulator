@@ -185,7 +185,6 @@ class Functions:
 
 
 # AST builder:
-
 def get_functions(list_func: List, functions):
     list_func.append(functions.function)
     if functions.functions is not None:

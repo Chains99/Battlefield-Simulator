@@ -12,9 +12,9 @@ class LR1Item:
             return self._repr
         
         repr_ = f"{self.production.head} -> "
-        repr_ += " ".join(str(i) for i in self.production.symbols[: self.dot_pos])
+        repr_ += " ".join(str(i) for i in self.production.symbols[: self.dot_index])
         repr_ += " . "
-        repr_ += " ".join(str(i) for i in self.production.symbols[self.dot_pos :])
+        repr_ += " ".join(str(i) for i in self.production.symbols[self.dot_index :])
 
         if not self.lookahead:
             repr_ += f" [{self.lookahead}]"

@@ -1,7 +1,7 @@
-from Language.Grammar.grammar import Production,Symbol
+from Language.Grammar.grammar import Production,Symbol, Terminal
 
 class LR1Item:
-    def __init__(self, production: Production, dot_index: int, lookahead:str=None):
+    def __init__(self, production: Production, dot_index: int, lookahead:Terminal=None):
         self.production=production
         self.dot_index=dot_index
         self.lookahead=lookahead

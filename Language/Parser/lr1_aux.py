@@ -69,14 +69,15 @@ class State:
     def add_item(self, item: LR1Item):
         self.items.add(item)
 
-    def build(self, initial_items):
+    def build(self, initial_items: Dict[NonTerminal,List[LR1Item]]):
         aux = self.list_items[:]
 
-        while len(self.list_items) != 0:
+        while len(self.list_items) > 0:
             item = aux[0]
-            if item.dot_index == len(item.production.symbols):
+            sym =item.get_symbol_at_dot()
+
+            if sym is None:
                 continue
-            sym = item.production.symbols[item.dot_index]
 
             if sym in self.expected_symbols:
                 self.expected_symbols[sym].add(item)
@@ -88,7 +89,7 @@ class State:
                     lookahead = item.lookahead if item.dot_index + \
                                                   1 == len(item.production.symbols) else item.production[
                         item.dot_index + 1]
-                    new_item = LR1Item(i.production, i.index, lookahead)
+                    new_item = LR1Item(i.production, i.dot_index, lookahead)
                     if new_item not in self.items:
                         self.add_item(new_item)
                         aux.append(new_item)

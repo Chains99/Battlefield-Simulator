@@ -98,7 +98,7 @@ class State:
         new_items = []
 
         for i in self.expected_symbols[sym]:
-            new_item = LR1Item(i.production, i.index + 1, i.lookahead)
+            new_item = LR1Item(i.production, i.dot_index + 1, i.lookahead)
             new_items.append(new_item)
         new_state = State(new_items)
 

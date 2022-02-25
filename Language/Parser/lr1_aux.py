@@ -1,6 +1,6 @@
 from Language.Grammar.grammar import Grammar, Symbol, Terminal, NonTerminal, Production
 from Language.Parser.lr1_item import LR1Item
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
 
 
 class NFA:
@@ -44,13 +44,13 @@ class NFA:
 
 class State:
     def __init__(self, items: List[LR1Item]):
-        self.list_items = items
+        self.list_items: List[LR1Item] = items
         self._repr = "".join(f"{item} |" for item in items)
         self.items = set(items)
         self.nexts: Dict[Symbol, State] = {}
-        self.expected_symbols = {}
-        self.number = 0
-        self.hash = hash(self._repr)
+        self.expected_symbols: Dict[Symbol,Set[LR1Item]] = {}
+        self.number: int = 0
+        self.hash: int = hash(self._repr)
 
     def __hash__(self):
         return self.hash

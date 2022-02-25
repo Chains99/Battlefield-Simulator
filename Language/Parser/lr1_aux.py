@@ -1,15 +1,16 @@
-from Language.Grammar.grammar import Grammar,Symbol,Terminal,NonTerminal,Production
+from Language.Grammar.grammar import Grammar, Symbol, Terminal, NonTerminal, Production
 from Language.Parser.lr1_item import LR1Item
 from typing import Dict, List, Tuple
+
 
 class NFA:
     def __init__(self, grammar: Grammar):
         self.grammar = grammar
         self.extended_grammar()
 
-        start=self.grammar.start
+        start = self.grammar.start
 
-        initial_items = {start: [LR1Item(start.productions[0], 0, Terminal('$','$'))]}
+        initial_items = {start: [LR1Item(start.productions[0], 0, Terminal('$', '$'))]}
 
         for non_term in self.grammar.non_terminal_list:
             initial_items[non_term] = []
@@ -25,26 +26,26 @@ class NFA:
 
         while len(list_states_aux) != 0:
             state = list_states_aux[0]
-            list_states_aux=list_states_aux[1:]
+            list_states_aux = list_states_aux[1:]
 
             for sym in state.expected_symbols:
                 state.go_to(sym, dict_states, list_states, list_states_aux, initial_items)
 
-        self.list_states=list_states
+        self.list_states = list_states
 
     def extended_grammar(self):
-        new_production=Production([self.grammar.start])   
+        new_production = Production([self.grammar.start])
         new_production.set_builder(self.grammar.start.productions[0].get_ast_node_builder())
-        new_non_terminal=NonTerminal('S', [new_production])
-        new_production.head=new_non_terminal
-        self.grammar.start=new_non_terminal
+        new_non_terminal = NonTerminal('S', [new_production])
+        new_production.head = new_non_terminal
+        self.grammar.start = new_non_terminal
         self.grammar.non_terminal_list.append(new_non_terminal)
 
 
 class State:
     def __init__(self, items: List[LR1Item]):
         self.list_items = items
-        self.string = sum( f"{item} |" for item in items)
+        self.string = sum(f"{item} |" for item in items)
         self.items = set(items)
         self.nexts: Dict[Symbol, State] = {}
         self.expected_symbols = {}
@@ -85,7 +86,7 @@ class State:
             if not sym.is_terminal():
                 for i in initial_items[sym]:
                     lookahead = item.lookahead if item.index + \
-                        1 == len(item.production) else item.production[item.index+1]
+                                                  1 == len(item.production) else item.production[item.index + 1]
                     new_item = LR1Item(i.production, i.index, lookahead)
                     if new_item not in self.items:
                         self.add_item(new_item)
@@ -95,7 +96,7 @@ class State:
         new_items = []
 
         for i in self.expected_symbols[sym]:
-            new_item = LR1Item(i.production, i.index+1, i.lookahead)
+            new_item = LR1Item(i.production, i.index + 1, i.lookahead)
             new_items.append(new_item)
         new_state = State(new_items)
 
@@ -110,19 +111,20 @@ class State:
 
         self.nexts[sym] = new_state
 
+
 class LR1Table:
-    def __init__(self,grammar:Grammar):
-        self.grammar=grammar
+    def __init__(self, grammar: Grammar):
+        self.grammar = grammar
         nfa = NFA(self.grammar)
 
-        states=nfa.list_states
+        states = nfa.list_states
 
         self.action_table = []
         self.go_to_table = []
 
         for state in states:
-            state_action: Dict[str,Tuple[str,int]] = {}
-            state_go_to:Dict[str,int] = {}
+            state_action: Dict[str, Tuple[str, int]] = {}
+            state_go_to: Dict[str, int] = {}
 
             for symbol in state.nexts:
                 if symbol.is_terminal():
@@ -143,4 +145,3 @@ class LR1Table:
                 state_action[l.name] = ('R', dict_lookahead_item[l].production.id)
                 if l.name == '$' and dict_lookahead_item[l].production.head.name == 'S':
                     state_action[l.name] = ('OK',)
-    

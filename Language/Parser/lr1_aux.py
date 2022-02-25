@@ -45,12 +45,12 @@ class NFA:
 class State:
     def __init__(self, items: List[LR1Item]):
         self.list_items = items
-        self.string = sum(f"{item} |" for item in items)
+        self._repr = "".join(f"{item} |" for item in items)
         self.items = set(items)
         self.nexts: Dict[Symbol, State] = {}
         self.expected_symbols = {}
         self.number = 0
-        self.hash = hash(self.string)
+        self.hash = hash(self._repr)
 
     def __hash__(self):
         return self.hash

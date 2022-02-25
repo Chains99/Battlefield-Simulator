@@ -26,7 +26,7 @@ class NFA:
 
         while len(list_states_aux) != 0:
             state = list_states_aux[0]
-            list_states_aux = list_states_aux[1:]
+            list_states_aux = list_states_aux[1:] if len(list_states_aux) >= 1 else []
 
             for sym in state.expected_symbols:
                 state.go_to(sym, dict_states, list_states, list_states_aux, initial_items)
@@ -69,16 +69,18 @@ class State:
     def add_item(self, item: LR1Item):
         self.items.add(item)
 
-    def build(self, initial_items):
+    def build(self, initial_items: Dict[NonTerminal,List[LR1Item]]):
         aux = self.list_items[:]
 
         while len(self.list_items) != 0:
             item = aux[0]
-            aux = aux[1:] if len(aux) != 1 else []
-            if item.dot_index == len(item.production.symbols):
-                continue
+            aux = aux[1:] if len(aux) >= 1 else []
             sym = item.get_symbol_at_dot()
 
+            sym =item.get_symbol_at_dot()
+
+            if sym is None:
+                continue
             if sym in self.expected_symbols:
                 self.expected_symbols[sym].add(item)
             else:

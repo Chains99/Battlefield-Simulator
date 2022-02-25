@@ -4,3 +4,8 @@
 docs/llncs.log
 docs/llncs.aux
 docs/llncs.synctex.gz
+*.gz
+*.aux
+*.out
+*.toc
+*.log

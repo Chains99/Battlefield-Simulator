@@ -93,6 +93,7 @@ La clase \emph{Soldier} representa los soldados, que son agentes de la simulaci\
 \item[•] \emph{weapons}: Lista con las armas en el inventario del soldado.
 \item[•]\emph{equipped weapon}: Referencia al arma que el soldado tiene equipada actualmente.
 \item[•] \emph{weapon ammo}: Diccionario que toma como llaves el nombre de un arma y contiene un valor que representa la munici\'on de repuesto para cada arma en el inventario del soldado.
+\item[•] \emph{melee damage}: Valor n\'umerico que representa el da\~no que realiza en soldado en un ataque cuerpo a cuerpo.
 \end{itemize}
 
 El soldado tiene definidos tambi\'en una serie de acciones capaces de realizar como moverse a otra casilla, disparar, recargar, cambiar de arma y cambiar de postura. Tambi\'en es capaz de analizar su entorno como buscar soldados enemigos en su campo de visi\'on, buscar aliados cercanos y detectar objetos cercanos.
@@ -124,13 +125,12 @@ Las posibles acciones de los soldados marcan todo el desarrollo de la simulaci\'
  Existen 2 par\'ametros fundamentales que definen el resultado de una acci\'on de movimiento hacia una casilla objetivo. La velocidad de movimiento del soldado que realiza la acci\'on y la restricci\'on de movimiento de las casillas por las que el soldado pase.
  La velocidad de movimiento consiste en un valor entero que representa de cierta forma la cantidad de movimiento que el soldado puede utilizar durante la acci\'on.
  La restricci\'on de movimiento de una casilla representa el costo de movimiento que gasta un soldado para moverse a una casilla adyacente.
- Antes de comenzar el traslado del soldado el primer objetivo a cumplir es obtener el camino m\'as corto, o mejor dicho es menos costoso desde el punto de partida hasta el objetivo. Definimos este camino \'optimo como la secuencia de casillas con inicio en el punto y partida y final en el objetivo cuya sumatoria de valores de restricci\'on de movimiento sea la menor.\\
- 
+ Antes de comenzar el traslado del soldado el primer objetivo a cumplir es obtener el camino m\'as corto, o mejor dicho es menos costoso desde el punto de partida hasta el objetivo. Definimos este camino \'optimo como la secuencia de casillas con inicio en el punto y partida y final en el objetivo cuya sumatoria de valores de restricci\'on de movimiento sea la menor. 
 Para hallar el camino \'optim se utiliza un algoritmo un algoritmo de $A^\star$ sobre la matriz de terrenos utilizando como heur\'istica las distancia euclidieanas entre las casillas y el objetivo.
-
 Una vez decido el camino el soldado comienza a avanzar descontado la restricci\'on de movimiento de su capacidad de moverse cada vez que se mueve a una casilla adyacente. Si la casilla en la que se encuentra supera su velocidad de movimiento restante el soldado se detiene y concluye su acci\'on.\\
 
 \emph{Acciones de disparo}: La acciones de disparo se basan en el empleo de m\'etodo \emph{fire} del arma equipada descrito anteriormente. Recibiendo los par\'ametros de distancia, visibilad y ocultamiento del objetivo se llama al m\'etodo \emph{fire} que retorna el da\~no total realizado por el arma.\\
+\emph{Acciones de combate cuerpo a cuerpo}: Este tipo de acci\'on se toma en cuenta cuando existe un enemigo en una casilla adyacente a la casilla que ocupa el soldado.\\
 
 \emph{Acciones de cambio de postura}: Conjunto de acciones orientado a alternar entre las 3 posibles posturas de un soldado, ajustando los par\'ametros de precisi\'on y ocultamiento del soldado seg\'un la postura tomada.\\
 

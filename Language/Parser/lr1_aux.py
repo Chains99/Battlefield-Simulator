@@ -57,14 +57,14 @@ class State:
 
     def __eq__(self, o):
         if isinstance(o, State):
-            return self.string == o.string
+            return self._repr == o._repr
         return False
 
     def __repr__(self):
-        return self.string
+        return self._repr
 
     def __str__(self):
-        return self.string
+        return self._repr
 
     def add_item(self, item: LR1Item):
         self.items.add(item)
@@ -74,19 +74,20 @@ class State:
 
         while len(self.list_items) != 0:
             item = aux[0]
-            if item.dot_index == len(item.production):
+            if item.dot_index == len(item.production.symbols):
                 continue
-            sym = item.production[item.dot_index]
+            sym = item.production.symbols[item.dot_index]
 
             if sym in self.expected_symbols:
                 self.expected_symbols[sym].add(item)
             else:
-                self.expected_symbols[sym] = set([item])
+                self.expected_symbols[sym] = {item}
 
             if not sym.is_terminal():
                 for i in initial_items[sym]:
-                    lookahead = item.lookahead if item.index + \
-                                                  1 == len(item.production) else item.production[item.index + 1]
+                    lookahead = item.lookahead if item.dot_index + \
+                                                  1 == len(item.production.symbols) else item.production[
+                        item.dot_index + 1]
                     new_item = LR1Item(i.production, i.index, lookahead)
                     if new_item not in self.items:
                         self.add_item(new_item)

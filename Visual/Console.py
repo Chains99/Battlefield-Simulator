@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 
-from Language.Grammar.grammar import Grammar,non_term_heads,bfs_start
+from Language.Grammar.grammar import Grammar, non_term_heads, bfs_start
 from Language.Lexer.Token import Token, TokenType
 from Language.Parser.lr1_parser import LR1Parser
 from Language.Lexer.Lexer import lexer
@@ -103,15 +103,16 @@ def execute():
             #     runing[0] = True
             #     run(runing, window, btf)
 
-            #tokenizing
+            # tokenizing
             lex = lexer()
             tokens = lex.get_token_manager("file", values['_Code_']).tokens
             tokens.append(Token("EOF", "EOF", TokenType.EOF))
 
-            #parsing
-            grammar = Grammar(non_term_heads,bfs_start)
+            # parsing
+            grammar = Grammar(non_term_heads, bfs_start)
             parser = LR1Parser(grammar)
             ast = parser.parse(tokens)
+            window['Result'].print(tokens)
             python_code = ASTtranspiler().transpile(ast, Context("parent"))
             window['Result'].print(python_code)
     window.close()

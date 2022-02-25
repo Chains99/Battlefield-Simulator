@@ -313,4 +313,4 @@ bfs_start += Production([eof])
 
 non_term_heads = [bfs_start, statements, statement, expressions, expression, fun_def, fun_type, params, basic, atom,
                   pow_nt, factor, term, sum_nt, comparison, inversion, disjunction, type_nt, while_def, elif_def,
-                  if_def, assign, def_nt, list_t, conjunction]
+                  if_def, assign, def_nt, list_t, conjunction, else_def]

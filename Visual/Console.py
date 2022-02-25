@@ -4,7 +4,7 @@ from Language.Grammar.grammar import Grammar,non_term_heads,bfs_start
 from Language.Lexer.Token import Token, TokenType
 from Language.Parser.lr1_parser import LR1Parser
 from Language.Lexer.Lexer import lexer
-from Language.Semantic.Type_checking.context import Context
+from Language.Semantic.Type_checking.Context import Context
 from Language.Semantic.ast_transpiler import ASTtranspiler
 
 """  MAIN   """

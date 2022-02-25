@@ -47,7 +47,7 @@ class NFA:
 class State:
     def __init__(self, items: List[LR1Item]):
         self.list_items: List[LR1Item] = items
-        self._repr = "".join(f"{item} |" for item in items)
+        self._repr = "".join(f"{item} , " for item in items)
         self.items = set(items)
         self.nexts: Dict[Symbol, State] = {}
         self.expected_symbols: Dict[Symbol, Set[LR1Item]] = {}

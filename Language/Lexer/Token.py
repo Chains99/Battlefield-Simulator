@@ -24,8 +24,8 @@ class Token:
 
 class TokenValues:
     # Keywords
-    Def = "Def"
-    Return = "Return"
+    Def = "def"
+    Return = "return"
     If = "if"
     Else = "else"
     Elif = "elif"

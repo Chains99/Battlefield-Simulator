@@ -13,6 +13,8 @@ class NFA:
         initial_items = {start: [LR1Item(start.productions[0], 0, Terminal('$', '$'))]}
 
         for non_term in self.grammar.non_terminal_list:
+            if (non_term.name == 'S'):
+                continue
             initial_items[non_term] = []
             for prod in non_term.productions:
                 initial_items[non_term].append(LR1Item(prod, 0))
@@ -77,7 +79,7 @@ class State:
             aux = aux[1:] if len(aux) >= 1 else []
             sym = item.get_symbol_at_dot()
             b = {item}
-            if sym is None:
+            if item.dot_index == len(item.production.symbols):
                 continue
             if sym in self.expected_symbols:
                 self.expected_symbols[sym].add(item)
@@ -142,9 +144,9 @@ class LR1Table:
                         raise Exception('Reduce-Reduce Conflict')
                     dict_lookahead_item[item.lookahead] = item
 
-            for l in dict_lookahead_item:
-                if l in state_action:
+            for lookahead in dict_lookahead_item:
+                if lookahead in state_action:
                     raise Exception('Shift-Reduce Conflict ')
-                state_action[l.name] = ('R', dict_lookahead_item[l].production.id)
-                if l.name == '$' and dict_lookahead_item[l].production.head.name == 'S':
-                    state_action[l.name] = ('OK', 0)
+                state_action[lookahead.name] = ('R', dict_lookahead_item[lookahead].production.id)
+                if lookahead.name == '$' and dict_lookahead_item[lookahead].production.head.name == 'S':
+                    state_action[lookahead.name] = ('OK')

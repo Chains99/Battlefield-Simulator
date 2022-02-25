@@ -3,25 +3,17 @@ from Language.Grammar.grammar import Production, Symbol, Terminal
 
 class LR1Item:
     def __init__(self, production: Production, dot_index: int, lookahead: Terminal = None):
+        self._repr = ''
         self.production = production
         self.dot_index = dot_index
         self.lookahead = lookahead
-        self._repr = None
+        self._repr = f"{self.production.head} -> "
+        self._repr += " ".join(str(i) for i in range(self.dot_index))
+        self._repr += " . "
+        self._repr += " ".join(str(i) for i in self.production.symbols[self.dot_index:])
+        self._repr += f", {self.lookahead}"
 
     def __repr__(self) -> str:
-        if self._repr:
-            return self._repr
-
-        repr_ = f"{self.production.head} -> "
-        repr_ += " ".join(str(i) for i in self.production.symbols[: self.dot_index])
-        repr_ += " . "
-        repr_ += " ".join(str(i) for i in self.production.symbols[self.dot_index:])
-
-        if not self.lookahead:
-            repr_ += f" [{self.lookahead}]"
-
-        self._repr = f"LRItem({repr_})"
-
         return self._repr
 
     def get_symbol_at_dot(self) -> Symbol:

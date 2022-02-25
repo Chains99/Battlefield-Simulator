@@ -46,7 +46,7 @@ class Production:
         self.head: NonTerminal = None
         self.symbols: List[Symbol] = symbols
         self.ast_node_builder = ast_node_builder
-        self.id: int = 0
+        self.id: int = -1
 
     def get_terminals(self) -> Set[Terminal]:
         terminals: Set = set()
@@ -55,6 +55,9 @@ class Production:
                 terminals.add(symbol)
         return terminals
 
+    def is_eps(self) -> bool:
+        return len(self.symbols) == 1 and self.symbols[0] == "EPS"
+
     def set_builder(self, func: Callable):
         self.ast_node_builder = func
 
@@ -62,6 +65,10 @@ class Production:
         if self.ast_node_builder is None:
             raise ValueError("Builder function not set.")
         return self.ast_node_builder
+
+    def __repr__(self):
+        prod_str = "-> " + " ".join(str(symbol) for symbol in self.symbols)
+        return prod_str
 
     def copy(self):
         return Production(self.symbols, self.ast_node_builder)

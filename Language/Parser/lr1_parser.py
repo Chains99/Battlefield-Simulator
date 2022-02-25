@@ -4,6 +4,7 @@ from Language.Grammar.grammar import Grammar
 from Language.Parser.lr1_aux import LR1Table
 from typing import List
 
+
 class LR1Parser:
     def __init__(self, grammar: Grammar):
         self.grammar = grammar
@@ -51,7 +52,7 @@ class LR1Parser:
             if action[0] == 'OK':
                 return ast[0]
 
-    # method to remove production tokens and asociated states from their respective stacks
+    # method to remove production tokens and associated states from their respective stacks
     @staticmethod
     def remove_prod(counter, states, tokens):
         for i in range(counter):

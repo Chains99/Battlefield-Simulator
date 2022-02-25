@@ -1,4 +1,4 @@
-from Language.Semantic.Type_checking.type import Type
+#from Language.Semantic.Type_checking.type import Type
 
 
 class Context:
@@ -14,9 +14,7 @@ class Context:
         self._vars = {}
         self._func = {}
         self._types = {}
-        self.While_count = 0
-        self.If_count = 0
-        self.Else_count = 0
+
 
     def get_func(self, func):
         if self.parent is None:
@@ -144,7 +142,8 @@ class Context:
             _parent = self.get_type_object(parent)
 
         child = self.create_child_context(name)
-        t = Type(child, name, self)
+        #t = Type(child, name, self)
+        t =''
         self._types[name] = t
         self.add_func(name, name, args, type_args)
         return [t, child]

@@ -12,7 +12,7 @@ class ASTtranspiler:
 
     def write(self, text: str):
         tabs = ''
-        tabs += ['\t' for i in range(self.tabs_counter)]
+        tabs.join(['\t' for i in range(self.tabs_counter)])
         self.code += tabs + text
 
     @visitor(Script)
@@ -23,7 +23,7 @@ class ASTtranspiler:
             else:
                 self.transpile(statement, context)
 
-        return self.code.getvalue()
+        return self.code
 
     @visitor(Variable)
     def transpile(self, node: Variable, context: Context):

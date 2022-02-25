@@ -11,9 +11,9 @@ def _class(obj):
 _methods = {}
 
 
-def _visitor_impl(self, arg):
+def _visitor_impl(self, arg, *args):
     method = _methods[(_qualname(type(self)), type(arg))]
-    return method(self, arg)
+    return method(self, arg, args[0])
 
 
 def visitor(arg_type):

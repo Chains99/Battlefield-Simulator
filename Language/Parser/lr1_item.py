@@ -29,5 +29,10 @@ class LR1Item:
             return self.production.symbols[self.dot_index]
         return None
 
+    def __eq__(self, o):
+        if isinstance(o, LR1Item):
+            return self._repr == o._repr
+        return False
+
     def __hash__(self):
         return hash(self.__repr__())

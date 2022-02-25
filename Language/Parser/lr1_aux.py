@@ -72,11 +72,11 @@ class State:
     def build(self, initial_items: Dict[NonTerminal, List[LR1Item]]):
         aux = self.list_items[:]
 
-        while len(self.list_items) != 0:
+        while len(aux) != 0:
             item = aux[0]
             aux = aux[1:] if len(aux) >= 1 else []
             sym = item.get_symbol_at_dot()
-
+            b = {item}
             if sym is None:
                 continue
             if sym in self.expected_symbols:

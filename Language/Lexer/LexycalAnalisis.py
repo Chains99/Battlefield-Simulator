@@ -1,4 +1,5 @@
 from collections import deque
+from typing import List
 
 from Language.Core.Core import CompilingError, Code_Location
 from Language.Core.Core import ErrorCode
@@ -126,7 +127,7 @@ class LexicalAnalyzer:
                 return True
         return False
 
-    def match_text(self, stream, tokens: deque, errors):
+    def match_text(self, stream, tokens: List, errors):
         for start in sorted(self.texts.keys(), key=lambda start: len(start), reverse=True):
             text = [""]
             if stream.match(start):
@@ -136,7 +137,7 @@ class LexicalAnalyzer:
                 return True
         return False
 
-    def match_symbol(self, stream, tokens: deque):
+    def match_symbol(self, stream, tokens: List):
         for op in sorted(self.operators.keys(), key=lambda op: len(op), reverse=True):
             if stream.match(op):
                 tokens.append(Token(self.operators.get(op), op, TokenType.Symbol, stream.get_codelocation))
@@ -144,7 +145,7 @@ class LexicalAnalyzer:
         return False
 
     def get_tokens(self, file_name, code, errors):
-        tokens = deque()
+        tokens = []
         stream = token_reader(file_name, code)
 
         while not stream.eof():

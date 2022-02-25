@@ -4,6 +4,7 @@ from Language.Grammar.grammar import Grammar,non_term_heads,bfs_start
 from Language.Lexer.Token import Token, TokenType
 from Language.Parser.lr1_parser import LR1Parser
 from Language.Lexer.Lexer import lexer
+from Language.Semantic.ast_transpiler import ASTtranspiler
 
 """  MAIN   """
 
@@ -110,6 +111,6 @@ def execute():
             grammar = Grammar(non_term_heads,bfs_start)
             parser = LR1Parser(grammar)
             ast = parser.parse(tokens)
-            python_code = ast.tr
-            window['Result'].print(tokens)
+            python_code = ASTtranspiler().transpile(ast)
+            window['Result'].print(python_code)
     window.close()

@@ -5,15 +5,15 @@ from Language.Semantic.Type_checking.context import Context
 from Language.Semantic.Visitor import visitor
 
 
-class ASTtranspile:
+class ASTtranspiler:
     def __init__(self):
-        self.file = ''
+        self.code = ''
         self.tabs_counter = 0
 
     def write(self, text: str):
         tabs = ''
         tabs += ['\t' for i in range(self.tabs_counter)]
-        self.file += tabs + text
+        self.code += tabs + text
 
     @visitor(Script)
     def transpile(self, node: Script, context: Context):
@@ -23,7 +23,7 @@ class ASTtranspile:
             else:
                 self.transpile(statement, context)
 
-        return self.file.getvalue()
+        return self.code.getvalue()
 
     @visitor(Variable)
     def transpile(self, node: Variable, context: Context):

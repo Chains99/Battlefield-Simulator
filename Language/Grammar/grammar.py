@@ -46,6 +46,7 @@ class Production:
         self.head: NonTerminal = None
         self.symbols: List[Symbol] = symbols
         self.ast_node_builder = ast_node_builder
+        self.id: int = 0
 
     def get_terminals(self) -> Set[Terminal]:
         terminals: Set = set()

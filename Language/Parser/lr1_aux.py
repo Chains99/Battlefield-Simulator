@@ -69,15 +69,14 @@ class State:
     def add_item(self, item: LR1Item):
         self.items.add(item)
 
-    def build(self, initial_items: Dict[NonTerminal,List[LR1Item]]):
+    def build(self, initial_items):
         aux = self.list_items[:]
 
-        while len(self.list_items) > 0:
+        while len(self.list_items) != 0:
             item = aux[0]
-            sym =item.get_symbol_at_dot()
-
-            if sym is None:
+            if item.dot_index == len(item.production.symbols):
                 continue
+            sym = item.get_symbol_at_dot()
 
             if sym in self.expected_symbols:
                 self.expected_symbols[sym].add(item)
@@ -87,9 +86,9 @@ class State:
             if not sym.is_terminal():
                 for i in initial_items[sym]:
                     lookahead = item.lookahead if item.dot_index + \
-                                                  1 == len(item.production.symbols) else item.production[
+                                                  1 == len(item.production.symbols) else item.production.symbols[
                         item.dot_index + 1]
-                    new_item = LR1Item(i.production, i.dot_index, lookahead)
+                    new_item = LR1Item(i.production, i.index, lookahead)
                     if new_item not in self.items:
                         self.add_item(new_item)
                         aux.append(new_item)
@@ -136,7 +135,7 @@ class LR1Table:
 
             dict_lookahead_item: Dict[Terminal, LR1Item] = {}
             for item in state.items:
-                if item.dot_index == len(item.production):
+                if item.dot_index == len(item.production.symbols):
                     if item.lookahead in dict_lookahead_item:
                         raise Exception('Reduce-Reduce Conflict')
                     dict_lookahead_item[item.lookahead] = item
@@ -146,4 +145,4 @@ class LR1Table:
                     raise Exception('Shift-Reduce Conflict ')
                 state_action[l.name] = ('R', dict_lookahead_item[l].production.id)
                 if l.name == '$' and dict_lookahead_item[l].production.head.name == 'S':
-                    state_action[l.name] = ('OK',)
+                    state_action[l.name] = ('OK', 0)

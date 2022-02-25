@@ -9,7 +9,7 @@ class LR1Item:
         self._repr = None
 
     def __repr__(self) -> str:
-        if not self._repr:
+        if self._repr:
             return self._repr
 
         repr_ = f"{self.production.head} -> "

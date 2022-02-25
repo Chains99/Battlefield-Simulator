@@ -1,10 +1,8 @@
-from copy import error
-from lib2to3.pgen2 import grammar
+from Language.Lexer.Token import Token, TokenType
 from Language.Lexer.Token import Token
-from typing import Set, Dict, List, Tuple, Union, Deque
+from typing import Set, Dict, List, Tuple, Union
 from Language.Grammar.grammar import Grammar, Production, Symbol, NonTerminal, Terminal
 from Language.Parser.lr1_item import LR1Item
-import json
 
 
 class LR1Table:
@@ -212,48 +210,54 @@ class LR1Table:
 
 
 class LR1Parser:
-    def __init__(self, grammar: Grammar):
+    def __init__(self, grammar: Grammar, actions_table, go_to_table):
         self.grammar = grammar
-        self._table = LR1Table(grammar)
+        self.actions_table = actions_table
+        self.go_to_table = go_to_table
+        self.final = Token('$', '$', TokenType.Symbol)
 
-    def parse(self, token_list: Deque[Token]):
-        table = self._table
-        stack: List[Tuple[Symbol, int]] = []
-        i = 0
+    def parse(self, tokens: List[Token]):
+        tokens.append(Token('$', '$', TokenType.Symbol))
+        tokens_stack = []
+        states_id_stack = [0]
+        nodes = []
 
-        while i < len(token_list):
-            token = token_list[i]
-            current_state = stack[-1][1] if stack else 0
-            table_val = table[current_state, token.type]
+        while len(tokens) > 0:
+            token = tokens[0]
 
-            if table_val == "OK":
-                break
-            if isinstance(table_val, int):
-                term = Terminal(token.type, value=token.value)
-                stack.append((term, table_val))
-                i += 1
-            elif isinstance(table_val, Production):
-                reduce_prod = table_val
-                # Pop from stack the necessary items
-                items_needed = len(reduce_prod.symbols)
-                items = []
-                if items_needed != 0:
-                    stack, items = stack[:-items_needed], stack[-items_needed:]
-                items = [item[0].ast for item in items]
+            current_state_actions = self.actions_table[states_id_stack[-1]]
 
-                # Apply reduction
-                new_head = reduce_prod.head.copy()
-                new_head.set_ast(reduce_prod.get_ast_node_builder(items))
+            if token.value not in current_state_actions:
+                raise Exception(
+                    f'Unexpected token {token.value} with value {token.lexeme} and type {token.type}')
 
-                # Check next state
-                left_state = stack[-1][1] if stack else 0
-                next_state = table[left_state, reduce_prod.head.name]
+            grammar_prod = self.grammar.get_productions()
 
-                # Push to stack the new item
-                stack.append((new_head, next_state))
-            elif table_val is None:
-                raise error(f"Unexpected token", token)
+            action = current_state_actions[token.value]
+            if action[0] == 'S':
+                states_id_stack.append(action[1])
+                tokens_stack.append(token.lexeme)
+                tokens = tokens[1:]
+            else:
+                prod = grammar_prod[action[1]]
+                if prod.ast_node_builder is not None:
+                    prod.ast_node_builder(tokens_stack, nodes)
 
-        if len(stack) != 1:
-            raise ValueError(f"Dirty stack at the end of the parsing. Stack: {stack}")
-        return stack[-1][0].ast
+                self.remove_prod(len(prod), states_id_stack, tokens_stack)
+
+                state_go_to = self.go_to_table[states_id_stack[-1]]
+                if prod.head.name not in state_go_to:
+                    raise Exception(
+                        f"Non recognized tokens sequence starting with {prod.head.name}")
+                tokens_stack.append(prod.head.name)
+                states_id_stack.append(state_go_to[prod.head.name])
+
+            if action[0] == 'OK':
+                return nodes[0]
+
+    # method to remove production tokens and asociated states from their respective stacks
+    @staticmethod
+    def remove_prod(counter, states, tokens):
+        for i in range(counter):
+            tokens.pop()
+            states.pop()

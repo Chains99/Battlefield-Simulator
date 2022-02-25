@@ -1,4 +1,3 @@
-from collections import deque
 from typing import List
 
 from Language.Core.Core import CompilingError, Code_Location

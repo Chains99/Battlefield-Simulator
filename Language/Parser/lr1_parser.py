@@ -34,7 +34,7 @@ class LR1Parser:
             if action[0] == 'S':
                 states_id_stack.append(action[1])
                 tokens_stack.append(token.lexeme)
-                tokens = tokens[1:]
+                tokens = tokens[1:] if len(tokens) >= 1 else []
             else:
                 prod = grammar_prod[action[1]]
                 if prod.ast_node_builder is not None:

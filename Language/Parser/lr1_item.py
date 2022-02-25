@@ -8,9 +8,9 @@ class LR1Item:
         self.dot_index = dot_index
         self.lookahead = lookahead
         self._repr = f"{self.production.head} -> "
-        self._repr += " ".join(str(i) for i in range(self.dot_index))
+        self._repr += " ".join(str(self.production.symbols[i]) for i in range(self.dot_index))
         self._repr += " . "
-        self._repr += " ".join(str(i) for i in self.production.symbols[self.dot_index:])
+        self._repr += " ".join(str(self.production.symbols[i]) for i in range(self.dot_index,len(self.production.symbols)))
         self._repr += f", {self.lookahead}"
 
     def __repr__(self) -> str:

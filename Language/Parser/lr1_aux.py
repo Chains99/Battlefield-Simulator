@@ -31,7 +31,7 @@ class NFA:
             list_states_aux = list_states_aux[1:] if len(list_states_aux) >= 1 else []
 
             for sym in state.expected_symbols:
-                state.go_to(sym, dict_states, list_states, list_states_aux, initial_items)
+                state.set_go_to(sym, dict_states, list_states, list_states_aux, initial_items)
 
         self.list_states = list_states
 
@@ -97,7 +97,7 @@ class State:
                         self.add_item(new_item)
                         aux.append(new_item)
 
-    def go_to(self, sym: Symbol, dict_states, list_states, q: List, initial_items):
+    def set_go_to(self, sym: Symbol, dict_states, list_states, aux: List, initial_items):
         new_items = []
 
         for i in self.expected_symbols[sym]:
@@ -110,7 +110,7 @@ class State:
             new_state.build(initial_items)
             dict_states[new_state] = new_state
             list_states.append(new_state)
-            q.append(new_state)
+            aux.append(new_state)
         else:
             new_state = dict_states[new_state]
 
@@ -150,3 +150,6 @@ class LR1Table:
                 state_action[lookahead.name] = ('R', dict_lookahead_item[lookahead].production.id)
                 if lookahead.name == '$' and dict_lookahead_item[lookahead].production.head.name == 'S':
                     state_action[lookahead.name] = ('OK')
+
+            self.action_table.append(state_action)
+            self.go_to_table.append(state_go_to)

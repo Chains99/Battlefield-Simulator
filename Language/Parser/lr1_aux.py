@@ -138,15 +138,12 @@ class LR1Table:
                     state_go_to[symbol.name] = state.nexts[symbol].number
 
             dict_lookahead_item: Dict[Terminal, LR1Item] = {}
+
             for item in state.items:
                 if item.dot_index == len(item.production.symbols):
-                    if item.lookahead in dict_lookahead_item:
-                        raise Exception('Reduce-Reduce Conflict')
                     dict_lookahead_item[item.lookahead] = item
 
             for lookahead in dict_lookahead_item:
-                if lookahead in state_action:
-                    raise Exception('Shift-Reduce Conflict ')
                 state_action[lookahead.name] = ('R', dict_lookahead_item[lookahead].production.id)
                 if lookahead.name == '$' and dict_lookahead_item[lookahead].production.head.name == 'S':
                     state_action[lookahead.name] = ('OK')

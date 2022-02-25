@@ -119,7 +119,7 @@ class Grammar:
 
 # Terminals
 eof = Terminal("EOF", "EOF")
-identifier = Terminal('IDENTIFIER', 'IDENTIFIER')
+identifier = Terminal('Identifier', 'Identifier')
 semicolon_t = Terminal(';', ';')
 comma_t = Terminal(',', ',')
 none_t = Terminal('None', 'None')
@@ -166,7 +166,7 @@ continue_t = Terminal('continue', 'continue')
 pow_nt = NonTerminal("pow")
 disjunction = NonTerminal("disjunction")
 conjunction = NonTerminal("conjunction")
-inversion = NonTerminal("inversion")
+negation = NonTerminal("negation")
 bfs_start = NonTerminal('bfs_start')
 statements = NonTerminal('statements')
 statement = NonTerminal('statement')
@@ -267,11 +267,11 @@ type_nt += Production([list_t])
 disjunction += Production([conjunction, or_t, disjunction], build_or)
 disjunction += Production([conjunction])
 
-conjunction += Production([inversion, and_t, conjunction], build_and)
-conjunction += Production([inversion])
+conjunction += Production([negation, and_t, conjunction], build_and)
+conjunction += Production([negation])
 
-inversion += Production([not_t, inversion], build_inversion)
-inversion += Production([comparison])
+negation += Production([not_t, negation], build_inversion)
+negation += Production([comparison])
 
 def_nt += Production([type_nt, identifier, assign_t, expression], build_decl)
 
@@ -327,5 +327,5 @@ return_nt += Production([return_t, expression], build_return_1)
 return_nt += Production([return_t], build_return_2)
 
 non_term_heads = [bfs_start, statements, statement, expressions, expression, fun_def, fun_type, params, basic, atom,
-                  pow_nt, factor, term, sum_nt, comparison, inversion, disjunction, type_nt, while_def, elif_def,
+                  pow_nt, factor, term, sum_nt, comparison, negation, disjunction, type_nt, while_def, elif_def,
                   if_def, assign, def_nt, list_t, conjunction, else_def, return_nt]

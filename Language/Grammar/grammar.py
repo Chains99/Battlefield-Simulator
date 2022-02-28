@@ -29,9 +29,9 @@ class Symbol(metaclass=ABCMeta):
 
 
 class Terminal(Symbol):
-    def __init__(self, name: str, value: str) -> None:
+    def __init__(self, name: str, value: str = '') -> None:
         super().__init__(name)
-        self.value = value
+        self.value = value if value != '' else name
 
     def copy(self):
         return Terminal(self.name, self.value)
@@ -126,52 +126,54 @@ class Grammar:
 
 # Terminals
 eof = Terminal("EOF", "EOF")
-identifier_t = Terminal('Identifier', 'Identifier')
-semicolon_t = Terminal(';', ';')
-comma_t = Terminal(',', ',')
-none_t = Terminal('None', 'None')
-if_t = Terminal('if', 'if')
-else_t = Terminal('else', 'else')
-elif_t = Terminal('elif', 'elif')
-def_t = Terminal('def', 'def')
-true_t = Terminal('true', 'true')
-false_t = Terminal('false', 'false')
-while_t = Terminal('while', 'while')
-break_t = Terminal('break', 'break')
-return_t = Terminal('return', 'return')
-number_t = Terminal('Number', 'Number')
-bool_t = Terminal('bool', 'bool')
-void_t = Terminal('void', 'void')
-is_t = Terminal('is', 'is')
-assign_t = Terminal('=', '=')
-dot = Terminal('.', '.')
-add_t = Terminal('+', '+')
-sub_t = Terminal('-', '-')
-mul_t = Terminal('*', '*')
-div_t = Terminal('/', '/')
-pow_t = Terminal("^", "^")
-mod_t = Terminal('%', '%')
-eq_t = Terminal('==', '==')
-ne_t = Terminal('!=', '!=')
-lt_t = Terminal('<', '<')
-gt_t = Terminal('>', '>')
-le_t = Terminal('<=', '<=')
-ge_t = Terminal('>=', '>=')
-and_t = Terminal('and', 'and')
-or_t = Terminal('or', 'or')
-not_t = Terminal('not', 'not')
-quotation_marks_t = Terminal('"', '"')
-quotation_marks_s_t = Terminal("'", "'")
-string_t = Terminal('String', 'String')
-openBracket_t = Terminal('(', '(')
-closedBracket_t = Terminal(')', ')')
-openCurlyBraces_t = Terminal('{', '{')
-closedCurlyBraces_t = Terminal('}', '}')
-openStraightBracket_t = Terminal('[', '[')
-closedStraightBracket_t = Terminal(']', ']')
-two_points_t = Terminal(':', ':')
-continue_t = Terminal('continue', 'continue')
-number = Terminal("number", "number")
+identifier_t = Terminal('Identifier')
+semicolon_t = Terminal(';')
+list_t = Terminal('list')
+comma_t = Terminal(',')
+none_t = Terminal('None')
+if_t = Terminal('if')
+else_t = Terminal('else')
+elif_t = Terminal('elif')
+def_t = Terminal('def')
+true_t = Terminal('true')
+false_t = Terminal('false')
+while_t = Terminal('while')
+break_t = Terminal('break')
+return_t = Terminal('return')
+number_t = Terminal('Number')
+bool_t = Terminal('bool')
+void_t = Terminal('void')
+is_t = Terminal('is')
+assign_t = Terminal('=')
+dot = Terminal('.')
+add_t = Terminal('+')
+sub_t = Terminal('-')
+mul_t = Terminal('*')
+div_t = Terminal('/')
+pow_t = Terminal("^")
+mod_t = Terminal('%')
+eq_t = Terminal('==')
+ne_t = Terminal('!=')
+lt_t = Terminal('<')
+gt_t = Terminal('>')
+le_t = Terminal('<=')
+ge_t = Terminal('>=')
+and_t = Terminal('and')
+or_t = Terminal('or')
+not_t = Terminal('not')
+quotation_marks_S_t = Terminal('SS')
+quotation_marks_E_t = Terminal('SE')
+string_t = Terminal('String')
+openBracket_t = Terminal('(')
+closedBracket_t = Terminal(')')
+openCurlyBraces_t = Terminal('{')
+closedCurlyBraces_t = Terminal('}')
+openStraightBracket_t = Terminal('[')
+closedStraightBracket_t = Terminal(']')
+two_points_t = Terminal(':')
+continue_t = Terminal('continue')
+number = Terminal("NUMBER")
+string = Terminal('STRING')
 
 # NonTerminals
 pow_nt = NonTerminal("pow")
@@ -197,7 +199,7 @@ term = NonTerminal('term')
 factor = NonTerminal('factor')
 basic = NonTerminal('basic')
 fun_type = NonTerminal('fun_type')
-list_ = NonTerminal('List')
+list_nt = NonTerminal('List')
 assign_nt = NonTerminal('assign')
 return_nt = NonTerminal('return')
 
@@ -238,12 +240,12 @@ fun_def += Production(
     build_func_def_2)
 
 # Function Type
-fun_type += Production([type_nt])
-fun_type += Production([void_t])
+fun_type += Production([type_nt], build_fun_type)
+fun_type += Production([void_t], build_fun_type)
 
 # Function Params
-params += Production([type_nt, identifier_t, comma_t, params])
-params += Production([type_nt, identifier_t])
+params += Production([type_nt, identifier_t, comma_t, params], build_params_1)
+params += Production([type_nt, identifier_t], build_params_2)
 
 # Function Returns
 return_nt += Production([return_t, expression], build_return_1)
@@ -287,13 +289,14 @@ while_def += Production(
 
 # Default types definition
 type_nt += Production([bool_t], build_type)
+type_nt += Production([string_t], build_type)
 type_nt += Production([identifier_t], build_type)
 type_nt += Production([number_t], build_type)
-type_nt += Production([list_], build_type)
+type_nt += Production([list_t], build_type)
 
 # list
-list_ += Production([openStraightBracket_t, expressions, closedStraightBracket_t], build_list_1)
-list_ += Production([openStraightBracket_t, closedStraightBracket_t], build_list_2)
+list_nt += Production([openStraightBracket_t, expressions, closedStraightBracket_t], build_list_1)
+list_nt += Production([openStraightBracket_t, closedStraightBracket_t], build_list_2)
 
 # logical accumulators
 disjunction += Production([conjunction, or_t, disjunction], build_or)
@@ -343,9 +346,8 @@ atom += Production([true_t], build_Bool)
 atom += Production([false_t], build_Bool)
 atom += Production([none_t], build_None)
 atom += Production([number], build_Number)
-atom += Production([quotation_marks_t, string_t, quotation_marks_t])
-atom += Production([quotation_marks_s_t, string_t, quotation_marks_s_t])
-atom += Production([list_])
+atom += Production([quotation_marks_S_t, string, quotation_marks_E_t], build_String)
+atom += Production([list_t])
 
 # grammar start
 bfs_start += Production([statements, eof], build_script_file)
@@ -353,4 +355,4 @@ bfs_start += Production([eof])
 
 non_term_heads = [bfs_start, statements, statement, expressions, expression, fun_def, fun_type, params, basic, atom,
                   pow_nt, factor, term, sum_nt, comparison, negation, disjunction, type_nt, while_def, elif_def,
-                  if_def, assign_nt, list_, conjunction, else_def, return_nt]
+                  if_def, assign_nt, list_nt, conjunction, else_def, return_nt]

@@ -70,10 +70,11 @@ class token_reader:
         return char == '_' or (str.isalpha(char) if is_first_char else str.isalnum(char))
 
     def read_number(self, number):
+        token = self.peek()
         number[0] = ""
         while not self.eol() and str.isnumeric(self.peek()):
             number[0] += self.read_any()
-        if (not self.eol() and self.match('.')):
+        if number[0] != '' and (not self.eol() and self.match('.')):
             number[0] += '.'
             while not self.eol() and str.isdigit(self.peek()):
                 number[0] += self.read_any()
@@ -133,7 +134,9 @@ class LexicalAnalyzer:
             if stream.match(start):
                 if not stream.read_until(self.texts.get(start), self.allowLB.get(start), text):
                     errors.append(CompilingError(stream.location, ErrorCode.expected, self.comments.get(start)))
-                tokens.append(Token("String", text, TokenType.Text, stream.get_codelocation))
+                tokens.append(Token('SS', 'SS', TokenType.Symbol, stream.get_codelocation))
+                tokens.append(Token("STRING", text, TokenType.Text, stream.get_codelocation))
+                tokens.append(Token('SE', 'SE', TokenType.Symbol, stream.get_codelocation))
                 return True
         return False
 
@@ -147,28 +150,30 @@ class LexicalAnalyzer:
     def get_tokens(self, file_name, code, errors):
         tokens = []
         stream = token_reader(file_name, code)
+        char = stream.peek()
 
         while not stream.eof():
             element = [""]
+            char = stream.peek()
 
             if stream.read_blank():
-                continue
-
-            elif self.match_symbol(stream, tokens):
-                continue
-
-            elif self.match_text(stream, tokens, errors):
                 continue
 
             elif self.match_comment(stream, errors):
                 continue
 
+            elif self.match_text(stream, tokens, errors):
+                continue
+
             elif stream.read_number(element):
                 number = 0
-                if not element[0].replace('.', '', 1).isdigit():
+                if not element[0].replace('.', '', 1).isdigit() and stream.pos > 0:
                     errors.Add(CompilingError(stream.get_codelocation(), ErrorCode.invalid, "Number format"))
-                tokens.append(Token("number", element[0], TokenType.Number,
+                tokens.append(Token("NUMBER", element[0], TokenType.Number,
                                     stream.get_codelocation()))
+                continue
+
+            elif self.match_symbol(stream, tokens):
                 continue
 
             elif stream.read_id(element):

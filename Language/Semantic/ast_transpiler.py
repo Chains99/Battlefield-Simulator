@@ -23,7 +23,7 @@ class ASTtranspiler:
     def transpile(self, node: Script, context: Context):
         for statement in node.statements:
             if isinstance(statement, Expression):
-                self.write_code(self.transpile(statement) + "\n")
+                self.write_code(self.transpile(statement, context) + "\n")
             else:
                 self.transpile(statement, context)
 
@@ -43,7 +43,7 @@ class ASTtranspiler:
 
     @visitor(String)
     def transpile(self, node: String, context: Context):
-        return node.value
+        return r'"'+f"{node.value}"+r'"'
 
     @visitor(_None)
     def transpile(self, node: _None, context: Context):

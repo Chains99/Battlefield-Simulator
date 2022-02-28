@@ -1,10 +1,7 @@
 from json import load
-
 import json
 from os.path import exists
-
 from Language.Lexer.Token import Token, TokenType
-from Language.Lexer.Token import Token
 from Language.Grammar.grammar import Grammar
 from Language.Parser.lr1_aux import LR1Table
 from typing import List

@@ -32,15 +32,15 @@ class TokenValues:
     While = "while"
 
     # Types
-    Map = "Map"
-    Soldier = "Soldier"
-    Weapon = "Weapon"
-    Number = "number"
-    String = "string"
-    Bool = "bool"
+    Number = "Number"
+    String = "String"
+    Bool = "Bool"
+    Void = "Void"
+
 
     _True = "true"
     _False = "false"
+    _None = "none"
 
     number = "number"
 
@@ -79,7 +79,7 @@ class TokenValues:
 
     # Others
     TwoPoints = ":"  #:
-
+    Dot = "."  # .
     #
     OpenBracket = "("  # (
     ClosedBracket = ")"  # )
@@ -89,10 +89,10 @@ class TokenValues:
     ClosedStraightBracket = "]"  # ]
 
     #
-    Print = "Print"  # print
+    Print = "print"  # print
 
     #
-    List = "List"  # list
+    List = "list"  # list
 
     def __init__(self):
         pass

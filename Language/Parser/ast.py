@@ -17,13 +17,13 @@ class Expression(AST_Node):
     pass
 
 
+@dataclass
 class FuncDef(AST_Node):
-    def __init__(self):
-        name: str
-        return_type: str
-        arg_names: List[str]
-        arg_types: List[str]
-        body: List[Statement]
+    name: str
+    return_type: str
+    arg_names: List[str]
+    arg_types: List[str]
+    body: List[Statement]
 
 
 @dataclass
@@ -189,7 +189,6 @@ class Functions:
     functions: 'Functions'
 
 
-# AST builder:
 def get_functions(list_func: List, functions):
     list_func.append(functions.function)
     if functions.functions is not None:
@@ -226,331 +225,333 @@ def get_expressions(list_expressions: List, expressions: Expressions):
     return list_expressions
 
 
-def build_script_file(tokens: List[str], nodes: List):
-    statements = nodes.pop()
+# AST builder:
+def build_script_file(tokens: List[str], ast_nodes: List):
+    statements = ast_nodes.pop()
     script = Script(get_statements([], statements))
-    nodes.append(script)
+    ast_nodes.append(script)
 
 
-def build_statements(tokens: List[str], nodes: List):
-    statements = nodes.pop()
-    statement = nodes.pop()
+def build_statements(tokens: List[str], ast_nodes: List):
+    statements = ast_nodes.pop()
+    statement = ast_nodes.pop()
     statements = Statements(statement, statements)
-    nodes.append(statements)
+    ast_nodes.append(statements)
 
 
-def build_simple_statements(tokens: List[str], nodes: List):
-    statement = nodes.pop()
+def build_simple_statements(tokens: List[str], ast_nodes: List):
+    statement = ast_nodes.pop()
     statements = Statements(statement, None)
-    nodes.append(statements)
+    ast_nodes.append(statements)
 
 
-def build_type(tokens: List[str], nodes: List):
+def build_type(tokens: List[str], ast_nodes: List):
     type = Type(tokens[len(tokens) - 1])
-    nodes.append(type)
+    ast_nodes.append(type)
 
 
-def build_break(tokens: List[str], nodes: List):
-    nodes.append(Break())
+def build_break(tokens: List[str], ast_nodes: List):
+    ast_nodes.append(Break())
 
 
-def build_params_1(tokens: List[str], nodes: List):
-    params = nodes.pop()
-    type = nodes.pop()
-    params = Params(type.type, tokens[len(tokens) - 2], params)
-    nodes.append(params)
+def build_params_1(tokens: List[str], ast_nodes: List):
+    params = ast_nodes.pop()
+    type = ast_nodes.pop()
+    params = Params(type.type, tokens[len(tokens) - 3], params)
+    ast_nodes.append(params)
 
 
-def build_params_2(tokens: List[str], nodes: List):
-    type = nodes.pop()
+def build_params_2(tokens: List[str], ast_nodes: List):
+    type = ast_nodes.pop()
     params = Params(type.type, tokens[len(tokens) - 1], None)
-    nodes.append(params)
+    ast_nodes.append(params)
 
 
-def build_func_def_1(tokens: List[str], nodes: List):
+def build_func_def_1(tokens: List[str], ast_nodes: List):
     name = tokens[len(tokens) - 8]
-    block = nodes.pop()
-    params = get_params([], nodes.pop())
-    arg_names = [t[0] for t in params]
-    arg_types = [t[1] for t in params]
-    return_type = nodes.pop()
+    block = ast_nodes.pop()
+    params = get_params([], ast_nodes.pop())
+    arg_names = [param[0] for param in params]
+    arg_types = [param[1] for param in params]
+    return_type = ast_nodes.pop()
     func_def = FuncDef(name, return_type.type, arg_names,
                        arg_types, get_statements([], block))
-    nodes.append(func_def)
+
+    ast_nodes.append(func_def)
 
 
-def build_func_def_2(tokens: List[str], nodes: List):
+def build_func_def_2(tokens: List[str], ast_nodes: List):
     name = tokens[len(tokens) - 6]
-    block = nodes.pop()
-    return_type = nodes.pop()
+    block = ast_nodes.pop()
+    return_type = ast_nodes.pop()
     func_def = FuncDef(name, return_type.type, [], [],
                        get_statements([], block))
-    nodes.append(func_def)
+    ast_nodes.append(func_def)
 
 
-def build_return_type(tokens: List[str], nodes: List):
-    top = tokens[len(tokens) - 1]
-    if top == 'void':
-        nodes.append(ReturnType(top))
+def build_fun_type(tokens: List[str], ast_nodes: List):
+    token = tokens[len(tokens) - 1]
+    if token == 'void':
+        ast_nodes.append(ReturnType(token))
     else:
-        type = nodes.pop()
-        nodes.append(ReturnType(type.type))
+        type = ast_nodes.pop()
+        ast_nodes.append(ReturnType(type.type))
 
 
-def build_continue(tokens: List[str], nodes: List):
-    nodes.append(Continue())
+def build_continue(tokens: List[str], ast_nodes: List):
+    ast_nodes.append(Continue())
 
 
-def build_if_def_1(tokens: List[str], nodes: List):
-    elif_def = nodes.pop()
-    block = nodes.pop()
-    expression = nodes.pop()
+def build_if_def_1(tokens: List[str], ast_nodes: List):
+    elif_def = ast_nodes.pop()
+    block = ast_nodes.pop()
+    expression = ast_nodes.pop()
 
     if_def = If(expression, get_statements([], block))
     branch = El_if_se([if_def], None)
 
     get_branch(branch, elif_def)
 
-    nodes.append(branch)
+    ast_nodes.append(branch)
 
 
-def build_if_def_2(tokens: List[str], nodes: List):
-    else_def = nodes.pop()
-    block = nodes.pop()
-    expression = nodes.pop()
+def build_if_def_2(tokens: List[str], ast_nodes: List):
+    else_def = ast_nodes.pop()
+    block = ast_nodes.pop()
+    expression = ast_nodes.pop()
 
     if_def = If(expression, get_statements([], block))
     branch = El_if_se([if_def], else_def.body)
 
-    nodes.append(branch)
+    ast_nodes.append(branch)
 
 
-def build_if_def_3(tokens: List[str], nodes: List):
-    block = nodes.pop()
-    expression = nodes.pop()
+def build_if_def_3(tokens: List[str], ast_nodes: List):
+    block = ast_nodes.pop()
+    expression = ast_nodes.pop()
 
     if_def = If(expression, get_statements([], block))
     branch = El_if_se([if_def], None)
 
-    nodes.append(branch)
+    ast_nodes.append(branch)
 
 
-def build_elif_def_1(tokens: List[str], nodes: List):
-    elif_def = nodes.pop()
-    block = nodes.pop()
-    expression = nodes.pop()
+def build_elif_def_1(tokens: List[str], ast_nodes: List):
+    elif_def = ast_nodes.pop()
+    block = ast_nodes.pop()
+    expression = ast_nodes.pop()
 
     elif_def = ElifDef(expression, get_statements(
         [], block), elif_def, None)
 
-    nodes.append(elif_def)
+    ast_nodes.append(elif_def)
 
 
-def build_elif_def_2(tokens: List[str], nodes: List):
-    else_def = nodes.pop()
-    block = nodes.pop()
-    expression = nodes.pop()
+def build_elif_def_2(tokens: List[str], ast_nodes: List):
+    else_def = ast_nodes.pop()
+    block = ast_nodes.pop()
+    expression = ast_nodes.pop()
 
     elif_def = ElifDef(expression, get_statements(
         [], block), None, else_def)
 
-    nodes.append(elif_def)
+    ast_nodes.append(elif_def)
 
 
-def build_elif_def_3(tokens: List[str], nodes: List):
-    block = nodes.pop()
-    expression = nodes.pop()
+def build_elif_def_3(tokens: List[str], ast_nodes: List):
+    block = ast_nodes.pop()
+    expression = ast_nodes.pop()
 
     elif_def = ElifDef(expression, get_statements([], block), None, None)
 
-    nodes.append(elif_def)
+    ast_nodes.append(elif_def)
 
 
-def build_else_def(tokens: List[str], nodes: List):
-    block = nodes.pop()
+def build_else_def(tokens: List[str], ast_nodes: List):
+    block = ast_nodes.pop()
     else_def = ElseDef(get_statements([], block))
-    nodes.append(else_def)
+    ast_nodes.append(else_def)
 
 
-def build_while_def(tokens: List[str], nodes: List):
-    block = nodes.pop()
-    expression = nodes.pop()
+def build_while_def(tokens: List[str], ast_nodes: List):
+    block = ast_nodes.pop()
+    expression = ast_nodes.pop()
 
     while_def = WhileDef(expression, get_statements([], block))
 
-    nodes.append(while_def)
+    ast_nodes.append(while_def)
 
 
-def build_assign_1(tokens: List[str], nodes: List):
-    expression = nodes.pop()
-    type = nodes.pop()
+def build_assign_1(tokens: List[str], ast_nodes: List):
+    expression = ast_nodes.pop()
+    type = ast_nodes.pop()
     name = tokens[len(tokens) - 3]
 
     assign = Decl(type.type, name, expression)
 
-    nodes.append(assign)
+    ast_nodes.append(assign)
 
 
-def build_assign_2(tokens: List[str], nodes: List):
-    expression = nodes.pop()
+def build_assign_2(tokens: List[str], ast_nodes: List):
+    expression = ast_nodes.pop()
     name = tokens[len(tokens) - 3]
 
     assign = Assign(name, expression)
 
-    nodes.append(assign)
+    ast_nodes.append(assign)
 
 
-def build_return_1(tokens: List[str], nodes: List):
-    expression = nodes.pop()
+def build_return_1(tokens: List[str], ast_nodes: List):
+    expression = ast_nodes.pop()
     return_stm = Return(expression)
-    nodes.append(return_stm)
+    ast_nodes.append(return_stm)
 
 
-def build_return_2(tokens: List[str], nodes: List):
+def build_return_2(tokens: List[str], ast_nodes: List):
     return_stm = Return(None)
-    nodes.append(return_stm)
+    ast_nodes.append(return_stm)
 
 
-def build_expressions_1(tokens: List[str], nodes: List):
-    expressions = nodes.pop()
-    expression = nodes.pop()
+def build_expressions_1(tokens: List[str], ast_nodes: List):
+    expressions = ast_nodes.pop()
+    expression = ast_nodes.pop()
     expressions = Expressions(expression, expressions)
-    nodes.append(expressions)
+    ast_nodes.append(expressions)
 
 
-def build_expressions_2(tokens: List[str], nodes: List):
-    expression = nodes.pop()
+def build_expressions_2(tokens: List[str], ast_nodes: List):
+    expression = ast_nodes.pop()
     expressions = Expressions(expression, None)
-    nodes.append(expressions)
+    ast_nodes.append(expressions)
 
 
-def build_ternary_expression(tokens: List[str], nodes: List):
-    right = nodes.pop()
-    condition = nodes.pop()
-    left = nodes.pop()
+def build_ternary_expression(tokens: List[str], ast_nodes: List):
+    right = ast_nodes.pop()
+    condition = ast_nodes.pop()
+    left = ast_nodes.pop()
 
     ternexp = TernaryExpression(left, condition, right)
 
-    nodes.append(ternexp)
+    ast_nodes.append(ternexp)
 
 
-def build_or(tokens: List[str], nodes: List):
-    right = nodes.pop()
-    left = nodes.pop()
+def build_or(tokens: List[str], ast_nodes: List):
+    right = ast_nodes.pop()
+    left = ast_nodes.pop()
 
     binexp = BinaryExpression('or', left, right)
 
-    nodes.append(binexp)
+    ast_nodes.append(binexp)
 
 
-def build_and(tokens: List[str], nodes: List):
-    right = nodes.pop()
-    left = nodes.pop()
+def build_and(tokens: List[str], ast_nodes: List):
+    right = ast_nodes.pop()
+    left = ast_nodes.pop()
 
     binexp = BinaryExpression('and', left, right)
 
-    nodes.append(binexp)
+    ast_nodes.append(binexp)
 
 
-def build_inversion(tokens: List[str], nodes: List):
-    expr = nodes.pop()
+def build_inversion(tokens: List[str], ast_nodes: List):
+    expr = ast_nodes.pop()
     inversion = Inversion_Symbol(expr)
-    nodes.append(inversion)
+    ast_nodes.append(inversion)
 
 
-def build_betw_bracket_expression(tokens: List[str], nodes: List):
-    expression = nodes.pop()
-    nodes.append(BetwBrackExpression(expression))
+def build_betw_bracket_expression(tokens: List[str], ast_nodes: List):
+    expression = ast_nodes.pop()
+    ast_nodes.append(BetwBrackExpression(expression))
 
 
-def build_arithmetic_logical_expression(tokens: List[str], nodes: List):
-    right = nodes.pop()
-    left = nodes.pop()
+def build_arithmetic_logical_expression(tokens: List[str], ast_nodes: List):
+    right = ast_nodes.pop()
+    left = ast_nodes.pop()
     op = tokens[len(tokens) - 2]
 
     arith_log_exp = BinaryExpression(op, left, right)
 
-    nodes.append(arith_log_exp)
+    ast_nodes.append(arith_log_exp)
 
 
-def build_basic_1(tokens: List[str], nodes: List):
-    exp = nodes.pop()
+def build_basic_1(tokens: List[str], ast_nodes: List):
+    exp = ast_nodes.pop()
     name = tokens[len(tokens) - 1]
 
     args = Arguments(exp, name, None)
 
-    nodes.append(args)
+    ast_nodes.append(args)
 
 
-def build_basic_2(tokens: List[str], nodes: List):
-    expressions = nodes.pop()
-    exp = nodes.pop()
+def build_basic_2(tokens: List[str], ast_nodes: List):
+    expressions = ast_nodes.pop()
+    exp = ast_nodes.pop()
 
     args = Arguments(exp, None, get_expressions([], expressions))
 
-    nodes.append(args)
+    ast_nodes.append(args)
 
 
-def build_basic_3(tokens: List[str], nodes: List):
-    exp = nodes.pop()
+def build_basic_3(tokens: List[str], ast_nodes: List):
+    exp = ast_nodes.pop()
 
     args = Arguments(exp, None, [])
 
-    nodes.append(args)
+    ast_nodes.append(args)
 
 
-def build_basic_4(tokens: List[str], nodes: List):
+def build_basic_4(tokens: List[str], ast_nodes: List):
     exp = Variable('self')
     name = tokens[len(tokens) - 1]
 
     args = Arguments(exp, name, None)
 
-    nodes.append(args)
+    ast_nodes.append(args)
 
 
-def build_Variable(tokens: List[str], nodes: List):
-    nodes.append(Variable(tokens[len(tokens) - 1]))
+def build_Variable(tokens: List[str], ast_nodes: List):
+    ast_nodes.append(Variable(tokens[len(tokens) - 1]))
 
 
-def build_Bool(tokens: List[str], nodes: List):
-    nodes.append(Bool(tokens[len(tokens) - 1]))
+def build_Bool(tokens: List[str], ast_nodes: List):
+    ast_nodes.append(Bool(tokens[len(tokens) - 1]))
 
 
-def build_Number(tokens: List[str], nodes: List):
-    nodes.append(Number(tokens[len(tokens) - 1]))
+def build_Number(tokens: List[str], ast_nodes: List):
+    ast_nodes.append(Number(tokens[len(tokens) - 1]))
 
 
-def build_String(tokens: List[str], nodes: List):
-    nodes.append(String(tokens[len(tokens) - 1]))
+def build_String(tokens: List[str], ast_nodes: List):
+    ast_nodes.append(String(tokens[len(tokens) - 2][0]))
 
 
-def build_None(tokens: List[str], nodes: List):
-    nodes.append(_None())
+def build_None(tokens: List[str], ast_nodes: List):
+    ast_nodes.append(_None())
 
 
-def build_list_1(tokens: List[str], nodes: List):
-    expressions = nodes.pop()
+def build_list_1(tokens: List[str], ast_nodes: List):
+    expressions = ast_nodes.pop()
     exp_list = _List(get_expressions([], expressions))
-    nodes.append(exp_list)
+    ast_nodes.append(exp_list)
 
 
-def build_list_2(tokens: List[str], nodes: List):
+def build_list_2(tokens: List[str], ast_nodes: List):
     exp_list = _List([])
-    nodes.append(exp_list)
+    ast_nodes.append(exp_list)
 
 
-def build_functions_1(tokens: List[str], nodes: List):
-    functions = nodes.pop()
-    func = nodes.pop()
+def build_functions_1(tokens: List[str], ast_nodes: List):
+    functions = ast_nodes.pop()
+    func = ast_nodes.pop()
 
     functions = Functions(func, functions)
 
-    nodes.append(functions)
+    ast_nodes.append(functions)
 
 
-def build_functions_2(tokens: List[str], nodes: List):
-    func = nodes.pop()
+def build_functions_2(tokens: List[str], ast_nodes: List):
+    func = ast_nodes.pop()
 
     functions = Functions(func, None)
 
-    nodes.append(functions)
+    ast_nodes.append(functions)

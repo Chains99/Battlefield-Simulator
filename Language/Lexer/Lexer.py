@@ -12,17 +12,18 @@ class lexer():
         keywords = [
             ("if", TokenValues.If),
             ("else", TokenValues.Else),
-            ("print", TokenValues.Print),
             ("and", TokenValues.And),
             ("or", TokenValues.Or),
             ("not", TokenValues.Not),
             ("return", TokenValues.Return),
             ("Number", TokenValues.Number),
-            ("True", TokenValues._True),
-            ("False", TokenValues._False),
+            ("true", TokenValues._True),
+            ("false", TokenValues._False),
+            ("none", TokenValues._None),
+            ("void", TokenValues.Void),
             ("String", TokenValues.String),
             ("def", TokenValues.Def),
-            ('while', TokenValues.While)
+            ('while', TokenValues.While),
         ]
         Adders.register_keywords(self.analyser, keywords)
 
@@ -50,7 +51,9 @@ class lexer():
             ("}", TokenValues.ClosedCurlyBraces),
             ("[", TokenValues.OpenStraightBracket),
             ("]", TokenValues.ClosedStraightBracket),
-            (":", TokenValues.TwoPoints)
+            (":", TokenValues.TwoPoints),
+            (".", TokenValues.Dot)
+
         ]
         Adders.register_operators(self.analyser, operators)
         self.analyser.register_text('"', '"', True)

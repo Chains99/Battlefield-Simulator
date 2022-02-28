@@ -24,6 +24,7 @@ class lexer():
             ("String", TokenValues.String),
             ("def", TokenValues.Def),
             ('while', TokenValues.While),
+            ('List', TokenValues.List)
         ]
         Adders.register_keywords(self.analyser, keywords)
 

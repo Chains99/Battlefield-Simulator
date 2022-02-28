@@ -347,7 +347,7 @@ atom += Production([false_t], build_Bool)
 atom += Production([none_t], build_None)
 atom += Production([number], build_Number)
 atom += Production([quotation_marks_S_t, string, quotation_marks_E_t], build_String)
-atom += Production([list_t])
+atom += Production([list_nt])
 
 # grammar start
 bfs_start += Production([statements, eof], build_script_file)

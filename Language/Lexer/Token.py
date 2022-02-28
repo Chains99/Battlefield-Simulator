@@ -36,6 +36,7 @@ class TokenValues:
     String = "String"
     Bool = "Bool"
     Void = "Void"
+    List = "List"
 
 
     _True = "true"

@@ -51,7 +51,7 @@ class ASTtranspiler:
 
     @visitor(_List)
     def transpile(self, node: _List, context: Context):
-        args = ', '.join(self.transpile(element, context) for element in node.list)
+        args = ', '.join(self.transpile(element, context) for element in node.inner_list)
         return f'[{args}]'
 
     @visitor(FuncDef)

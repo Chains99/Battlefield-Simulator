@@ -9,7 +9,7 @@
 \usepackage{colortbl}
 \usepackage{graphicx}
 \graphicspath{{images/}}
-
+\usepackage{listings}
 \usepackage[spanish]{babel}
 \usepackage[hmarginratio=1:1,top=32mm,columnsep=20pt]{geometry} % Document margins
 \usepackage{multicol} % Used for the two-column layout of the document
@@ -30,7 +30,28 @@
 	\usepackage{graphicx}
 	\usepackage{subcaption}
 	\graphicspath{{images/}}
+	\usepackage{color}
 	
+	\definecolor{dkgreen}{rgb}{0,0.6,0}
+	\definecolor{gray}{rgb}{0.5,0.5,0.5}
+	\definecolor{mauve}{rgb}{0.58,0,0.82}
+	
+	\lstset{frame=tb,
+		language=Python,
+		aboveskip=3mm,
+		belowskip=3mm,
+		showstringspaces=false,
+		columns=flexible,
+		basicstyle={\small\ttfamily},
+		numbers=none,
+		numberstyle=\tiny\color{gray},
+		keywordstyle=\color{blue},
+		commentstyle=\color{dkgreen},
+		stringstyle=\color{mauve},
+		breaklines=true,
+		breakatwhitespace=true,
+		tabsize=3
+	}
 	\usepackage{tcolorbox}
 	\tcbuselibrary{listingsutf8} % o listings o minted
 	\usepackage{abstract} % Allows abstract customization
@@ -41,8 +62,8 @@
 	
 	\usepackage{titlesec} % Allows customization of titles
 
-	\titleformat{\section}[block]{\large\scshape}{\thesection.}{1em}{} % Change the look of the section titles
-	\titleformat{\subsection}[block]{\large}{\thesubsection.}{1em}{} % Change the look of the section titles
+	\titleformat{\section}[block]{\Large\scshape\bfseries}{\thesection.}{1em}{} % Change the look of the section titles
+	\titleformat{\subsection}[block]{\large\bfseries}{\thesubsection.}{1em}{} % Change the look of the section titles
 	
 	\usepackage{fancyhdr} % Headers and footers
 	\pagestyle{fancy} % All pages have headers and footers
@@ -296,7 +317,47 @@
 		
 		Esto permite influenciar los comportamientos de las 2 facciones de forma independiente. Permitiendo que surgan nuevas estrategias basadas en el enfrentamiento de los intereses de ambas facciones.
 		
+		\section{Compilaci\'on}
+		Para el manejo del sistema se implement\'o un lenguaje de dominio espec\'ifico (DSL, por sus siglas en ingl\'es Domain Specific Language) con el nombre de BSL. 
 		
+		\subsection{Parser}
+		Se implemento un parser LR(1) can\'onico, el cual es un analizador sintáctico LR (k) para k = 1, es decir, con un único terminal de búsqueda anticipada. El atributo especial de este analizador es que cualquier gramática LR (k) con k> 1 se puede transformar en una gramática LR (1).
+		Para la implementaci\'on de este se definieron varias clases, entre ellas la clase  \texttt{LR1Item} que representa la definici\'on de Item LR(1) e Item SLR, para este \'ultimo se permite la no entrada del par\'ametro \texttt{lookahead}.
 		
+		La clase \texttt{LR1Item} tiene como atributos una producci\'on, la posici\'on del punto y el terminal lookahead. La posici\'on del punto indica los s\'imbolos que han sido recorridos y los que no, los que han sido recorridos son los s\'imbolos cuyas posiciones son menores que la posici\'on del punto y los que no son los s´ımbolos cuyas posiciones son mayor o igual que la del punto.
+		
+		A continuaci\'on se muestra la implementaci\'on de esta clase:\\
+		
+\begin{lstlisting}[language=Python]
+class LR1Item:
+	def __init__(self, production: Production, dot_index: int, lookahead: Terminal = None):
+	self._repr = ''
+	self.production = production
+	self.dot_index = dot_index
+	self.lookahead = lookahead
+	self._repr = f"{self.production.head} -> "
+	self._repr += " ".join(str(self.production.symbols[i]) for i in range(self.dot_index))
+	self._repr += " . "
+	self._repr += " ".join(str(self.production.symbols[i]) for i in range(self.dot_index,len(self.production.symbols)))
+	self._repr += f", {self.lookahead}"
+	
+	def __repr__(self) -> str:
+		return self._repr
+	
+	def get_symbol_at_dot(self) -> Symbol:
+		if self.dot_index < len(self.production.symbols):
+		return self.production.symbols[self.dot_index]
+		return None
+	
+	def __eq__(self, o):
+		if isinstance(o, LR1Item):
+		return self._repr == o._repr
+		return False
+	
+	def __hash__(self):
+		return hash(self.__repr__())			
+\end{lstlisting}
+		
+		Otra de las clases implementadas es la clase \texttt{State} que representa un estado  del aut\'omata LR(1).
 		
 		\end{document}

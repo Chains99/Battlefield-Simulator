@@ -196,7 +196,7 @@ term = NonTerminal('term')
 factor = NonTerminal('factor')
 basic = NonTerminal('basic')
 fun_type = NonTerminal('fun_type')
-list_t = NonTerminal('List')
+list_ = NonTerminal('List')
 def_nt = NonTerminal('Def')
 return_nt = NonTerminal('return')
 
@@ -279,10 +279,10 @@ while_def += Production(
 type_nt += Production([bool_t], build_type)
 type_nt += Production([name_t], build_type)
 type_nt += Production([number_t], build_type)
-type_nt += Production([list_t], build_type)
+type_nt += Production([list_], build_type)
 
-list_t += Production([openStraightBracket_t, expressions, closedStraightBracket_t], build_list_1)
-list_t += Production([openStraightBracket_t, closedStraightBracket_t], build_list_2)
+list_ += Production([openStraightBracket_t, expressions, closedStraightBracket_t], build_list_1)
+list_ += Production([openStraightBracket_t, closedStraightBracket_t], build_list_2)
 
 # logical accumulators
 disjunction += Production([conjunction, or_t, disjunction], build_or)
@@ -335,7 +335,7 @@ atom += Production([true_t], build_Bool)
 atom += Production([false_t], build_Bool)
 atom += Production([none_t], build_None)
 atom += Production([number], build_Number)
-atom += Production([list_t])
+atom += Production([list_])
 
 # grammar start
 bfs_start += Production([statements, eof], build_script_file)
@@ -346,4 +346,4 @@ return_nt += Production([return_t], build_return_2)
 
 non_term_heads = [bfs_start, statements, statement, expressions, expression, fun_def, fun_type, params, basic, atom,
                   pow_nt, factor, term, sum_nt, comparison, negation, disjunction, type_nt, while_def, elif_def,
-                  if_def, assign, def_nt, list_t, conjunction, else_def, return_nt]
+                  if_def, assign, def_nt, list_, conjunction, else_def, return_nt]

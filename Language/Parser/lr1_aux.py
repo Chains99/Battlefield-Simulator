@@ -26,7 +26,7 @@ class NFA:
         dict_states = {initial_state: initial_state}
         list_states_aux = list_states[:]
 
-        while len(list_states_aux) != 0:
+        while len(list_states_aux) > 0:
             state = list_states_aux[0]
             list_states_aux = list_states_aux[1:] if len(list_states_aux) >= 1 else []
 
@@ -65,16 +65,10 @@ class State:
     def __repr__(self):
         return self._repr
 
-    def __str__(self):
-        return self._repr
-
-    def add_item(self, item: LR1Item):
-        self.items.add(item)
-
     def build(self, initial_items: Dict[NonTerminal, List[LR1Item]]):
         aux = self.list_items[:]
 
-        while len(aux) != 0:
+        while len(aux) > 0:
             item = aux[0]
             aux = aux[1:] if len(aux) >= 1 else []
             sym = item.get_symbol_at_dot()
@@ -94,7 +88,7 @@ class State:
                         lookahead = item.production.symbols[item.dot_index + 1]
                     new_item = LR1Item(i.production, i.dot_index, lookahead)
                     if new_item not in self.items:
-                        self.add_item(new_item)
+                        self.items.add(new_item)
                         aux.append(new_item)
 
     def set_go_to(self, sym: Symbol, dict_states, list_states, aux: List, initial_items):

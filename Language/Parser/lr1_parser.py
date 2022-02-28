@@ -26,6 +26,8 @@ class LR1Parser:
 
             current_state_actions = self.actions_table[states_id_stack[-1]]
 
+            if(token.value == '('):
+                print('sa')
             if token.value not in current_state_actions:
                 raise Exception(
                     f'Unexpected token {token.value} with value {token.lexeme} and type {token.type}')

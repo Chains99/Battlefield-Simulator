@@ -31,6 +31,7 @@ class lexer():
             ("-", TokenValues.Sub),
             ("/", TokenValues.Div),
             ("%", TokenValues.Mod),
+            ("^", TokenValues.Pow),
             ("<", TokenValues.Less),
             ("<=", TokenValues.LessOrEquals),
             (">", TokenValues.Greater),

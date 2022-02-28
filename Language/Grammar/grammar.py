@@ -1,4 +1,4 @@
-from typing import List, Dict, Set, Callable
+from typing import Set, Callable
 from abc import ABCMeta, abstractmethod
 
 from Language.Parser.ast import *
@@ -339,8 +339,8 @@ atom += Production([true_t], build_Bool)
 atom += Production([false_t], build_Bool)
 atom += Production([none_t], build_None)
 atom += Production([number], build_Number)
-atom += Production([quotation_marks_t, string_t, quotation_marks_t])
-atom += Production([quotation_marks_s_t, string_t, quotation_marks_s_t])
+# atom += Production([quotation_marks_t, string_t, quotation_marks_t])
+# atom += Production([quotation_marks_s_t, string_t, quotation_marks_s_t])
 atom += Production([list_])
 
 # grammar start

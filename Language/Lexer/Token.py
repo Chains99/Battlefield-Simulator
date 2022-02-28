@@ -50,6 +50,7 @@ class TokenValues:
     Mul = "*"  # *
     Div = "/"  # /
     Mod = "%"  # %
+    Pow = "^"  # ^
 
     # Comparative Operators
     Less = "<"  # <
@@ -63,7 +64,7 @@ class TokenValues:
     And = "and"  # and
     Or = "or"  # or
     Not = "not"  # !
-    dot = "dot"
+    dot = "dot"  # .
 
     # Assignment
     Assign = "="  # =

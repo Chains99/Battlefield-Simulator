@@ -19,7 +19,8 @@ class token_reader:
     def peek(self):
         if (self.pos < 0 or self.pos >= len(self.code)):
             return
-        return self.code[self.pos]
+        st = self.code[self.pos]
+        return st
 
     def eof(self):
         return self.pos >= len(self.code)

@@ -106,7 +106,6 @@ class Grammar:
             prods.extend(non_term.productions)
         return prods
 
-
     def update_pos(self, productions, prods_l):
         pos = len(prods_l)
         for prod in productions:
@@ -168,6 +167,7 @@ openCurlyBraces_t = Terminal('{', '{')
 closedCurlyBraces_t = Terminal('}', '}')
 openStraightBracket_t = Terminal('[', '[')
 closedStraightBracket_t = Terminal(']', ']')
+two_points_t = Terminal(':', ':')
 continue_t = Terminal('continue', 'continue')
 number = Terminal("number", "number")
 
@@ -224,10 +224,12 @@ expressions += Production([expression, comma_t, expressions], build_expressions_
 expressions += Production([expression], build_expressions_2)
 
 # Function Definition
-fun_def += Production([def_t, fun_type, name_t, openBracket_t, params, closedBracket_t, openCurlyBraces_t, statements,
-                       closedCurlyBraces_t], build_func_def_1)
 fun_def += Production(
-    [def_t, fun_type, name_t, openBracket_t, closedBracket_t, openCurlyBraces_t, statements, closedCurlyBraces_t],
+    [def_t, fun_type, name_t, openBracket_t, params, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
+     closedCurlyBraces_t], build_func_def_1)
+fun_def += Production(
+    [def_t, fun_type, name_t, openBracket_t, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
+     closedCurlyBraces_t],
     build_func_def_2)
 
 # Function Type
@@ -239,32 +241,39 @@ params += Production([type_nt, name_t, comma_t, params])
 params += Production([type_nt, name_t])
 
 # if Definition
-if_def += Production([if_t, expression, closedBracket_t, openCurlyBraces_t, statements, closedCurlyBraces_t, elif_def],
-                     build_if_def_1)
 if_def += Production(
-    [if_t, openBracket_t, expression, closedBracket_t, openCurlyBraces_t, statements, closedCurlyBraces_t, else_def],
+    [if_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements, closedCurlyBraces_t, elif_def],
+    build_if_def_1)
+if_def += Production(
+    [if_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements, closedCurlyBraces_t,
+     else_def],
     build_if_def_2)
 if_def += Production(
-    [if_t, openBracket_t, expression, closedBracket_t, openCurlyBraces_t, statements, closedCurlyBraces_t],
+    [if_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
+     closedCurlyBraces_t],
     build_if_def_3)
 
 # elif Definition
 elif_def += Production(
-    [elif_t, openBracket_t, expression, closedBracket_t, openCurlyBraces_t, statements, closedCurlyBraces_t, elif_def],
+    [elif_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
+     closedCurlyBraces_t, elif_def],
     build_elif_def_1)
 elif_def += Production(
-    [elif_t, openBracket_t, expression, closedBracket_t, openCurlyBraces_t, statements, closedCurlyBraces_t, else_def],
+    [elif_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
+     closedCurlyBraces_t, else_def],
     build_elif_def_2)
 elif_def += Production(
-    [elif_t, openBracket_t, expression, closedBracket_t, openCurlyBraces_t, statements, closedCurlyBraces_t],
+    [elif_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
+     closedCurlyBraces_t],
     build_elif_def_3)
 
 # else Definition
-else_def += Production([else_t, openCurlyBraces_t, statements, closedCurlyBraces_t], build_else_def)
+else_def += Production([else_t, two_points_t, openCurlyBraces_t, statements, closedCurlyBraces_t], build_else_def)
 
 # while Definition
 while_def += Production(
-    [while_t, openBracket_t, expression, closedBracket_t, openCurlyBraces_t, statements, closedCurlyBraces_t],
+    [while_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
+     closedCurlyBraces_t],
     build_while_def)
 
 type_nt += Production([bool_t], build_type)
@@ -274,7 +283,6 @@ type_nt += Production([list_t], build_type)
 
 list_t += Production([openStraightBracket_t, expressions, closedStraightBracket_t], build_list_1)
 list_t += Production([openStraightBracket_t, closedStraightBracket_t], build_list_2)
-
 
 # logical accumulators
 disjunction += Production([conjunction, or_t, disjunction], build_or)
@@ -290,29 +298,29 @@ def_nt += Production([type_nt, identifier, assign_t, expression], build_def)
 
 assign += Production([identifier, assign_t, expression], build_assign)
 
-comparison += Production([sum_nt, eq_t, sum_nt], build_comparison)
-comparison += Production([sum_nt, ne_t, sum_nt], build_comparison)
-comparison += Production([sum_nt, le_t, sum_nt], build_comparison)
-comparison += Production([sum_nt, lt_t, sum_nt], build_comparison)
-comparison += Production([sum_nt, ge_t, sum_nt], build_comparison)
-comparison += Production([sum_nt, gt_t, sum_nt], build_comparison)
+comparison += Production([sum_nt, eq_t, sum_nt], build_arithmetic_logical_expression)
+comparison += Production([sum_nt, ne_t, sum_nt], build_arithmetic_logical_expression)
+comparison += Production([sum_nt, le_t, sum_nt], build_arithmetic_logical_expression)
+comparison += Production([sum_nt, lt_t, sum_nt], build_arithmetic_logical_expression)
+comparison += Production([sum_nt, ge_t, sum_nt], build_arithmetic_logical_expression)
+comparison += Production([sum_nt, gt_t, sum_nt], build_arithmetic_logical_expression)
 comparison += Production([sum_nt])
 
-sum_nt += Production([sum_nt, add_t, term], build_aritmetic_expression)
-sum_nt += Production([sum_nt, sub_t, term], build_aritmetic_expression)
+sum_nt += Production([sum_nt, add_t, term], build_arithmetic_logical_expression)
+sum_nt += Production([sum_nt, sub_t, term], build_arithmetic_logical_expression)
 sum_nt += Production([term])
 
 # arithmetic accumulators
-term += Production([term, mul_t, factor], build_aritmetic_expression)
-term += Production([term, div_t, factor], build_aritmetic_expression)
-term += Production([term, mod_t, factor], build_aritmetic_expression)
+term += Production([term, mul_t, factor], build_arithmetic_logical_expression)
+term += Production([term, div_t, factor], build_arithmetic_logical_expression)
+term += Production([term, mod_t, factor], build_arithmetic_logical_expression)
 term += Production([factor])
 
 factor += Production([add_t, factor])
 factor += Production([sub_t, factor])
 factor += Production([pow_nt])
 
-pow_nt += Production([basic, pow_t, factor], build_aritmetic_expression)
+pow_nt += Production([basic, pow_t, factor], build_arithmetic_logical_expression)
 pow_nt += Production([basic])
 
 # basic indexing and attributes consultation

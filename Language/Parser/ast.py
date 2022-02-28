@@ -453,23 +453,14 @@ def build_inversion(tokens: List[str], nodes: List):
     nodes.append(inversion)
 
 
-def build_comparison(tokens: List[str], nodes: List):
-    right = nodes.pop()
-    left = nodes.pop()
-
-    arith_exp = AritmeticBinaryExpression(tokens[len(tokens) - 2], left, right)
-
-    nodes.append(arith_exp)
-
-
-def build_aritmetic_expression(tokens: List[str], nodes: List):
+def build_arithmetic_logical_expression(tokens: List[str], nodes: List):
     right = nodes.pop()
     left = nodes.pop()
     op = tokens[len(tokens) - 2]
 
-    arith_exp = AritmeticBinaryExpression(op, left, right)
+    arith_log_exp = BinaryExpression(op, left, right)
 
-    nodes.append(arith_exp)
+    nodes.append(arith_log_exp)
 
 
 def build_basic_1(tokens: List[str], nodes: List):

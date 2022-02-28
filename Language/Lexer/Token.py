@@ -72,6 +72,9 @@ class TokenValues:
     ValueSeparator = ","  # ,
     StatementSeparator = ";"  # ;
 
+    # Others
+    TwoPoints = ":"  #:
+
     #
     OpenBracket = "("  # (
     ClosedBracket = ")"  # )

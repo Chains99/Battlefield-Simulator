@@ -14,6 +14,29 @@ class LR1Parser:
     def __init__(self, grammar: Grammar):
         self.grammar = grammar
         p = grammar.get_productions()
+        if not exists("action.json") or not exists("go_to.json"):
+            self.table: LR1Table = LR1Table(grammar)
+            with open('action.json', 'w') as fout:
+                json.dump(self.table.action_table, fout)
+
+            with open('go_to.json', 'w') as fout:
+                json.dump(self.table.go_to_table, fout)
+
+        # self.table: LR1Table = LR1Table(grammar)
+        # with open('action.json', 'w') as fout:
+        #     json.dump(self.table.action_table, fout)
+        #
+        # with open('go_to.json', 'w') as fout:
+        #     json.dump(self.table.go_to_table, fout)
+
+        with open("go_to.json") as file:
+            self.actions_table = load(file)
+
+        with open("go_to.json") as file:
+            self.go_to_table = load(file)
+
+        # self.actions_table = self.table.action_table
+        # self.go_to_table = self.table.go_to_table
         self.final = Token('$', '$', TokenType.Symbol)
 
     def parse(self, tokens: List[Token]):

@@ -1,3 +1,8 @@
+from json import load
+
+import json
+from os.path import exists
+
 from Language.Lexer.Token import Token, TokenType
 from Language.Lexer.Token import Token
 from Language.Grammar.grammar import Grammar
@@ -9,9 +14,6 @@ class LR1Parser:
     def __init__(self, grammar: Grammar):
         self.grammar = grammar
         p = grammar.get_productions()
-        self.table = LR1Table(grammar)
-        self.actions_table = self.table.action_table
-        self.go_to_table = self.table.go_to_table
         self.final = Token('$', '$', TokenType.Symbol)
 
     def parse(self, tokens: List[Token]):
@@ -26,7 +28,7 @@ class LR1Parser:
 
             current_state_actions = self.actions_table[states_id_stack[-1]]
 
-            if(token.value == '('):
+            if (token.value == '('):
                 print('sa')
             if token.value not in current_state_actions:
                 raise Exception(

@@ -40,7 +40,7 @@ class TokenValues:
     Bool = "Bool"
 
     _True = "true"
-    _False = "falsetrue"
+    _False = "false"
 
     number = "number"
 
@@ -71,6 +71,10 @@ class TokenValues:
     # Separators
     ValueSeparator = ","  # ,
     StatementSeparator = ";"  # ;
+
+    # Text
+    QuotationMarks = '"'  # "
+    QuotationMarksS = "'"  # '
 
     # Others
     TwoPoints = ":"  #:

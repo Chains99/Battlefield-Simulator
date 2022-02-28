@@ -40,6 +40,8 @@ class lexer():
             ("=", TokenValues.Assign),
             (",", TokenValues.ValueSeparator),
             (";", TokenValues.StatementSeparator),
+            ('"', TokenValues.QuotationMarks),
+            ("'", TokenValues.QuotationMarksS),
             ("(", TokenValues.OpenBracket),
             (")", TokenValues.ClosedBracket),
             ("{", TokenValues.OpenCurlyBraces),

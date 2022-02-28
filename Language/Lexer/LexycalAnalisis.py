@@ -132,7 +132,7 @@ class LexicalAnalyzer:
             if stream.match(start):
                 if not stream.read_until(self.texts.get(start), self.allowLB.get(start), text):
                     errors.append(CompilingError(stream.location, ErrorCode.expected, self.comments.get(start)))
-                tokens.append(Token("Text", text, TokenType.Text, stream.get_codelocation))
+                tokens.append(Token("String", text, TokenType.Text, stream.get_codelocation))
                 return True
         return False
 

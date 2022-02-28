@@ -10,16 +10,17 @@ class ASTtranspiler:
         self.code = ''
         self.tabs_counter = 0
 
-    def write(self, text: str):
+    def write_code(self, text: str):
         tabs = ''
-        tabs.join(['\t' for i in range(self.tabs_counter)])
+        for i in range(self.tabs_counter):
+            tabs += '\t'
         self.code += tabs + text
 
     @visitor(Script)
     def transpile(self, node: Script, context: Context):
         for statement in node.statements:
             if isinstance(statement, Expression):
-                self.write(self.transpile(statement) + "\n")
+                self.write_code(self.transpile(statement) + "\n")
             else:
                 self.transpile(statement, context)
 
@@ -50,12 +51,12 @@ class ASTtranspiler:
     def transpile(self, node: FuncDef, context: Context):
 
         args = ', '.join(name for name in node.arg_names)
-        self.write(f'def {node.name}({args}):\n')
+        self.write_code(f'def {node.name}({args}):\n')
 
         self.tabs_counter += 1
         for statement in node.body:
             if isinstance(statement, Expression):
-                self.write(self.transpile(statement, context) + "\n")
+                self.write_code(self.transpile(statement, context) + "\n")
             else:
                 self.transpile(statement, context)
         self.tabs_counter -= 1
@@ -63,13 +64,13 @@ class ASTtranspiler:
     @visitor(If)
     def transpile(self, node: If, context: Context):
 
-        self.write(f'elif {self.transpile(node.condition, context)}:\n')
+        self.write_code(f'elif {self.transpile(node.condition, context)}:\n')
 
         self.tabs_counter += 1
 
         for statement in node.body:
             if isinstance(statement, Expression):
-                self.write(self.transpile(statement, context) + "\n")
+                self.write_code(self.transpile(statement, context) + "\n")
             else:
                 self.transpile(statement, context)
         self.tabs_counter -= 1
@@ -79,13 +80,13 @@ class ASTtranspiler:
 
         first_if = node.ifs[0]
 
-        self.write(f'if {self.transpile(first_if.condition, context)}:\n')
+        self.write_code(f'if {self.transpile(first_if.condition, context)}:\n')
 
         self.tabs_counter += 1
 
         for statement in first_if.body:
             if isinstance(statement, Expression):
-                self.write(self.transpile(statement, context) + "\n")
+                self.write_code(self.transpile(statement, context) + "\n")
             else:
                 self.transpile(statement, context)
 
@@ -98,11 +99,11 @@ class ASTtranspiler:
                 self.transpile(node.ifs[i], context)
 
         if node.el_if_se_body is not None:
-            self.write("else:\n")
+            self.write_code("else:\n")
             self.tabs_counter += 1
             for statement in node.el_if_se_body:
                 if isinstance(statement, Expression):
-                    self.write(self.transpile(statement, context) + "\n")
+                    self.write_code(self.transpile(statement, context) + "\n")
                 else:
                     self.transpile(statement, context)
 
@@ -111,39 +112,39 @@ class ASTtranspiler:
     @visitor(WhileDef)
     def transpile(self, node: WhileDef, context: Context):
 
-        self.write(f'while {self.transpile(node.condition, context)}:\n')
+        self.write_code(f'while {self.transpile(node.condition, context)}:\n')
 
         self.tabs_counter += 1
 
         for statement in node.body:
             if isinstance(statement, Expression):
-                self.write(self.transpile(statement, context) + "\n")
+                self.write_code(self.transpile(statement, context) + "\n")
             else:
                 self.transpile(statement, context)
         self.tabs_counter -= 1
 
     @visitor(Decl)
     def transpile(self, node: Decl, context: Context):
-        self.write(f'{node.name} = {self.transpile(node.expression, context)}\n')
+        self.write_code(f'{node.name} = {self.transpile(node.expression, context)}\n')
 
     @visitor(Assign)
     def transpile(self, node: Assign, context: Context):
-        self.write(f'{node.name} = {self.transpile(node.expression, context)}\n')
+        self.write_code(f'{node.name} = {self.transpile(node.expression, context)}\n')
 
     @visitor(Return)
     def transpile(self, node: Return, context: Context):
         if node.expression is None:
-            self.write('return\n')
+            self.write_code('return\n')
         else:
-            self.write(f'return {self.transpile(node.expression, context)}\n')
+            self.write_code(f'return {self.transpile(node.expression, context)}\n')
 
     @visitor(Continue)
     def transpile(self, node: Continue, context: Context):
-        self.write('continue\n')
+        self.write_code('continue\n')
 
     @visitor(Break)
     def transpile(self, node: Break, context: Context):
-        self.write('break\n')
+        self.write_code('break\n')
 
     @visitor(BinaryExpression)
     def transpile(self, node: BinaryExpression, context: Context):

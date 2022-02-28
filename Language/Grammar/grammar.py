@@ -1,4 +1,4 @@
-from typing import Set, Callable
+from typing import List, Dict, Set, Callable
 from abc import ABCMeta, abstractmethod
 
 from Language.Parser.ast import *
@@ -126,10 +126,8 @@ class Grammar:
 
 # Terminals
 eof = Terminal("EOF", "EOF")
-identifier = Terminal('Identifier', 'Identifier')
+identifier_t = Terminal('Identifier', 'Identifier')
 semicolon_t = Terminal(';', ';')
-quotation_marks_t = Terminal('"', '"')
-quotation_marks_s_t = Terminal("'", "'")
 comma_t = Terminal(',', ',')
 none_t = Terminal('None', 'None')
 if_t = Terminal('if', 'if')
@@ -142,8 +140,6 @@ while_t = Terminal('while', 'while')
 break_t = Terminal('break', 'break')
 return_t = Terminal('return', 'return')
 number_t = Terminal('Number', 'Number')
-string_t = Terminal('String', 'String')
-name_t = Terminal('Identifier', 'Identifier')
 bool_t = Terminal('bool', 'bool')
 void_t = Terminal('void', 'void')
 is_t = Terminal('is', 'is')
@@ -164,6 +160,9 @@ ge_t = Terminal('>=', '>=')
 and_t = Terminal('and', 'and')
 or_t = Terminal('or', 'or')
 not_t = Terminal('not', 'not')
+quotation_marks_t = Terminal('"', '"')
+quotation_marks_s_t = Terminal("'", "'")
+string_t = Terminal('String', 'String')
 openBracket_t = Terminal('(', '(')
 closedBracket_t = Terminal(')', ')')
 openCurlyBraces_t = Terminal('{', '{')
@@ -173,7 +172,6 @@ closedStraightBracket_t = Terminal(']', ']')
 two_points_t = Terminal(':', ':')
 continue_t = Terminal('continue', 'continue')
 number = Terminal("number", "number")
-string = Terminal("string", "string")
 
 # NonTerminals
 pow_nt = NonTerminal("pow")
@@ -186,7 +184,6 @@ statement = NonTerminal('statement')
 comparison = NonTerminal('comparison')
 expression = NonTerminal('expression')
 expressions = NonTerminal('expressions')
-assign = NonTerminal('assign')
 fun_def = NonTerminal('fun_def')
 if_def = NonTerminal('if_def')
 elif_def = NonTerminal('elif_def')
@@ -201,7 +198,7 @@ factor = NonTerminal('factor')
 basic = NonTerminal('basic')
 fun_type = NonTerminal('fun_type')
 list_ = NonTerminal('List')
-def_nt = NonTerminal('Def')
+assign_nt = NonTerminal('assign')
 return_nt = NonTerminal('return')
 
 # Productions
@@ -211,15 +208,15 @@ statements += Production([statement, semicolon_t, statements], build_statements)
 statements += Production([statement, semicolon_t], build_simple_statements)
 
 statement += Production([fun_def])
+statement += Production([return_nt])
 statement += Production([while_def])
 statement += Production([break_t], build_break)
 statement += Production([if_def])
-statement += Production([return_nt])
-statement += Production([assign])
-statement += Production([def_nt])
 statement += Production([expression])
+statement += Production([assign_nt])
 statement += Production([continue_t], build_continue)
 
+# Expressions
 expression += Production([disjunction, if_t, disjunction,
                           else_t, expression], build_ternary_expression)
 expression += Production([disjunction])
@@ -227,12 +224,16 @@ expression += Production([disjunction])
 expressions += Production([expression, comma_t, expressions], build_expressions_1)
 expressions += Production([expression], build_expressions_2)
 
+# assigment
+assign_nt += Production([type_nt, identifier_t, assign_t, expression], build_assign_1)
+assign_nt += Production([identifier_t, assign_t, expression], build_assign_2)
+
 # Function Definition
 fun_def += Production(
-    [def_t, fun_type, name_t, openBracket_t, params, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
+    [def_t, fun_type, identifier_t, openBracket_t, params, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
      closedCurlyBraces_t], build_func_def_1)
 fun_def += Production(
-    [def_t, fun_type, name_t, openBracket_t, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
+    [def_t, fun_type, identifier_t, openBracket_t, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
      closedCurlyBraces_t],
     build_func_def_2)
 
@@ -241,8 +242,12 @@ fun_type += Production([type_nt])
 fun_type += Production([void_t])
 
 # Function Params
-params += Production([type_nt, name_t, comma_t, params])
-params += Production([type_nt, name_t])
+params += Production([type_nt, identifier_t, comma_t, params])
+params += Production([type_nt, identifier_t])
+
+# Function Returns
+return_nt += Production([return_t, expression], build_return_1)
+return_nt += Production([return_t], build_return_2)
 
 # if Definition
 if_def += Production(
@@ -280,11 +285,13 @@ while_def += Production(
      closedCurlyBraces_t],
     build_while_def)
 
+# Default types definition
 type_nt += Production([bool_t], build_type)
-type_nt += Production([name_t], build_type)
+type_nt += Production([identifier_t], build_type)
 type_nt += Production([number_t], build_type)
 type_nt += Production([list_], build_type)
 
+# list
 list_ += Production([openStraightBracket_t, expressions, closedStraightBracket_t], build_list_1)
 list_ += Production([openStraightBracket_t, closedStraightBracket_t], build_list_2)
 
@@ -297,10 +304,6 @@ conjunction += Production([negation])
 
 negation += Production([not_t, negation], build_inversion)
 negation += Production([comparison])
-
-def_nt += Production([type_nt, identifier, assign_t, expression], build_def)
-
-assign += Production([identifier, assign_t, expression], build_assign)
 
 comparison += Production([sum_nt, eq_t, sum_nt], build_arithmetic_logical_expression)
 comparison += Production([sum_nt, ne_t, sum_nt], build_arithmetic_logical_expression)
@@ -327,29 +330,27 @@ factor += Production([pow_nt])
 pow_nt += Production([basic, pow_t, factor], build_arithmetic_logical_expression)
 pow_nt += Production([basic])
 
-# basic indexing and attributes consultation
-basic += Production([basic, dot, identifier], build_basic_1)
+# indexing, attributes consultation, function call and between parenthesis expressions
+basic += Production([basic, dot, identifier_t], build_basic_1)
 basic += Production([basic, openBracket_t, expressions, closedBracket_t], build_basic_2)
 basic += Production([basic, openBracket_t, closedBracket_t], build_basic_3)
+basic += Production([openBracket_t, expression, closedBracket_t], build_betw_bracket_expression)
 basic += Production([atom])
 
 # atomic types
-atom += Production([identifier], build_Variable)
+atom += Production([identifier_t], build_Variable)
 atom += Production([true_t], build_Bool)
 atom += Production([false_t], build_Bool)
 atom += Production([none_t], build_None)
 atom += Production([number], build_Number)
-# atom += Production([quotation_marks_t, string_t, quotation_marks_t])
-# atom += Production([quotation_marks_s_t, string_t, quotation_marks_s_t])
+atom += Production([quotation_marks_t, string_t, quotation_marks_t])
+atom += Production([quotation_marks_s_t, string_t, quotation_marks_s_t])
 atom += Production([list_])
 
 # grammar start
 bfs_start += Production([statements, eof], build_script_file)
 bfs_start += Production([eof])
 
-return_nt += Production([return_t, expression], build_return_1)
-return_nt += Production([return_t], build_return_2)
-
 non_term_heads = [bfs_start, statements, statement, expressions, expression, fun_def, fun_type, params, basic, atom,
                   pow_nt, factor, term, sum_nt, comparison, negation, disjunction, type_nt, while_def, elif_def,
-                  if_def, assign, def_nt, list_, conjunction, else_def, return_nt]
+                  if_def, assign_nt, list_, conjunction, else_def, return_nt]

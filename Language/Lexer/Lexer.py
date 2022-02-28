@@ -21,7 +21,8 @@ class lexer():
             ("True", TokenValues._True),
             ("False", TokenValues._False),
             ("String", TokenValues.String),
-            ("def", TokenValues.Def)
+            ("def", TokenValues.Def),
+            ('while', TokenValues.While)
         ]
         Adders.register_keywords(self.analyser, keywords)
 

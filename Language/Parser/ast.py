@@ -87,11 +87,6 @@ class BinaryExpression(Expression):
 
 
 @dataclass
-class AritmeticBinaryExpression(BinaryExpression):
-    pass
-
-
-@dataclass
 class TernaryExpression(Expression):
     left: Expression
     condition: Expression
@@ -127,6 +122,11 @@ class Bool(Expression):
 
 
 @dataclass
+class String(Expression):
+    value: str
+
+
+@dataclass
 class _None(Expression):
     pass
 
@@ -157,6 +157,11 @@ class Params:
 class Statements:
     statement: Statement
     statements: 'Statements'
+
+
+@dataclass
+class BetwBrackExpression(Expression):
+    expression: Expression
 
 
 @dataclass
@@ -376,7 +381,7 @@ def build_while_def(tokens: List[str], nodes: List):
     nodes.append(while_def)
 
 
-def build_def(tokens: List[str], nodes: List):
+def build_assign_1(tokens: List[str], nodes: List):
     expression = nodes.pop()
     type = nodes.pop()
     name = tokens[len(tokens) - 3]
@@ -386,7 +391,7 @@ def build_def(tokens: List[str], nodes: List):
     nodes.append(assign)
 
 
-def build_assign(tokens: List[str], nodes: List):
+def build_assign_2(tokens: List[str], nodes: List):
     expression = nodes.pop()
     name = tokens[len(tokens) - 3]
 
@@ -453,6 +458,11 @@ def build_inversion(tokens: List[str], nodes: List):
     nodes.append(inversion)
 
 
+def build_betw_bracket_expression(tokens: List[str], nodes: List):
+    expression = nodes.pop()
+    nodes.append(BetwBrackExpression(expression))
+
+
 def build_arithmetic_logical_expression(tokens: List[str], nodes: List):
     right = nodes.pop()
     left = nodes.pop()
@@ -508,6 +518,10 @@ def build_Bool(tokens: List[str], nodes: List):
 
 def build_Number(tokens: List[str], nodes: List):
     nodes.append(Number(tokens[len(tokens) - 1]))
+
+
+def build_String(tokens: List[str], nodes: List):
+    nodes.append(String(tokens[len(tokens) - 1]))
 
 
 def build_None(tokens: List[str], nodes: List):

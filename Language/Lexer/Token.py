@@ -6,8 +6,8 @@ class TokenType(enum.Enum):
     Number = 2
     Text = 3
     Keyword = 4
-    Identifier = 5
-    Symbol = 6
+    Identifier = "Identifier"
+    Symbol = "Symbol"
     EOF = "EOF"
 
 
@@ -29,15 +29,15 @@ class TokenValues:
     If = "if"
     Else = "else"
     Elif = "elif"
-    While = "While"
+    While = "while"
 
     # Types
     Map = "Map"
     Soldier = "Soldier"
     Weapon = "Weapon"
-    Number = "Number"
-    String = "String"
-    Bool = "Bool"
+    Number = "number"
+    String = "string"
+    Bool = "bool"
 
     _True = "true"
     _False = "false"

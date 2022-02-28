@@ -22,14 +22,7 @@ class LR1Parser:
             with open('go_to.json', 'w') as fout:
                 json.dump(self.table.go_to_table, fout)
 
-        # self.table: LR1Table = LR1Table(grammar)
-        # with open('action.json', 'w') as fout:
-        #     json.dump(self.table.action_table, fout)
-        #
-        # with open('go_to.json', 'w') as fout:
-        #     json.dump(self.table.go_to_table, fout)
-
-        with open("go_to.json") as file:
+        with open("action.json") as file:
             self.actions_table = load(file)
 
         with open("go_to.json") as file:
@@ -50,9 +43,6 @@ class LR1Parser:
             token = tokens[0]
 
             current_state_actions = self.actions_table[states_id_stack[-1]]
-
-            if (token.value == '('):
-                print('sa')
             if token.value not in current_state_actions:
                 raise Exception(
                     f'Unexpected token {token.value} with value {token.lexeme} and type {token.type}')

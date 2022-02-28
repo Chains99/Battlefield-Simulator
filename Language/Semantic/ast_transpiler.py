@@ -1,6 +1,9 @@
 from io import StringIO
+from typing import List
+
 from Language.Parser.ast import Script, Expression, Variable, Number, Bool, _None, _List, FuncDef, If, El_if_se, \
-    WhileDef, Decl, Assign, Return, Continue, Break, BinaryExpression, TernaryExpression, Arguments
+    WhileDef, Decl, Assign, Return, Continue, Break, BinaryExpression, TernaryExpression, Arguments, \
+    BetwBrackExpression, String
 from Language.Semantic.Type_checking.context import Context
 from Language.Semantic.Visitor import visitor
 
@@ -36,6 +39,10 @@ class ASTtranspiler:
 
     @visitor(Bool)
     def transpile(self, node: Bool, context: Context):
+        return node.value
+
+    @visitor(String)
+    def transpile(self, node: String, context: Context):
         return node.value
 
     @visitor(_None)
@@ -146,13 +153,17 @@ class ASTtranspiler:
     def transpile(self, node: Break, context: Context):
         self.write_code('break\n')
 
+    @visitor(BetwBrackExpression)
+    def visit(self, node: BetwBrackExpression, context: Context):
+        return f'({self.visit(node.expression, context)})'
+
     @visitor(BinaryExpression)
     def transpile(self, node: BinaryExpression, context: Context):
 
         left = self.transpile(node.left, context)
         right = self.transpile(node.right, context)
 
-        return f'{left} {node.op} {right}'
+        return f'{left} {node.op if node.op != "^" else "**"} {right}'
 
     @visitor(TernaryExpression)
     def transpile(self, node: TernaryExpression, context: Context):

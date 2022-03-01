@@ -54,7 +54,6 @@ class lexer():
             ("]", TokenValues.ClosedStraightBracket),
             (":", TokenValues.TwoPoints),
             (".", TokenValues.Dot)
-
         ]
         Adders.register_operators(self.analyser, operators)
         self.analyser.register_text('"', '"', True)

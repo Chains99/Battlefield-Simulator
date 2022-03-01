@@ -1,11 +1,15 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import List
+from typing import List, Type, Tuple
+from Language.Semantic.Type_checking.context import Context
 
 
 @dataclass
 class AST_Node(ABC):
     pass
+
+    def check_semantic(self, context: Context):
+        pass
 
 
 @dataclass
@@ -14,6 +18,7 @@ class Statement(AST_Node):
 
 
 class Expression(AST_Node):
+    type: str = ''
     pass
 
 
@@ -25,6 +30,9 @@ class FuncDef(AST_Node):
     arg_types: List[str]
     body: List[Statement]
 
+    def check_semantic(self, context: Context):
+        context.add_func(self)
+
 
 @dataclass
 class Script(AST_Node):
@@ -35,6 +43,11 @@ class Script(AST_Node):
 class If(Statement):
     condition: Expression
     body: List[Statement]
+
+    def check_semantic(self, context: Context):
+        self.condition.check_semantic(context)
+        if self.condition.type != 'Bool':
+            raise TypeError('"if" condition requires to return a boolean type value')
 
 
 @dataclass
@@ -48,6 +61,11 @@ class WhileDef(Statement):
     condition: Expression
     body: List[Statement]
 
+    def check_semantic(self, context: Context):
+        self.condition.check_semantic(context)
+        if self.condition.type != 'Bool':
+            raise TypeError('"while" condition requires to return a boolean type value')
+
 
 @dataclass
 class Decl(Statement):
@@ -55,26 +73,63 @@ class Decl(Statement):
     name: str
     expression: Expression
 
+    def check_semantic(self, context: Context):
+        if not context.is_type_defined(self.type):
+            raise TypeError(f'"{self.type}" is not a defined type')
+        context.add_var(self.name, self.type, '')
+        self.expression.check_semantic(context)
+        if self.expression.type != self.type:
+            raise TypeError(f'\"{self.name}\" doesn\'t match with the expression type')
+
 
 @dataclass
 class Assign(Statement):
     name: str
     expression: Expression
 
+    def check_semantic(self, context: Context):
+        if not context.check_var_in_context(self.name):
+            raise ValueError(f"Var {self.name} is not defined")
+        _type = context.get_type_var(self.name)
+        self.expression.check_semantic(context)
+        if self.expression.type != _type:
+            raise TypeError(f'\"{self.name}\" doesn\'t match with the expression type')
+
 
 @dataclass
 class Return(Statement):
     expression: Expression
+    type: str
+
+    def check_semantic(self, context: Context):
+        if context.func is None:
+            raise Exception(f'return statement must be binded to a function declaration')
+
+        elif (self.expression is None):
+            self.type = 'Void'
+        else:
+            self.expression.check_semantic()
+            self.type = self.expression.type
+        if (self.expression.type != context.func.return_type):
+            raise ValueError(f'{context.func.name} return type doesn\'t match return expression type')
 
 
 @dataclass
 class Break(Statement):
     pass
 
+    def check_semantic(self, context: Context):
+        if not context.in_while_context():
+            raise Exception('"break" statement must be declared inside of a While loop')
+
 
 @dataclass
 class Continue(Statement):
     pass
+
+    def check_semantic(self, context: Context):
+        if not context.in_while_context():
+            raise Exception('"continue" statement must be declared inside of a While loop')
 
 
 # BinaryExpressions
@@ -84,6 +139,19 @@ class BinaryExpression(Expression):
     op: str
     left: Expression
     right: Expression
+    type: str = ''
+
+    def check_semantic(self, context: Context):
+        if self.type == '':
+            self.left.check_semantic(context)
+            self.right.check_semantic(context)
+            self.type = 'Number' if self.op not in context.logical_ops or self.op not in ['and', 'or'] else 'Bool'
+        typeL = self.left.type
+        typeR = self.right.type
+        if typeL != typeR:
+            raise Exception(f'Invalid expression for operator "{self.op}"')
+        elif self.op in ['and', 'or'] and self.type != typeL:
+            raise Exception(f'Invalid expression for operator "{self.op}"')
 
 
 @dataclass
@@ -97,33 +165,83 @@ class TernaryExpression(Expression):
 @dataclass
 class Inversion_Symbol(Expression):
     expression: Expression
+    type = 'bool'
+
+    def check_semantic(self, context: Context):
+        self.expression.check_semantic(context)
+        if self.expression.type != self.type:
+            raise Exception("Invalid expression for operator 'not'")
 
 
 @dataclass
-class Arguments(Expression):
+class Basic(Expression):
     expression: Expression
     name: str
     args: List[Expression]
+
+    def check_semantic(self, context: Context):
+        self.expression.check_semantic(context)
+        expr_type = self.expression.type
+        if (self.name is None):
+            if (expr_type == 'function'):
+                args = [None] * len(self.args)
+                func = context.get_func(self.expression.name)
+                for i in range(len(self.args)):
+                    self.args[i].check_semantic(context)
+                    args[i] = self.args[i].type if self.args[i].type != 'function' else args[i].return_type
+                if context.check_func_args(func, args):
+                    self.type = func.return_type
+                elif isinstance(self.expression, Basic):
+                    self.type = self.expression.type
+                else:
+                    raise Exception(f"Some types are incorrect")
+        else:
+            _type = context.get_type(expr_type)
+            if (self.args is None):
+                if _type.contain_attribute(self.name):
+                    self.type = _type.get_attr(self.name)
+                else:
+                    raise Exception(f"{self.name} wrong attribute")
+            else:
+                if _type.contain_func(self.name):
+                    func = _type.get_function(self.name)
+                    args = [0] * len(self.args)
+                    for i in range(len(self.args)):
+                        self.args[i].check_semantic(context)
+                        args[i] = self.args[i].type if self.args[i].type != 'function' else args[i].return_type
+                    if context.check_func_args(func, args):
+                        self.type = func.return_type
+                    else:
+                        raise Exception(f"Some types are incorrect")
 
 
 @dataclass
 class Variable(Expression):
     name: str
 
+    def check_semantic(self, context: Context):
+        if (context.check_var_in_context(self.name)):
+            self.type = context.get_type_var(self.name)
+        else:
+            raise Exception(f"var '{self.name}' is not defined")
+
 
 @dataclass
 class Number(Expression):
     value: str
+    type = 'Number'
 
 
 @dataclass
 class Bool(Expression):
     value: str
+    type = 'Bool'
 
 
 @dataclass
 class String(Expression):
     value: str
+    type = 'String'
 
 
 @dataclass
@@ -134,6 +252,17 @@ class _None(Expression):
 @dataclass
 class _List(Expression):
     inner_list: List[Expression]
+    type = 'List'
+    inner_type: str = ''
+
+    def check_semantic(self, context: Context):
+        for expression in self.inner_list:
+            expression.check_semantic(context)
+            if (self.inner_type == ''):
+                self.inner_type = expression.type
+            if (self.inner_type != expression.type):
+                raise Exception('Type mismatch on list')
+        self.type += ' ' + self.inner_type
 
 
 @dataclass
@@ -162,6 +291,9 @@ class Statements:
 @dataclass
 class BetwBrackExpression(Expression):
     expression: Expression
+
+    def check_semantic(self, context: Context):
+        self.type = self.expression.type
 
 
 @dataclass
@@ -478,7 +610,7 @@ def build_basic_1(tokens: List[str], ast_nodes: List):
     exp = ast_nodes.pop()
     name = tokens[len(tokens) - 1]
 
-    args = Arguments(exp, name, None)
+    args = Basic(exp, name, None)
 
     ast_nodes.append(args)
 
@@ -487,7 +619,7 @@ def build_basic_2(tokens: List[str], ast_nodes: List):
     expressions = ast_nodes.pop()
     exp = ast_nodes.pop()
 
-    args = Arguments(exp, None, get_expressions([], expressions))
+    args = Basic(exp, None, get_expressions([], expressions))
 
     ast_nodes.append(args)
 
@@ -495,7 +627,7 @@ def build_basic_2(tokens: List[str], ast_nodes: List):
 def build_basic_3(tokens: List[str], ast_nodes: List):
     exp = ast_nodes.pop()
 
-    args = Arguments(exp, None, [])
+    args = Basic(exp, None, [])
 
     ast_nodes.append(args)
 
@@ -504,7 +636,7 @@ def build_basic_4(tokens: List[str], ast_nodes: List):
     exp = Variable('self')
     name = tokens[len(tokens) - 1]
 
-    args = Arguments(exp, name, None)
+    args = Basic(exp, name, None)
 
     ast_nodes.append(args)
 

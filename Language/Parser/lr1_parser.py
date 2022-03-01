@@ -38,7 +38,6 @@ class LR1Parser:
 
         while len(tokens) > 0:
             token = tokens[0]
-
             current_state_actions = self.actions_table[states_id_stack[-1]]
             if token.value not in current_state_actions:
                 raise Exception(

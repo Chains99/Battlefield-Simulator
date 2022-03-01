@@ -4,8 +4,26 @@ from Language.Grammar.grammar import Grammar, non_term_heads, bfs_start
 from Language.Lexer.Token import Token, TokenType
 from Language.Parser.lr1_parser import LR1Parser
 from Language.Lexer.Lexer import lexer
-from Language.Semantic.Type_checking.context import Context
+from Language.Parser.ast import Context, FuncDef
+from Language.Semantic.Type_checking.type import Type
 from Language.Semantic.ast_transpiler import ASTtranspiler
+
+
+def build_initial_context():
+    context = Context('root')
+    Type(context, 'Number')
+    Type(context, 'Bool')
+    Type(context, 'List')
+    Type(context, 'String')
+    Type(context, 'Void')
+
+    soldier = Type(context, 'Soldier')
+    soldier.add_attribute('id', 'Number')
+    soldier.define_function('sum', 'Number', ['a', 'b'], ['Number', 'Number'])
+    context.add_func(FuncDef('Soldier', 'Soldier', ['number'], ['Number'], None))
+    context.add_func(FuncDef('print', 'Void', ['text'], ['String'], None))
+    return context
+
 
 """  MAIN   """
 
@@ -112,7 +130,6 @@ def execute():
             grammar = Grammar(non_term_heads, bfs_start)
             parser = LR1Parser(grammar)
             ast = parser.parse(tokens)
-            window['Result'].print(tokens)
-            python_code = ASTtranspiler().transpile(ast, Context("parent"))
+            python_code = ASTtranspiler().transpile(ast, build_initial_context())
             window['Result'].print(python_code)
     window.close()

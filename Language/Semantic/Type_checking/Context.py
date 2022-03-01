@@ -1,20 +1,20 @@
-#from Language.Semantic.Type_checking.type import Type
-
-
 class Context:
     """
     Context class is used to define an execution context where there are defined the vars, methods and types
     whenever a var is assigned, a type is created or a function is defined
     """
 
-    def __init__(self, name: str, parent=None):
+    def __init__(self, name: str, parent=None, func=None, _while: bool = None):
         self.name = name
         self.parent = parent
         self.childrens = {}
         self._vars = {}
         self._func = {}
         self._types = {}
-
+        self.ifs = 0
+        self.func = func
+        self._while = None
+        self.logical_ops = {'<=', '==', '>=', '!=', '>', '<'}
 
     def get_func(self, func):
         if self.parent is None:
@@ -25,38 +25,37 @@ class Context:
             # check for the function to be defined in a parent context
             return self.parent.get_func(func)
 
-    def check_var_in_context(self, var):
+    def check_var_in_context(self, var, check_parent=True):
         if self.parent is None:
             return var in self._vars
         else:
             if var in self._vars:
                 return True
-
-            return self.parent.check_var(var)
+            if (check_parent):
+                return self.parent.check_var_in_context(var)
+            else:
+                return False
 
     def check_var_type(self, var, _type):
         if self.check_var_in_context(var):
             _type = self.get_type_var(var)
-
-            # to check list type we check for the type of the first element
-            if isinstance(type, list):
-                _type = type[1]
-
             if self.get_type_var(var) == _type:
                 return True
             else:
                 return False
-
         else:
             raise Exception(f"{var} is not defined")
 
+    def get_types(self, name: str):
+        return self._types.get(name)
+
     def check_func_args(self, func, args):
         if self.parent is None:
-            _func = self._func.get(func)
+            _func = self._func.get(func.name)
             if _func is not None:
-                if len(args) == len(self._func[func][1]):
+                if len(args) == len(_func.arg_names):
                     for i in range(len(args)):
-                        if args[i] != _func[1][i] and _func[1][i] != "Type":
+                        if args[i] != _func.arg_types[i] and _func.arg_types[i] != "Type":
                             return False
 
                     return True
@@ -64,7 +63,7 @@ class Context:
             return False
 
         else:
-            _func = self._func.get(func)
+            _func = self._func.get(func.name)
             if _func is not None:
                 if len(args) == len(self._func[func][1]):
                     for i in range(len(args)):
@@ -76,94 +75,80 @@ class Context:
             return self.parent.check_func_args(func, args)
 
     def get_type_var(self, var):
-        if self.parent is None:
-            if var in self._vars:
-                return [self._vars[var][0], self._vars[var][1]]
-            else:
-                raise Exception(f"{var} has not been defined")
-
+        if var in self._vars:
+            return self._vars[var][1] if self._vars[var][0] != 'function' else 'function'
+        elif self.parent is not None:
+            return self.parent.get_type_var(var)
         else:
-            if var in self._vars:
-                return [self._vars[var][0], self._vars[var][1]]
-            else:
-                return self.parent.get_type_var(var)
+            raise Exception(f"{var} has not been defined")
 
     def add_var(self, var, _type, value=""):
-        type = _type
-        if isinstance(_type, list):
-            type = _type[1]
-
-        if not self.check_var_type(var, type) and self.is_type_defined(type):
-            self._vars[var] = ["var", type, value]
-
-        elif var in self._vars and self._vars[var][1] == type:
-            self._vars[var][2] = value
-
+        if not self.check_var_in_context(var):
+            if self.is_type_defined(_type):
+                self._vars[var] = ["var", _type, value]
+            else:
+                raise Exception(f"Type {_type} is not defined")
         else:
-            raise Exception(f"Type {type} is not defined")
+            raise Exception(f"Var {var} is already defined")
 
-    def add_func(self, func, return_type, args, _type_args):
-        if self.is_type_defined(return_type):
+    def add_func(self, func):
+        if self.is_type_defined(func.return_type):
+            if func.name in self._vars:
+                raise Exception(f"{func.name} is already defined")
 
-            if func in self._vars:
-                raise Exception(f"{func} is already defined")
+            self._vars[func.name] = ["function", func.return_type, func]
+            self._func[f'{func.name}'] = func
+            _context = self.create_child_context(func.name)
 
-            self._vars[func] = ["function", None, None]
-            _context = self.create_child_context(func)
-            _func = [return_type, [0] * len(args), [0] * len(args)]  # func: [return type, args_type, args_name]
-
-            for i in range(len(args)):
-                if self.is_type_defined(_type_args[i]):
-                    _func[2][i] = args[i]
-                    _func[1][i] = _type_args[i]
-
-
+            for i in range(len(func.arg_names)):
+                if self.is_type_defined(func.arg_types[i]):
+                    name = func.arg_names[i]
+                    _type = func.arg_types[i]
+                    _context.add_var(name, _type)
                 else:
-                    raise Exception("Type Error")
-
-
+                    raise Exception(f"Type {func.arg_types[i]} is not defined")
         else:
-            raise Exception("Type Error")
-
-        self._func[func] = _func
-        for i in range(len(args)):
-            _context.add_var(args[i], _type_args[i])
-
+            raise Exception(f"Type {func.return_type} is not defined")
+        self._func[f'{func.name}'] = func
         return _context
 
+    def in_while_context(self):
+        if self._while is not None:
+            return self._while
+        if self.name == 'while':
+            self._while = True
+        elif self.parent is not None:
+            self._while = self.parent.in_while_context()
+        else:
+            self._while = False
+        return self._while
+
     def create_child_context(self, name):
-        child = Context(name, self)
+        func = None
+        _type = ''
+        if (self.check_var_in_context(name)):
+            _type = self.get_type_var(name)
+        if _type == 'function':
+            func = self._func.get(name)
+        child = Context(name, self, func)
         self.childrens[name] = child
         return child
 
-    def define_type(self, name, args=[], type_args=[], parent=None):
-        _parent = None
-        if parent is not None:
-            _parent = self.get_type_object(parent)
-
-        child = self.create_child_context(name)
-        #t = Type(child, name, self)
-        t =''
-        self._types[name] = t
-        self.add_func(name, name, args, type_args)
-        return [t, child]
-
-    def get_return_type(self, func):
-
+    def get_return_type(self, func_name):
         if self.parent is None:
-            _func = self.get_func(func)
+            _func = self.get_func(func_name)
             if _func is not None:
                 return _func[0]
 
             else:
-                raise Exception(f"Function '{func}' is not defined")
+                raise Exception(f"Function '{func_name}' is not defined")
 
         else:
-            if func in self._types:
-                return self._func[func][0]
+            if func_name in self._types:
+                return self._func[func_name][0]
 
             else:
-                return self.parent.get_return_type(func)
+                return self.parent.get_return_type(func_name)
 
     def get_type_object(self, name_type):
         name = name_type
@@ -216,3 +201,7 @@ class Context:
                 return self.parent
 
             return self.parent.get_context_parent(name)
+
+    def get_context_child(self, name):
+        child = self.childrens.get(name)
+        return child if child is not None else self

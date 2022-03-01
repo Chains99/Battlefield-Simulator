@@ -1,9 +1,6 @@
-from io import StringIO
-from typing import List
-
 from Language.Parser.ast import Script, Expression, Variable, Number, Bool, _None, _List, FuncDef, If, El_if_se, \
-    WhileDef, Decl, Assign, Return, Continue, Break, BinaryExpression, TernaryExpression, Arguments, \
-    BetwBrackExpression, String
+    WhileDef, Decl, Assign, Return, Continue, Break, BinaryExpression, TernaryExpression, \
+    BetwBrackExpression, String, Basic
 from Language.Semantic.Type_checking.context import Context
 from Language.Semantic.Visitor import visitor
 
@@ -43,7 +40,7 @@ class ASTtranspiler:
 
     @visitor(String)
     def transpile(self, node: String, context: Context):
-        return r'"'+f"{node.value}"+r'"'
+        return r'"' + f"{node.value}" + r'"'
 
     @visitor(_None)
     def transpile(self, node: _None, context: Context):
@@ -56,10 +53,10 @@ class ASTtranspiler:
 
     @visitor(FuncDef)
     def transpile(self, node: FuncDef, context: Context):
-
+        node.check_semantic(context)
         args = ', '.join(name for name in node.arg_names)
         self.write_code(f'def {node.name}({args}):\n')
-
+        context = context.get_context_child(node.name)
         self.tabs_counter += 1
         for statement in node.body:
             if isinstance(statement, Expression):
@@ -70,11 +67,10 @@ class ASTtranspiler:
 
     @visitor(If)
     def transpile(self, node: If, context: Context):
-
+        node.check_semantic(context)
         self.write_code(f'elif {self.transpile(node.condition, context)}:\n')
-
         self.tabs_counter += 1
-
+        context = context.create_child_context('If')
         for statement in node.body:
             if isinstance(statement, Expression):
                 self.write_code(self.transpile(statement, context) + "\n")
@@ -84,13 +80,11 @@ class ASTtranspiler:
 
     @visitor(El_if_se)
     def transpile(self, node: El_if_se, context: Context):
-
+        node.check_semantic(context)
         first_if = node.ifs[0]
-
         self.write_code(f'if {self.transpile(first_if.condition, context)}:\n')
-
+        context = context.create_child_context('If')
         self.tabs_counter += 1
-
         for statement in first_if.body:
             if isinstance(statement, Expression):
                 self.write_code(self.transpile(statement, context) + "\n")
@@ -108,6 +102,7 @@ class ASTtranspiler:
         if node.el_if_se_body is not None:
             self.write_code("else:\n")
             self.tabs_counter += 1
+            context = context.create_child_context('el_if_se_')
             for statement in node.el_if_se_body:
                 if isinstance(statement, Expression):
                     self.write_code(self.transpile(statement, context) + "\n")
@@ -132,14 +127,17 @@ class ASTtranspiler:
 
     @visitor(Decl)
     def transpile(self, node: Decl, context: Context):
+        node.check_semantic(context)
         self.write_code(f'{node.name} = {self.transpile(node.expression, context)}\n')
 
     @visitor(Assign)
     def transpile(self, node: Assign, context: Context):
+        node.check_semantic(context)
         self.write_code(f'{node.name} = {self.transpile(node.expression, context)}\n')
 
     @visitor(Return)
     def transpile(self, node: Return, context: Context):
+        node.check_semantic(context)
         if node.expression is None:
             self.write_code('return\n')
         else:
@@ -147,10 +145,12 @@ class ASTtranspiler:
 
     @visitor(Continue)
     def transpile(self, node: Continue, context: Context):
+        node.check_semantic(context)
         self.write_code('continue\n')
 
     @visitor(Break)
     def transpile(self, node: Break, context: Context):
+        node.check_semantic(context)
         self.write_code('break\n')
 
     @visitor(BetwBrackExpression)
@@ -159,7 +159,6 @@ class ASTtranspiler:
 
     @visitor(BinaryExpression)
     def transpile(self, node: BinaryExpression, context: Context):
-
         left = self.transpile(node.left, context)
         right = self.transpile(node.right, context)
 
@@ -174,12 +173,12 @@ class ASTtranspiler:
 
         return f'{left} if {condition} else {right}'
 
-    @visitor(Arguments)
-    def transpile(self, node: Arguments, context: Context):
+    @visitor(Basic)
+    def transpile(self, node: Basic, context: Context):
+        node.check_semantic(context)
         exp = self.transpile(node.expression, context)
         if node.args is None:
             return f'{exp}.{node.name}'
         else:
             args = ', '.join(self.transpile(element, context) for element in node.args)
-
             return f'{exp}({args})'

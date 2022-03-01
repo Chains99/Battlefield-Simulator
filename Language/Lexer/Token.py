@@ -21,6 +21,9 @@ class Token:
     def __str__(self):
         return f"({self.value}, {self.type})"
 
+    def __repr__(self):
+        return self.__str__()
+
 
 class TokenValues:
     # Keywords

@@ -141,8 +141,8 @@ while_t = Terminal('while')
 break_t = Terminal('break')
 return_t = Terminal('return')
 number_t = Terminal('Number')
-bool_t = Terminal('bool')
-void_t = Terminal('void')
+bool_t = Terminal('Bool')
+void_t = Terminal('Void')
 is_t = Terminal('is')
 assign_t = Terminal('=')
 dot = Terminal('.')
@@ -253,8 +253,8 @@ return_nt += Production([return_t], build_return_2)
 
 # if Definition
 if_def += Production(
-    [if_t, openBracket_t
-    , expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements, closedCurlyBraces_t, elif_def],
+    [if_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements, closedCurlyBraces_t,
+     elif_def],
     build_if_def_1)
 if_def += Production(
     [if_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements, closedCurlyBraces_t,

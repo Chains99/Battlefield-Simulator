@@ -337,6 +337,7 @@ pow_nt += Production([basic])
 # indexing, attributes consultation, function call and between parenthesis expressions
 basic += Production([basic, dot, identifier_t], build_basic_1)
 basic += Production([basic, openBracket_t, expressions, closedBracket_t], build_basic_2)
+basic += Production([basic, openStraightBracket_t, expressions, closedStraightBracket_t], build_basic_2)
 basic += Production([basic, openBracket_t, closedBracket_t], build_basic_3)
 basic += Production([openBracket_t, expression, closedBracket_t], build_betw_bracket_expression)
 basic += Production([atom])

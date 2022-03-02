@@ -638,14 +638,6 @@ def build_basic_3(tokens: List[str], ast_nodes: List):
     ast_nodes.append(args)
 
 
-def build_basic_4(tokens: List[str], ast_nodes: List):
-    exp = Variable('self')
-    name = tokens[len(tokens) - 1]
-
-    args = Basic(exp, name, None)
-
-    ast_nodes.append(args)
-
 
 def build_Variable(tokens: List[str], ast_nodes: List):
     ast_nodes.append(Variable(tokens[len(tokens) - 1]))

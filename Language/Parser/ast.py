@@ -251,6 +251,7 @@ class String(Expression):
 
 @dataclass
 class _None(Expression):
+    type = 'None'
     pass
 
 

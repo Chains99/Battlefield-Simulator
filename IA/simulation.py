@@ -218,6 +218,7 @@ class SimulationManager:
                     fire_rate = 0
                     current_ammo = 0
                     max_ammo = 0
+                    weapon_eff_damage = 0
                     weapon_damage = 0
 
                 concealment = soldier.concealment
@@ -297,10 +298,11 @@ class SimulationManager:
         # execute extra action
         action[0](action[1], self.sim_map.terrain_matrix)
         self.check_soldier_illegal_values()
-        # generate new state
-        result_state = build_new_state(self.fractions, self.ab.am, state)
 
-        soldier = action[1][0]
+        soldier = action[1]
+        # generate new state
+        result_state = build_new_state(self.fractions, self.ab.am, soldier, state)
+
         result_state.team_variables_moved[fraction.id] += 1
         result_state.soldier_moved[soldier.team][soldier.id] = True
 

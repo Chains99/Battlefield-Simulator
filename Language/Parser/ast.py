@@ -196,7 +196,7 @@ class Basic(Expression):
                     raise Exception(f'Function "{self.expression.name}" is not defined')
                 for i in range(len(self.args)):
                     self.args[i].check_semantic(context)
-                    args[i] = self.args[i].type if self.args[i].type != 'function' else args[i].return_type
+                    args[i] = self.args[i].type if self.args[i].type != 'function' or func.arg_types[i] == 'function' else args[i].return_type
                 if context.check_func_args(func, args):
                     self.type = func.return_type
                 else:

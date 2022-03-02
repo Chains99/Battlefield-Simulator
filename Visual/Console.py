@@ -141,6 +141,7 @@ def run(map, weather, soldiers: Soldier, ia_max_depth: int):
     print('aqui')
     btf = build_battlefield(map, weather, soldiers, ia_max_depth)
     Manager.runing = True
+    Manager.btf = btf
     run_btf(btf)
 
 
@@ -234,5 +235,6 @@ def execute():
                 parser = LR1Parser(grammar)
                 ast = parser.parse(tokens)
                 python_code = ASTtranspiler().transpile(ast, build_initial_context())
+                window['Result'].update(python_code)
                 exec(python_code, globals())
     window.close()

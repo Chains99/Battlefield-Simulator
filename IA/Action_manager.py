@@ -115,6 +115,7 @@ class ActionManager:
         pos_matrix = self._soldier_pos_matrix(state)
 
         # PRE SIMULATION INSTANCE VALUES
+        position_instance = soldier.position
         next_object_instance = soldier.next_to_object
         concealment_instance = soldier.concealment
         precision_instance = soldier.precision
@@ -127,14 +128,13 @@ class ActionManager:
         soldier.change_stance(st_stance, state.soldier_positions[soldier.id], self.map.terrain_matrix)
         new_pos = soldier.move_to(sol_position, position, self.map.restriction_matrix, self.map.terrain_matrix, pos_matrix)
 
-
         new_concealment = soldier.concealment
         new_precision = soldier.precision
         new_next_object = soldier.next_to_object
         new_stance = soldier.stance
 
         # REVERT CHANGES
-        soldier.position = sol_position
+        soldier.position = position_instance
         soldier.concealment = concealment_instance
         soldier.precision = precision_instance
         soldier.stance = stance_instance

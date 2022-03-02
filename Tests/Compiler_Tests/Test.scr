@@ -11,7 +11,7 @@ def Void equip_and_deploy_by_team(List_Soldier soldiers, List_Weapon weapons,Map
 		else:
 		{
 			soldiers[count].set_weapons([weapons[1]],[3]);
-			soldiers[count].set_position(map,3,count);
+			soldiers[count].set_position(map,3,count%4);
 		};
 		count = count+1;
    	};
@@ -21,21 +21,26 @@ def Void equip_and_deploy_by_team(List_Soldier soldiers, List_Weapon weapons,Map
 Map map = Map(4,4);
 Weather weather = Weather('Sunny',15,0.5,25,10);
 
-Soldier s1 = Soldier(100, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 10, 0);
-Soldier s2 = Soldier(130, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 10, 0);
-Soldier s3 = Soldier(120, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 10, 0);
-Soldier s4 = Soldier(110, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 10, 0);
+Soldier s1 = Soldier(100, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 1000, 0);
+Soldier s2 = Soldier(130, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 1000, 0);
+Soldier s3 = Soldier(120, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 1000, 0);
+Soldier s4 = Soldier(110, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 1000, 0);
 
-Soldier s5 = Soldier(100, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 10, 1);
-Soldier s6 = Soldier(130, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 10, 1);
-Soldier s7 = Soldier(120, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 10, 1);
-Soldier s8 = Soldier(110, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 10, 1);
+Soldier s5 = Soldier(100, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 1000, 1);
+Soldier s6 = Soldier(130, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 1000, 1);
+Soldier s7 = Soldier(120, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 1000, 1);
+Soldier s8 = Soldier(110, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 1000, 1);
 
 List soldiers = [s1,s2,s3,s4,s5,s6,s7,s8];
 
 Weapon M4 = Weapon("M4",3.52,50,100,85,65,40,90,30,30);
 Weapon AK74 = Weapon("AK74",3.07,50,100,80,55,50,70,30,30);
 
+def Void test(Soldier soldier, Map map):
+{
+	print("aqui");
+};
+s1.add_extra_action(test);
 equip_and_deploy_by_team(soldiers,[M4, AK74], map);
 s1.set_affinity('M4', 1.2);
 run(map,weather,soldiers,2);

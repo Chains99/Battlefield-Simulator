@@ -16,6 +16,10 @@ class Weapon:
         self.ammunition_capacity = ammunition_capacity
         self.current_ammo = current_ammo
 
+    def copy(self):
+        return Weapon(self.name, self.weight, self.w_effective_range, self.w_max_range, self.effective_range_precision, self.max_range_precision,
+                      self.damage, self.fire_rate, self.ammunition_capacity, self.current_ammo)
+
     def _average_hit_chance(self, params):
         media = 0
         for item in params:

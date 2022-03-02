@@ -97,7 +97,10 @@ class BattleField:
                 result_state = self.reset_moves(result_state)
             return result_state
 
-        soldier = action[1][0]
+        if len(action) == 3:
+            soldier = action[1]
+        else:
+            soldier = action[1][0]
         if result_state is not None:
             result_state.team_variables_moved[soldier.team] += 1
             result_state.soldier_moved[soldier.team][soldier.id] = True
@@ -107,7 +110,7 @@ class BattleField:
                 result_state = self.reset_moves(result_state)
 
         if result_state is None:
-            self.perform_extra_action(action)
+           return self.perform_extra_action(action)
 
         return result_state
 
@@ -120,7 +123,7 @@ class BattleField:
         # execute extra action
         action[0](action[1], self.sim.sim_map.terrain_matrix)
         # generate new state
-        result_state = build_new_state(self.fractions, self.sim.ab.am, action[2])
+        result_state = build_new_state(self.fractions, self.sim.ab.am, action[1], action[2])
         return result_state
 
     def needed_reset(self, state):

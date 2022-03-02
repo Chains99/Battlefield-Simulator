@@ -113,6 +113,7 @@ class SimulationState:
         st.alive_soldiers = self._copy_dic(self.alive_soldiers)
         st.team_variables_moved = self._copy_dic(self.team_variables_moved)
         st.soldier_variables = self._copy_dic(self.soldier_variables)
+        st.soldier_extra_variables = self._copy_dic(self.soldier_extra_variables)
         st.soldier_str_variables = self._copy_dic(self.soldier_str_variables)
 
         st.soldier_ammo_per_weapon = self._copy_doble_dic(self.soldier_ammo_per_weapon)
@@ -123,7 +124,7 @@ class SimulationState:
         return st
 
 
-def build_new_state(factions, action_manager, state):
+def build_new_state(factions, action_manager, soldier, state):
     new_state = state.copy_state()
     new_state.building = True
 
@@ -131,8 +132,6 @@ def build_new_state(factions, action_manager, state):
 
         new_state.alive_soldiers[faction.id] = len(faction.soldiers)
         new_state.team_variables_moved[faction.id] = 0
-        new_state.soldier_moved[faction.id] = {}
-        new_state.soldier_died[faction.id] = {}
 
         for soldier in faction.soldiers:
 
@@ -194,10 +193,6 @@ def build_new_state(factions, action_manager, state):
                                                        remaining_health,
                                                        precision)
 
-            """
-            new_state.soldier_moved[faction.id][soldier.id] = False
-            new_state.soldier_died[faction.id][soldier.id] = False
-            """
 
             new_state.soldier_extra_variables[soldier.id] = (soldier.vision_range,
                                                              soldier.move_speed,
@@ -205,10 +200,17 @@ def build_new_state(factions, action_manager, state):
                                                              soldier.max_load,
                                                              soldier.melee_damage)
 
+            if new_state.soldier_variables[soldier.id][10] <= 0 and not new_state.soldier_died[soldier.team][soldier.id]:
+                new_state.alive_soldiers[soldier.team] -= 1
+                new_state.soldier_died[soldier.team][soldier.id] = True
+
             # weapon state variables
             for weapon in soldier.weapons:
                 new_state.soldier_ammo_per_weapon[soldier.id][weapon.name] = soldier.weapon_ammo[weapon.name]
                 new_state.soldier_weapons_current_ammo[soldier.id][weapon.name] = weapon.current_ammo
+
+    new_state.soldier_moved[soldier.team][soldier.id] = True
+    new_state.team_variables_moved[soldier.team] += 1
 
     new_state.building = False
     return new_state

@@ -85,9 +85,7 @@ class ActionBuilder:
                 weapon_eff_range = item.w_effective_range
 
         for enemy_pos in enemies_pos:
-
-            if euclidean_distance(position, enemy_pos) > weapon_eff_range:
-                out_range.append(enemy_pos)
+            out_range.append(enemy_pos)
 
         # MOVE TOWARDS ENEMIES IN SIGHT
         # outside weapon effective range

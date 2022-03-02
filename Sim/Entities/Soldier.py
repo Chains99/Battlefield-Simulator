@@ -74,18 +74,15 @@ class Soldier:
     def get_map(self):
         return self.terrain_map
 
-<<<<<<< Updated upstream
-    def set_position(self,terrain_map, row, col, ):
-        self.position = (row, col)
-=======
     def set_position(self, terrain_map, row, col):
         row = int(row)
         col = int(col)
         if row < 0 or col < 0:
             raise Exception('Invalid row or col value')
+        if row >= terrain_map.rows or col >= terrain_map.cols:
+            raise Exception('Invalid row or col value')
         self.position = (row, col)
 
->>>>>>> Stashed changes
         if not isinstance(terrain_map, Map):
             raise Exception('Invalid map value')
         self.terrain_map = terrain_map
@@ -94,7 +91,7 @@ class Soldier:
         for weapon in weapons:
             if not isinstance(weapon, Weapon):
                 raise Exception('Invalid element in weapons')
-            self.weapons.append(weapon)
+            self.weapons.append(weapon.copy())
             self.w_affinities[weapon.name] = 1
 
         for i in range(len(weapons_ammo)):

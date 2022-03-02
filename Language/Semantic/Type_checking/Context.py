@@ -54,7 +54,8 @@ class Context:
             if func is not None:
                 if len(args) == len(func.arg_names):
                     for i in range(len(args)):
-                        if args[i] != func.arg_types[i] and func.arg_types[i] != "Type":
+                        if args[i] != func.arg_types[i] and (func.arg_types[i] != 'List' == args[i].split(' ')[0]) and \
+                                func.arg_types[i] != "Type":
                             return False
 
                     return True
@@ -80,7 +81,7 @@ class Context:
             raise Exception(f"{var} has not been defined")
 
     def add_var(self, var, _type, value="", aux=True):
-        if not self.check_var_in_context(var,aux):
+        if not self.check_var_in_context(var, aux):
             if self.is_type_defined(_type):
                 self._vars[var] = ["var", _type, value]
             else:
@@ -96,7 +97,7 @@ class Context:
             self._vars[func.name] = ["function", func.return_type, func]
             self._func[f'{func.name}'] = func
             _context = self.create_child_context(func.name)
-            if(func.name=='run'):
+            if (func.name == 'run'):
                 print()
             for i in range(len(func.arg_names)):
                 if self.is_type_defined(func.arg_types[i].split(' ')[0]):

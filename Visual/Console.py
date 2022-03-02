@@ -40,6 +40,7 @@ def build_initial_context():
     soldier.define_function('get_map', 'Map', [], [])
     soldier.define_function('set_weapons', 'Void', ['weapons'], ['List'])
     soldier.define_function('set_affinity', 'Void', ['weapon_name', 'value'], ['String', 'Number'])
+    soldier.define_function('set_position', 'Void', ['row', 'col'], ['Number', 'Number'])
     soldier.define_function('set_equiped_weapon', 'Void', ['weapon'], ['String'])
     soldier.define_function('add_extra_action', 'Void', ['action'], ['function'])
     soldier.define_function('remove_extra_action', 'Void', ['index'], ['Number'])
@@ -91,12 +92,13 @@ def build_initial_context():
                              ['row', 'col'],
                              ['Number', 'Number'], None))
     context.add_func(FuncDef('Weapon', 'Weapon',
-                           ['name', 'weight', 'w_effective_range', 'w_max_range', 'effective_range_precision',
-                            'max_range_precision',
-                            'damage', 'fire_rate', 'ammunition_capacity', 'current_ammo'],
-                           ['String', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number',
-                            'Number'], None))
+                             ['name', 'weight', 'w_effective_range', 'w_max_range', 'effective_range_precision',
+                              'max_range_precision',
+                              'damage', 'fire_rate', 'ammunition_capacity', 'current_ammo'],
+                             ['String', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number',
+                              'Number'], None))
 
+    context.add_func(FuncDef('len', 'Number', ['list'], ['List'], None))
     context.add_func(FuncDef('print', 'Void', ['text'], ['String'], None))
     context.add_func(FuncDef('run', 'Void', ['map', 'weather', 'soldiers', 'ia_max_depth'],
                              ['Map', 'Weather', 'List Soldier', 'Number'], None))

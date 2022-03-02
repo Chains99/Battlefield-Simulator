@@ -76,10 +76,12 @@ class Decl(Statement):
     def check_semantic(self, context: Context):
         if not context.is_type_defined(self.type):
             raise TypeError(f'"{self.type}" is not a defined type')
-        context.add_var(self.name, self.type, '')
         self.expression.check_semantic(context)
         if self.expression.type.split(' ')[0] != self.type.split(' ')[0]:
             raise TypeError(f'\"{self.name}\" doesn\'t match with the expression type')
+        context.add_var(self.name, self.expression.type, '')
+
+
 
 
 @dataclass
@@ -199,6 +201,13 @@ class Basic(Expression):
                     self.type = func.return_type
                 else:
                     raise Exception(f"Some types are incorrect")
+            elif (expr_type.split(' ')[0] == 'List'):
+                if not len(self.args) == 1:
+                    raise Exception(f'List indexation takes a single number as argument')
+                self.args[0].check_semantic(context)
+                if self.args[0].type != 'Number':
+                    raise Exception(f'List indexation takes a number type as argument')
+                self.type = expr_type.split(' ')[1]
         else:
             _type = context.get_type(expr_type)
             if _type.contains_attribute(self.name):
@@ -225,6 +234,7 @@ class Variable(Expression):
     name: str
 
     def check_semantic(self, context: Context):
+        element = context
         if (context.check_var_in_context(self.name)):
             self.type = context.get_type_var(self.name)
         else:
@@ -348,10 +358,10 @@ def get_params(list_params: List, params: Params):
     return list_params
 
 
-def get_branch(br: El_if_se, elif_def: ElifDef):
+def get_El_if_se(br: El_if_se, elif_def: ElifDef):
     br.ifs.append(If(elif_def.expression, elif_def.body))
     if elif_def.elif_def is not None:
-        get_branch(br, elif_def.elif_def)
+        El_if_se(br, elif_def.elif_def)
     elif elif_def.else_def is not None:
         br.else_body = elif_def.else_def.body
 
@@ -448,7 +458,7 @@ def build_if_def_1(tokens: List[str], ast_nodes: List):
     if_def = If(expression, get_statements([], block))
     branch = El_if_se([if_def], None)
 
-    get_branch(branch, elif_def)
+    El_if_se(branch, elif_def)
 
     ast_nodes.append(branch)
 
@@ -636,7 +646,6 @@ def build_basic_3(tokens: List[str], ast_nodes: List):
     args = Basic(exp, None, [])
 
     ast_nodes.append(args)
-
 
 
 def build_Variable(tokens: List[str], ast_nodes: List):

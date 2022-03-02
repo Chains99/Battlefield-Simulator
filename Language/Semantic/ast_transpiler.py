@@ -179,6 +179,9 @@ class ASTtranspiler:
         exp = self.transpile(node.expression, context)
         if node.args is None:
             return f'{exp}.{node.name}'
-        else:
+        elif node.type == 'function':
             args = ', '.join(self.transpile(element, context) for element in node.args)
             return f'{exp}({args})'
+        else:
+            arg = self.transpile(node.args[0], context)
+            return f'{exp}[{arg}]'

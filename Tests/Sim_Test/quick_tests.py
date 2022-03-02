@@ -12,7 +12,6 @@ from IA.Action_manager import ActionManager
 from Sim.aux_actions import aux_action
 
 
-
 def run_test(output_dest):
     """
     State and Map, weather
@@ -20,7 +19,6 @@ def run_test(output_dest):
     mapa = Map(5, 5)
     weather = Weather(0, 0, 1.2, 0, 0)
     mapa.terrain_matrix[0][2].add_object(True)
-
     """
     Soldiers
     params:

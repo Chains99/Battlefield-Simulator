@@ -46,3 +46,6 @@ class Map:
                             self.terrain_matrix[i][j].available = False
 
     # DEFINIR INDICES EN TERRAIN MATRIX
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return self.terrain_matrix[item]

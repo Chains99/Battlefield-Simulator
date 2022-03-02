@@ -26,11 +26,14 @@ class Soldier:
         self.precision = precision
         if precision < 0 or precision > 1:
             self.precision = 0.5
+        self._og_precision = self.precision
+
         self.stances_precision = {'standing': precision, 'crouching': min(precision * 1.05, 0.95),
                                   'lying': min(precision * 1.1, 0.95)}
 
         move_speed = int(move_speed)
         self.move_speed = max(move_speed, 1)
+        self._og_move_speed = self.move_speed
         self.crit_chance = crit_chance
         if crit_chance < 0 or crit_chance > 1:
             self.crit_chance = 0
@@ -84,6 +87,7 @@ class Soldier:
             if not isinstance(weapon, Weapon):
                 raise Exception('Invalid element in weapons')
             self.weapons.append(weapon)
+            self.w_affinities[weapon.name] = 1
 
         for i in range(len(weapons_ammo)):
             self.weapon_ammo[weapons[i].name] = weapons_ammo[i] * weapons[i].ammunition_capacity
@@ -253,6 +257,11 @@ class Soldier:
             # 20% less precision and movement
             self.precision *= 0.8
             self.move_speed = int(self.move_speed * 0.8)
+
+    def heal(self, health_points):
+        self.current_health = min(health_points + self.current_health, self.health)
+        self.precision = self._og_precision
+        self.move_speed = self._og_move_speed
 
     def reload(self):
         ammo = self.weapon_ammo[self.equipped_weapon.name]

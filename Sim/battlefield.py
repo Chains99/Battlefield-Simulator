@@ -42,23 +42,23 @@ class BattleField:
 
         if move[0] == self.sim.ab.am.melee_attack:
             enemy = self.current_state.reverse_soldier_positions[move[1][1]]
-            print('soldier id:{} team:{} attacked soldier id:{} team:{}'.format(move[1][0].id, move[1][0].team, enemy.id, enemy.team))
+            self.console.print('soldier id:{} team:{} attacked soldier id:{} team:{}'.format(move[1][0].id, move[1][0].team, enemy.id, enemy.team))
 
         if move[0] == self.sim.ab.am.shoot_enemy:
             enemy = self.current_state.reverse_soldier_positions[move[1][1]]
-            print('soldier id:{} team:{} shoot soldier id:{} team:{}'.format(move[1][0].id, move[1][0].team, enemy.id, enemy.team))
+            self.console.print('soldier id:{} team:{} shoot soldier id:{} team:{}'.format(move[1][0].id, move[1][0].team, enemy.id, enemy.team))
 
         if move[0] == self.sim.ab.am.move:
-            print('soldier id:{} team:{} moved towards square {}'.format(move[1][0].id, move[1][0].team, self.current_state.soldier_positions[move[1][0].id]))
+            self.console.print('soldier id:{} team:{} moved towards square {}'.format(move[1][0].id, move[1][0].team, self.current_state.soldier_positions[move[1][0].id]))
 
         if move[0] == self.sim.ab.am.change_stance:
-            print('soldier id:{} team:{} changed stance to {}'.format(move[1][0].id, move[1][0].team, move[1][0].stance))
+            self.console.print('soldier id:{} team:{} changed stance to {}'.format(move[1][0].id, move[1][0].team, move[1][0].stance))
 
         if move[0] == self.sim.ab.am.reload:
-            print('soldier id:{} team:{} reloaded'.format(move[1][0].id, move[1][0].team))
+            self.console.print('soldier id:{} team:{} reloaded'.format(move[1][0].id, move[1][0].team))
 
         if move[0] == self.sim.ab.am.change_weapon:
-            print('soldier id:{} change weapon to {}'.format(move[1][0].id, move[1][0].team, move[1][0].equipped_weapon.name))
+            self.console.print('soldier id:{} change weapon to {}'.format(move[1][0].id, move[1][0].team, move[1][0].equipped_weapon.name))
 
     def terminal_state(self):
 

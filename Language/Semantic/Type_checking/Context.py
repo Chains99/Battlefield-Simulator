@@ -47,7 +47,13 @@ class Context:
             raise Exception(f"{var} is not defined")
 
     def get_type(self, name: str):
-        return self._types.get(name)
+        if self.parent is None:
+            _type = self._types.get(name)
+            if _type is None:
+                raise Exception(f'Type {name} is not defined')
+            return _type
+        else:
+            return self.parent.get_type(name)
 
     def check_func_args(self, func, args):
         if self.parent is None:
@@ -148,24 +154,6 @@ class Context:
 
             else:
                 return self.parent.get_return_type(func_name)
-
-    def get_type_object(self, name_type):
-        name = name_type
-        if isinstance(name, list):
-            name = name_type[1]
-        if self.parent is None:
-            if name in self._types:
-                return self._types[name]
-
-            else:
-                raise Exception(f"Type '{name}' is not defined")
-
-        else:
-            if name in self._types:
-                return self._types[name]
-
-            else:
-                return self.parent.get_type_object(name)
 
     # check if the type it's defined
     def is_type_defined(self, name):

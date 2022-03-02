@@ -112,7 +112,7 @@ class Return(Statement):
         else:
             self.expression.check_semantic(context)
             self.type = self.expression.type
-        if (self.expression.type != context.func.return_type):
+        if (self.type != context.func.return_type):
             raise ValueError(f'{context.func.name} return type doesn\'t match return expression type')
 
 
@@ -422,7 +422,7 @@ def build_func_def_1(tokens: List[str], ast_nodes: List):
     block = ast_nodes.pop()
     params = get_params([], ast_nodes.pop())
     arg_names = [param[0] for param in params]
-    arg_types = [param[1] for param in params]
+    arg_types = [' '.join(param[1].split('_')) for param in params]
     return_type = ast_nodes.pop()
     func_def = FuncDef(name, return_type.type, arg_names,
                        arg_types, get_statements([], block))
@@ -441,11 +441,11 @@ def build_func_def_2(tokens: List[str], ast_nodes: List):
 
 def build_fun_type(tokens: List[str], ast_nodes: List):
     token = tokens[len(tokens) - 1]
-    if token == 'void':
+    if token == 'Void':
         ast_nodes.append(ReturnType(token))
     else:
         type = ast_nodes.pop()
-        ast_nodes.append(ReturnType(type.type))
+        ast_nodes.append(ReturnType(' '.join(type.type.split('_'))))
 
 
 def build_continue(tokens: List[str], ast_nodes: List):
@@ -537,7 +537,7 @@ def build_assign_1(tokens: List[str], ast_nodes: List):
     type = ast_nodes.pop()
     name = tokens[len(tokens) - 3]
 
-    assign = Decl(type.type, name, expression)
+    assign = Decl(' '.join(type.type.split('_')), name, expression)
 
     ast_nodes.append(assign)
 

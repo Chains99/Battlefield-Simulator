@@ -11,30 +11,13 @@ from Sim.Make_Factions import FactionBuilder
 from IA.Action_manager import ActionManager
 from Sim.aux_actions import aux_action
 
-
+"""
 def run_test(output_dest):
-    """
-    State and Map, weather
-    """
+    
     mapa = Map(5, 5)
     weather = Weather(0, 0, 1.2, 0, 0)
     mapa.terrain_matrix[0][2].add_object(True)
-    """
-    Soldiers
-    params:
-    
-    id,
-    health,
-    vision_range,
-    precision,
-    move_speed,
-    crit_chance,
-    orientation,
-    stance,
-    max_load,
-    concealment,
-    team
-    """
+   
     s1 = Soldier(100, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 10, 0)
     s2 = Soldier(100, 10, 0.5, 2, 0, 'north', 'standing', 10, 0.2, 10, 0)
 
@@ -53,22 +36,8 @@ def run_test(output_dest):
     s4.position = (4, 2)
     #soldier_pos = [(s1, (0, 0)), (s3, (4, 0))]
 
-    """
-    weapons
-    params:
-    name : str
-    weight : double
-    w_effective_range
-    w_max_range
-    effective_range_precision
-    max_range_precision,
-    damage
-    damage_area
-    fire_rate
-    ammunition_capacity
-    current_ammo
-    reliability
-    """
+    
+    
 
     s1.weapons = [Weapon(*default_weapons['Barret']), Weapon(*default_weapons['Beretta M9'])]
     s1.w_affinities['Barret'] = 1.2
@@ -118,3 +87,4 @@ def run_test(output_dest):
 
 
 run_test(None)
+"""

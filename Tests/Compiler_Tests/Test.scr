@@ -36,4 +36,7 @@ List soldiers = [s1,s2,s3,s4,s5,s6,s7,s8];
 Weapon M4 = Weapon("M4",3.52,50,100,85,65,40,90,30,30);
 Weapon AK74 = Weapon("AK74",3.07,50,100,80,55,50,70,30,30);
 
-equip_and_deploy_by_team(soldiers,[M4, AK74], map)
+equip_and_deploy_by_team(soldiers,[M4, AK74], map);
+s1.set_affinity('M4', 1.2);
+Map a = s2.get_map();
+Number id = s3.id

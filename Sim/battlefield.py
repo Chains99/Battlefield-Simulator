@@ -8,13 +8,12 @@ from Sim.aux_actions import decorate_aux_actions
 
 class BattleField:
 
-    def __init__(self, simulation,  console=None):
+    def __init__(self, simulation):
         self.sim = simulation
         self.fractions = simulation.fractions
         self.finish = False
         self.started = False
         self.current_state = None
-        self.console = console
 
     def run_battlefield(self):
 
@@ -42,23 +41,23 @@ class BattleField:
 
         if move[0] == self.sim.ab.am.melee_attack:
             enemy = self.current_state.reverse_soldier_positions[move[1][1]]
-            self.console.print('soldier id:{} team:{} attacked soldier id:{} team:{}'.format(move[1][0].id, move[1][0].team, enemy.id, enemy.team))
+            print('soldier id:{} team:{} attacked soldier id:{} team:{}'.format(move[1][0].id, move[1][0].team, enemy.id, enemy.team))
 
         if move[0] == self.sim.ab.am.shoot_enemy:
             enemy = self.current_state.reverse_soldier_positions[move[1][1]]
-            self.console.print('soldier id:{} team:{} shoot soldier id:{} team:{}'.format(move[1][0].id, move[1][0].team, enemy.id, enemy.team))
+            print('soldier id:{} team:{} shoot soldier id:{} team:{}'.format(move[1][0].id, move[1][0].team, enemy.id, enemy.team))
 
         if move[0] == self.sim.ab.am.move:
-            self.console.print('soldier id:{} team:{} moved towards square {}'.format(move[1][0].id, move[1][0].team, self.current_state.soldier_positions[move[1][0].id]))
+            print('soldier id:{} team:{} moved towards square {}'.format(move[1][0].id, move[1][0].team, self.current_state.soldier_positions[move[1][0].id]))
 
         if move[0] == self.sim.ab.am.change_stance:
-            self.console.print('soldier id:{} team:{} changed stance to {}'.format(move[1][0].id, move[1][0].team, move[1][0].stance))
+            print('soldier id:{} team:{} changed stance to {}'.format(move[1][0].id, move[1][0].team, move[1][0].stance))
 
         if move[0] == self.sim.ab.am.reload:
-            self.console.print('soldier id:{} team:{} reloaded'.format(move[1][0].id, move[1][0].team))
+            print('soldier id:{} team:{} reloaded'.format(move[1][0].id, move[1][0].team))
 
         if move[0] == self.sim.ab.am.change_weapon:
-            self.console.print('soldier id:{} change weapon to {}'.format(move[1][0].id, move[1][0].team, move[1][0].equipped_weapon.name))
+            print('soldier id:{} change weapon to {}'.format(move[1][0].id, move[1][0].team, move[1][0].equipped_weapon.name))
 
     def terminal_state(self):
 
@@ -142,7 +141,7 @@ class BattleField:
         return state
 
 
-def build_battlefield(sim_map, weather, soldiers, output_dest, max_depth, heuristics=[]):
+def build_battlefield(sim_map, weather, soldiers, max_depth, heuristics=[]):
 
     # CHECK SOLDIERS INSTANCES
     for soldier in soldiers:
@@ -161,4 +160,4 @@ def build_battlefield(sim_map, weather, soldiers, output_dest, max_depth, heuris
     fb.factions[1].heuristic = heuristics[1]
     sim = SimulationManager(fb.get_factions(), weather, sim_map=sim_map, max_depth=max_depth)
 
-    return BattleField(sim, output_dest)
+    return BattleField(sim)

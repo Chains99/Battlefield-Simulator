@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
 from typing import List, Type, Tuple
-from Language.Semantic.Type_checking.context import Context
+from Language.Semantic.Type_checking.Context import Context
 
 
 @dataclass

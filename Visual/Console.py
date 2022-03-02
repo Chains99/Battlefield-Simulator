@@ -5,7 +5,7 @@ from Language.Lexer.Token import Token, TokenType
 from Language.Parser.lr1_parser import LR1Parser
 from Language.Lexer.Lexer import lexer
 from Language.Parser.ast import Context, FuncDef
-from Language.Semantic.Type_checking.type import Type
+from Language.Semantic.Type_checking.Type import Type
 from Language.Semantic.ast_transpiler import ASTtranspiler
 
 

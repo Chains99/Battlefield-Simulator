@@ -1,5 +1,5 @@
 from Language.Parser.ast import FuncDef
-from Language.Semantic.Type_checking.context import Context
+from Language.Semantic.Type_checking.Context import Context
 
 
 class Type:

@@ -1,7 +1,7 @@
 from Language.Parser.ast import Script, Expression, Variable, Number, Bool, _None, _List, FuncDef, If, El_if_se, \
     WhileDef, Decl, Assign, Return, Continue, Break, BinaryExpression, TernaryExpression, \
     BetwBrackExpression, String, Basic
-from Language.Semantic.Type_checking.context import Context
+from Language.Semantic.Type_checking.Context import Context
 from Language.Semantic.Visitor import visitor
 
 

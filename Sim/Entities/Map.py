@@ -7,6 +7,12 @@ class Map:
     def __init__(self, rows, cols):
         self.terrain_matrix = []
         self.restriction_matrix = []
+        if rows < 0:
+            raise Exception('invalid rows value')
+        if cols < 0:
+            raise Exception('invalid cols value')
+        rows = int(rows)
+        cols = int(cols)
         # Definimos una matriz rows x cols compuesta de Terrains
         for i in range(rows):
             self.terrain_matrix.append([])
@@ -37,4 +43,4 @@ class Map:
                         if terrain_matrix[i][j] == inf:
                             self.terrain_matrix[i][j].available = False
 
-
+    # DEFINIR INDICES EN TERRAIN MATRIX

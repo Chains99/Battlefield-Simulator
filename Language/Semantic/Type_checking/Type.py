@@ -22,13 +22,13 @@ class Type:
             raise Exception(
                 f"type '{self.name}' has no attribute '{attribute_key}'")
 
-    def get_functions(self, method):
+    def get_function(self, method):
         if method in self.functions:
-            return self.functions[method]
+            return self.context.get_func(method)
 
-    def get_attributes(self, attribute_key):
+    def get_attribute(self, attribute_key):
         if attribute_key in self.attributes:
-            return self.attributes[attribute_key]
+            return self.context.get_type_var(attribute_key)
 
     def add_attribute(self, name, _type, attribute=None):
         self.attributes[name] = [attribute, _type]
@@ -38,9 +38,9 @@ class Type:
         self.functions[name] = [return_t, arguments, argument_types]
         return self.context.add_func(FuncDef(name, return_t, arguments,
                                              argument_types, None))  # we define a funct saving it return type,
-        # it's arguments and argument types
 
-    def is_function(self, name):
+
+    def contains_func(self, name):
         return name in self.functions
 
     def contains_attribute(self, key):

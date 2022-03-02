@@ -110,7 +110,6 @@ class ActionManager:
         if state.soldier_str_variables[soldier.id][0] == 'lying':
             return []
 
-
         result_state = state.copy_state()
         sol_position = state.soldier_positions[soldier.id]
         pos_matrix = self._soldier_pos_matrix(state)
@@ -128,12 +127,14 @@ class ActionManager:
         soldier.change_stance(st_stance, state.soldier_positions[soldier.id], self.map.terrain_matrix)
         new_pos = soldier.move_to(sol_position, position, self.map.restriction_matrix, self.map.terrain_matrix, pos_matrix)
 
+
         new_concealment = soldier.concealment
         new_precision = soldier.precision
         new_next_object = soldier.next_to_object
         new_stance = soldier.stance
 
         # REVERT CHANGES
+        soldier.position = sol_position
         soldier.concealment = concealment_instance
         soldier.precision = precision_instance
         soldier.stance = stance_instance
@@ -150,9 +151,6 @@ class ActionManager:
         result_state.reverse_soldier_positions[new_pos] = soldier
         result_state.soldier_variables[soldier.id] = new_changed_tuple(state.soldier_variables[soldier.id], change_sol)
         result_state.soldier_str_variables[soldier.id] = new_changed_tuple(state.soldier_str_variables[soldier.id], change_str_sol)
-
-        #result_state.soldier_moved[soldier.team][soldier.id] = True
-        #result_state.team_variables_moved[soldier.team] += 1
 
         return result_state
 
@@ -517,9 +515,6 @@ class ActionManager:
         result_state.soldier_str_variables[soldier.id] = new_changed_tuple(state.soldier_str_variables[soldier.id],
                                                                            change__str_sol)
 
-        #result_state.soldier_moved[soldier.team][soldier.id] = True
-        #result_state.team_variables_moved[soldier.team] += 1
-
         return result_state
 
     def real_reload(self, soldier, state):
@@ -534,9 +529,6 @@ class ActionManager:
         result_state.soldier_ammo_per_weapon[soldier.id][soldier.equipped_weapon.name] = soldier.weapon_ammo[soldier.equipped_weapon.name]
         result_state.soldier_weapons_current_ammo[soldier.id][soldier.equipped_weapon.name] = soldier.equipped_weapon.current_ammo
         result_state.soldier_variables[soldier.id] = new_changed_tuple(state.soldier_variables[soldier.id], change_sol)
-
-        #result_state.soldier_moved[soldier.team][soldier.id] = True
-        #result_state.team_variables_moved[soldier.team] += 1
 
         return result_state
 
@@ -572,9 +564,6 @@ class ActionManager:
         result_state.soldier_variables[soldier.id] = new_changed_tuple(state.soldier_variables[soldier.id], change_sol)
         result_state.soldier_str_variables[soldier.id] = new_changed_tuple(state.soldier_str_variables[soldier.id], [(2, weapon_name)])
         result_state.soldier_weapons_current_ammo[soldier.id][weapon_name] = new_variables[3]
-
-        #result_state.soldier_moved[soldier.team][soldier.id] = True
-        #result_state.team_variables_moved[soldier.team] += 1
 
         return result_state
 

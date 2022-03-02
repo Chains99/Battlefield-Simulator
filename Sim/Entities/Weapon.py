@@ -4,7 +4,7 @@ from random import uniform
 class Weapon:
 
     def __init__(self, name, weight, w_effective_range, w_max_range, effective_range_precision, max_range_precision,
-                 damage, damage_area, fire_rate, ammunition_capacity, current_ammo, reliability):
+                 damage, fire_rate, ammunition_capacity, current_ammo):
         self.name = name
         self.weight = weight
         self.w_effective_range = w_effective_range
@@ -70,11 +70,11 @@ class Weapon:
 
 
 # Definiendo lista de parametros de las armas por defecto
-default_weapons = {'Barret': ['Barret', 0.8, 800, 1500, 1, 0.7, 10, 0, 1, 10, 10, 1],  # sniper rifles
-                   'AK 47': ['AK 47', 0.8, 300, 1000, 0.7, 0.4, 2, 0, 10, 30, 1],  # assault rifles
-                   'M16': ['M16', 0.8, 300, 1000, 0.7, 0.4, 2, 0, 31, 31, 31, 1],
-                   'M4': ['M4', 0.8, 300, 1000, 0.7, 0.4, 2, 0, 31, 31, 31, 1],
-                   'Scar': ['Scar', 0.8, 300, 1000, 0.7, 0.4, 2, 0, 31, 31, 31, 1],
-                   'Mp5': ['Mp5', 0.8, 300, 1000, 0.7, 0.4, 2, 0, 31, 31, 31, 1],  # sub rifle
-                   'Beretta M9': ['Beretta M9', 0.2, 50, 100, 0.9, 0.6, 1, 0, 5, 15, 15, 1]}  # handguns
+default_weapons = {'Barret': ['Barret', 0.8, 800, 1500, 1, 0.7, 10, 1, 10, 10],  # sniper rifles
+                   'AK 47': ['AK 47', 0.8, 300, 1000, 0.7, 0.4, 2, 10, 30],  # assault rifles
+                   'M16': ['M16', 0.8, 300, 1000, 0.7, 0.4, 2, 31, 31, 31],
+                   'M4': ['M4', 0.8, 300, 1000, 0.7, 0.4, 2, 31, 31, 31],
+                   'Scar': ['Scar', 0.8, 300, 1000, 0.7, 0.4, 2, 31, 31, 31],
+                   'Mp5': ['Mp5', 0.8, 300, 1000, 0.7, 0.4, 2, 31, 31, 31],  # sub rifle
+                   'Beretta M9': ['Beretta M9', 0.2, 50, 100, 0.9, 0.6, 1, 5, 15, 15]}  # handguns
 # ( name, weight, w_effective_range, w_max_range, effective_range_precision, max_range_precision, damage, damage_area, fire_rate, ammunition_capacity, reliability)

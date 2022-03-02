@@ -1,22 +1,9 @@
 from IA.Actions_builder import ActionBuilder
 from IA.Faction import Faction
 from IA.State import SimulationState
-
-
-"""
-enemies_in_sight = state.soldier_variables[soldier.id][0]
-                allies_in_range = state.soldier_variables[soldier.id][1]
-                enemies_in_effective_range = state.soldier_variables[soldier.id][2]
-                enemies_in_range = state.soldier_variables[soldier.id][3]
-                fire_rate = state.soldier_variables[soldier.id][4]
-                current_ammo = state.soldier_variables[soldier.id][5]
-                max_ammo = state.soldier_variables[soldier.id][6]
-                eff_damage = state.soldier_variables[soldier.id][7]
-                damage = state.soldier_variables[soldier.id][8]
-                concealment = state.soldier_variables[soldier.id][9]
-                remaining_health = state.soldier_variables[soldier.id][10]
-                precision = state.soldier_variables[soldier.id][11]
-"""
+from IA.State import revert_general_changes
+from IA.State import build_new_state
+from Sim.aux_actions import decorate_aux_actions
 
 
 class HeuristicManager:
@@ -140,7 +127,7 @@ class HeuristicManager:
 # add non_terminal finish conditions
 class SimulationManager:
 
-    def __init__(self, fractions_list, weather, sim_map, heuristics, max_depth):
+    def __init__(self, fractions_list, weather, sim_map, max_depth):
         self.fractions = fractions_list
         self.current_turn = 0
         self.weather = weather
@@ -164,6 +151,9 @@ class SimulationManager:
     def fraction_actions(self, fraction, state):
         return self.ab.all_fraction_actions(fraction, state)
 
+    def faction_extra_actions(self, faction, state):
+        return self.ab.all_faction_extra_actions(faction, state)
+
     def evaluate_state(self, state, fraction):
         return fraction.heuristic.evaluate_state(state, fraction, self.fractions, self.sim_map)
 
@@ -177,25 +167,25 @@ class SimulationManager:
 
         return False
 
-    def build_initial_state(self, fractions, action_manager, soldier_positions):
+    def build_initial_state(self, factions, action_manager):
 
         state = SimulationState()
         state.building = True
 
-        # positions
-        for sol_pos in soldier_positions:
-            state.soldier_positions[sol_pos[0].id] = sol_pos[1]
-            state.reverse_soldier_positions[sol_pos[1]] = sol_pos[0]
-            state.soldiers_in_map[sol_pos[0].id] = sol_pos[0]
 
-        for fraction in fractions:
+        for faction in factions:
 
-            state.alive_soldiers[fraction.id] = len(fraction.soldiers)
-            state.team_variables_moved[fraction.id] = 0
-            state.soldier_moved[fraction.id] = {}
-            state.soldier_died[fraction.id] = {}
+            state.alive_soldiers[faction.id] = len(faction.soldiers)
+            state.team_variables_moved[faction.id] = 0
+            state.soldier_moved[faction.id] = {}
+            state.soldier_died[faction.id] = {}
 
-            for soldier in fraction.soldiers:
+            for soldier in faction.soldiers:
+
+                # POSITIONS
+                state.soldier_positions[soldier.id] = soldier.position
+                state.reverse_soldier_positions[soldier.position] = soldier
+                state.soldiers_in_map[soldier.id] = soldier
 
                 # soldier string variables
                 soldier.detect_object(state.soldier_positions[soldier.id], action_manager.map.terrain_matrix)
@@ -240,8 +230,15 @@ class SimulationManager:
                                                        remaining_health,
                                                        precision)
 
-                state.soldier_moved[fraction.id][soldier.id] = False
-                state.soldier_died[fraction.id][soldier.id] = False
+                # soldier extra variables
+                state.soldier_extra_variables[soldier.id] = (soldier.vision_range,
+                                                             soldier.move_speed,
+                                                             soldier.crit_chance,
+                                                             soldier.max_load,
+                                                             soldier.melee_damage)
+
+                state.soldier_moved[faction.id][soldier.id] = False
+                state.soldier_died[faction.id][soldier.id] = False
 
                 # weapon state variables
                 state.soldier_weapons[soldier.id] = {}
@@ -285,6 +282,31 @@ class SimulationManager:
         if self.needed_reset(result_state):
             result_state = self.reset_moves(result_state)
 
+        return result_state
+
+    def ex_result(self,  action, fraction, state):
+        # decorate all auxiliary function to current state
+        decorate_aux_actions(state)
+        # execute extra action
+        action[0](action[1], self.sim_map.terrain_matrix)
+        # generate new state
+        result_state = build_new_state(self.fractions, self.ab.am, state)
+
+        soldier = action[1][0]
+        result_state.team_variables_moved[fraction.id] += 1
+        result_state.soldier_moved[soldier.team][soldier.id] = True
+
+        # count alive soldiers
+        for item in [*result_state.soldier_variables.keys()]:
+            # if soldier dead
+            if result_state.soldier_variables[item][10] <= 0:
+                sold_inst = result_state.soldiers_in_map[item]
+
+        if self.needed_reset(result_state):
+            result_state = self.reset_moves(result_state)
+
+        # Revert changes to the simulation entities
+        revert_general_changes(self.fractions, state)
         return result_state
 
     def reset_moves(self, state):

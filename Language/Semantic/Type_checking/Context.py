@@ -46,16 +46,15 @@ class Context:
         else:
             raise Exception(f"{var} is not defined")
 
-    def get_types(self, name: str):
+    def get_type(self, name: str):
         return self._types.get(name)
 
     def check_func_args(self, func, args):
         if self.parent is None:
-            _func = self._func.get(func.name)
-            if _func is not None:
-                if len(args) == len(_func.arg_names):
+            if func is not None:
+                if len(args) == len(func.arg_names):
                     for i in range(len(args)):
-                        if args[i] != _func.arg_types[i] and _func.arg_types[i] != "Type":
+                        if args[i] != func.arg_types[i] and func.arg_types[i] != "Type":
                             return False
 
                     return True
@@ -69,9 +68,7 @@ class Context:
                     for i in range(len(args)):
                         if not args[i] != _func[1][i]:
                             return False
-
                     return True
-
             return self.parent.check_func_args(func, args)
 
     def get_type_var(self, var):
@@ -82,8 +79,8 @@ class Context:
         else:
             raise Exception(f"{var} has not been defined")
 
-    def add_var(self, var, _type, value=""):
-        if not self.check_var_in_context(var):
+    def add_var(self, var, _type, value="", aux=True):
+        if not self.check_var_in_context(var,aux):
             if self.is_type_defined(_type):
                 self._vars[var] = ["var", _type, value]
             else:
@@ -99,12 +96,13 @@ class Context:
             self._vars[func.name] = ["function", func.return_type, func]
             self._func[f'{func.name}'] = func
             _context = self.create_child_context(func.name)
-
+            if(func.name=='run'):
+                print()
             for i in range(len(func.arg_names)):
-                if self.is_type_defined(func.arg_types[i]):
+                if self.is_type_defined(func.arg_types[i].split(' ')[0]):
                     name = func.arg_names[i]
                     _type = func.arg_types[i]
-                    _context.add_var(name, _type)
+                    _context.add_var(name, _type, aux=False)
                 else:
                     raise Exception(f"Type {func.arg_types[i]} is not defined")
         else:
@@ -130,7 +128,7 @@ class Context:
             _type = self.get_type_var(name)
         if _type == 'function':
             func = self._func.get(name)
-        child = Context(name, self, func)
+        child = Context(name, self, func if func is not None else self.func)
         self.childrens[name] = child
         return child
 
@@ -171,10 +169,10 @@ class Context:
     # check if the type it's defined
     def is_type_defined(self, name):
         if self.parent is None:
-            return name in self._types
+            return name.split(' ')[0] in self._types
 
         else:
-            if name in self._types:
+            if name.split(' ')[0] in self._types:
                 return True
 
             else:

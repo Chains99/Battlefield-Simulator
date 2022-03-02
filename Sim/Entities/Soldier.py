@@ -12,6 +12,8 @@ class Soldier:
                  concealment, melee_damage, team):
         self.id = Soldier.id
         Soldier.id += 1
+
+        self.position = None
         self.health = health
         self.current_health = health
         self.vision_range = vision_range
@@ -39,13 +41,33 @@ class Soldier:
 
         self.melee_damage = melee_damage
 
+        """
+        Actions defined by the user.
+        list of actions
+        action: Function to execute the extra action
+        """
+        self.extra_actions = []
+        self.terrain_map = None
+
+    # GET FUNCTIONS
+    # DEFINIR
+    # get_map ()
+    # set_position (position)
+    # set_weapons (weapons) also equipar arma
+    # set_affinity (name, value)
+    # set_equipped_weapon (name)
+    # add_extra_action (action)
+    # remove_extra_action (index)
+
+    def add_extra_action(self, action_function):
+        self.extra_actions.append(action_function)
+
     def detect_object_next(self, position, terrain_map):
         squares = Sight.squares_within_range(position, 1, terrain_map, 'all')
         for item in squares:
             if terrain_map[item[0]][item[1]].terrain_object is not None:
                 self.next_to_object = True
                 self.concealment = min(self.stances_concealment[self.stance] * 1.3, 0.95)
-
 
     # Parametros:
     # position: posicion inicial del soldado
@@ -80,9 +102,11 @@ class Soldier:
                 if not first_step:
                     first_step = True
                     continue
+                self.position = position
                 return position
 
         self.detect_object_next(position, terrain_map)
+        self.position = position
         return position
 
     # Parametros:

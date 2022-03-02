@@ -19,7 +19,7 @@ class lexer():
             ("Number", TokenValues.Number),
             ("true", TokenValues._True),
             ("false", TokenValues._False),
-            ("none", TokenValues._None),
+            ("None", TokenValues._None),
             ("void", TokenValues.Void),
             ("String", TokenValues.String),
             ("def", TokenValues.Def),
@@ -57,6 +57,7 @@ class lexer():
         ]
         Adders.register_operators(self.analyser, operators)
         self.analyser.register_text('"', '"', True)
+        self.analyser.register_text("'", "'", True)
         self.output_info = Output_info()
 
     def get_token_manager(self, filename, code):

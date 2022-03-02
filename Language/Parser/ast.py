@@ -78,7 +78,7 @@ class Decl(Statement):
             raise TypeError(f'"{self.type}" is not a defined type')
         context.add_var(self.name, self.type, '')
         self.expression.check_semantic(context)
-        if self.expression.type != self.type:
+        if self.expression.type.split(' ')[0] != self.type.split(' ')[0]:
             raise TypeError(f'\"{self.name}\" doesn\'t match with the expression type')
 
 
@@ -99,7 +99,7 @@ class Assign(Statement):
 @dataclass
 class Return(Statement):
     expression: Expression
-    type: str
+    type: str = ''
 
     def check_semantic(self, context: Context):
         if context.func is None:
@@ -108,7 +108,7 @@ class Return(Statement):
         elif (self.expression is None):
             self.type = 'Void'
         else:
-            self.expression.check_semantic()
+            self.expression.check_semantic(context)
             self.type = self.expression.type
         if (self.expression.type != context.func.return_type):
             raise ValueError(f'{context.func.name} return type doesn\'t match return expression type')
@@ -185,26 +185,27 @@ class Basic(Expression):
         if (self.name is None):
             if (expr_type == 'function'):
                 args = [None] * len(self.args)
-                func = context.get_func(self.expression.name)
+                if isinstance(self.expression, Basic):
+                    _type = context.get_type(self.expression.expression.type)
+                    func = _type.get_function(self.expression.name)
+                else:
+                    func = context.get_func(self.expression.name)
+                if (func is None):
+                    raise Exception(f'Function "{self.expression.name}" is not defined')
                 for i in range(len(self.args)):
                     self.args[i].check_semantic(context)
                     args[i] = self.args[i].type if self.args[i].type != 'function' else args[i].return_type
                 if context.check_func_args(func, args):
                     self.type = func.return_type
-                elif isinstance(self.expression, Basic):
-                    self.type = self.expression.type
                 else:
                     raise Exception(f"Some types are incorrect")
         else:
             _type = context.get_type(expr_type)
-            if (self.args is None):
-                if _type.contain_attribute(self.name):
-                    self.type = _type.get_attr(self.name)
-                else:
-                    raise Exception(f"{self.name} wrong attribute")
-            else:
-                if _type.contain_func(self.name):
-                    func = _type.get_function(self.name)
+            if _type.contains_attribute(self.name):
+                self.type = _type.get_attribute(self.name)
+            elif _type.contains_func(self.name):
+                func = _type.get_function(self.name)
+                if self.args is not None:
                     args = [0] * len(self.args)
                     for i in range(len(self.args)):
                         self.args[i].check_semantic(context)
@@ -213,6 +214,10 @@ class Basic(Expression):
                         self.type = func.return_type
                     else:
                         raise Exception(f"Some types are incorrect")
+                else:
+                    self.type = 'function'
+            else:
+                raise Exception(f"The property or method is not defined")
 
 
 @dataclass

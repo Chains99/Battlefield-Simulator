@@ -39,6 +39,8 @@ class ActionBuilder:
         in_range = []
         weapon_name = state.soldier_str_variables[soldier.id][2]
         weapon_max_range = 0
+        if weapon_name == 'None':
+            return []
 
         for item in soldier.weapons:
             if item.name == weapon_name:
@@ -184,3 +186,14 @@ class ActionBuilder:
 
         return all_possible_actions
 
+    def all_faction_extra_actions(self, faction, state):
+        soldiers = faction.soldiers
+        all_possible_actions = []
+
+        for soldier in soldiers:
+            if not state.soldier_moved[faction.id][soldier.id] and not state.soldier_died[faction.id][soldier.id]:
+                # all extra actions: tuple (action, soldier)
+                for action in soldier.extra_actions:
+                    all_possible_actions.append((action, soldier, state))
+
+        return all_possible_actions

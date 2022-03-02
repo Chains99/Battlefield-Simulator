@@ -8,12 +8,9 @@ from IA.simulation import SimulationManager
 from IA.simulation import HeuristicManager
 from Sim.battlefield import BattleField
 from Sim.Make_Factions import FactionBuilder
-from IA.MinMax import minmax_search
-from Sim.A_star.A_star import euclidean_distance
-from math import inf
-from IA.State import SimulationState
 from IA.Action_manager import ActionManager
-from IA.Actions_builder import ActionBuilder
+from Sim.aux_actions import aux_action
+
 
 
 def run_test(output_dest):
@@ -21,7 +18,7 @@ def run_test(output_dest):
     State and Map, weather
     """
     mapa = Map(5, 5)
-    weather = Weather(0, 0, 0, 1.2, 0, 0)
+    weather = Weather(0, 0, 1.2, 0, 0)
     mapa.terrain_matrix[0][2].add_object(True)
 
     """
@@ -52,6 +49,10 @@ def run_test(output_dest):
 
     # es necesario definir la posicion de cada soldado en forma de tupla (soldado, posicion)
     soldier_pos = [(s1, (0, 0)), (s2, (0, 2)), (s3, (4, 0)), (s4, (4, 2))]
+    s1.position = (0, 0)
+    s2.position = (0, 2)
+    s3.position = (4, 0)
+    s4.position = (4, 2)
     #soldier_pos = [(s1, (0, 0)), (s3, (4, 0))]
 
     """
@@ -98,16 +99,24 @@ def run_test(output_dest):
     s4.weapon_ammo['M16'] = 50
     s4.equipped_weapon = s4.weapons[0]
 
-
     # ab = ActionBuilder(weather, mapa)
     heur = HeuristicManager()
     fb.factions[0].heuristic = heur
     fb.factions[1].heuristic = heur
-    sim = SimulationManager(fb.get_factions(), weather, sim_map=mapa, heuristics=heur, max_depth=2)
-    initial_state = sim.build_initial_state(sim.fractions, sim.ab.am, soldier_pos)
+    sim = SimulationManager(fb.get_factions(), weather, sim_map=mapa, max_depth=2)
+    initial_state = sim.build_initial_state(sim.fractions, sim.ab.am)
+
+
+    # DECO TEST
+    fun = ActionManager.detect_enemies
+    fun2 = aux_action(initial_state)(fun)
+    #fun2 = fun2(fun)
+
+    res = fun2(sim.ab.am, s1)
+
 
     btf = BattleField(sim, output_dest)
-    btf.run_battlefield(soldier_pos)
+    btf.run_battlefield()
     return btf, soldier_pos
 
 

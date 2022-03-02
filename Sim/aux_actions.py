@@ -31,7 +31,7 @@ class AuxActions:
     def detect_enemies(self, soldier, terrain_map,  state=None):
         return soldier.detect_enemies(state.soldier_positions[soldier.id], terrain_map.terrain_matrix, state)
 
-    def detect_enemies_withing_eff_range(self, soldier, terrain_map, state=None):
+    def detect_enemies_within_eff_range(self, soldier, terrain_map, state=None):
         enemies_pos = soldier.detect_enemies(state.soldier_positions[soldier.id], terrain_map.terrain_matrix, state)
         soldier_position = state.soldier_positions[soldier.id]
         weapon_eff_range = 0
@@ -50,7 +50,7 @@ class AuxActions:
 
         return enemies_in_eff
 
-    def detect_enemies_withing_max_range(self, soldier, terrain_map, state=None):
+    def detect_enemies_within_max_range(self, soldier, terrain_map, state=None):
         enemies_pos = soldier.detect_enemies(state.soldier_positions[soldier.id], terrain_map.terrain_matrix, state)
         soldier_position = state.soldier_positions[soldier.id]
         weapon_eff_range = 0
@@ -83,6 +83,6 @@ def decorate_aux_actions(state):
 
     AuxActions.detect_allies = aux_action(state)(AuxActions.detect_allies)
     AuxActions.detect_enemies = aux_action(state)(AuxActions.detect_enemies)
-    AuxActions.detect_enemies_withing_eff_range = aux_action(state)(AuxActions.detect_enemies_withing_eff_range)
-    AuxActions.detect_enemies_withing_max_range = aux_action(state)(AuxActions.detect_enemies_withing_max_range)
+    AuxActions.detect_enemies_within_eff_range = aux_action(state)(AuxActions.detect_enemies_within_eff_range)
+    AuxActions.detect_enemies_within_max_range = aux_action(state)(AuxActions.detect_enemies_within_max_range)
     AuxActions.get_position = aux_action(state)(AuxActions.get_position)

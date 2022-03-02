@@ -113,6 +113,7 @@ def build_initial_context():
     context.add_func(FuncDef('print', 'Void', ['text'], ['String'], None))
     context.add_func(FuncDef('run', 'Void', ['map', 'weather', 'soldiers', 'ia_max_depth'],
                              ['Map', 'Weather', 'List Soldier', 'Number'], None))
+    context.add_func(FuncDef('detect_enemies', 'Void', ['text'], ['String'], None))
     return context
 
 
@@ -138,7 +139,6 @@ def run_btf(btf: BattleField):
 
 
 def run(map, weather, soldiers: Soldier, ia_max_depth: int):
-    print('aqui')
     btf = build_battlefield(map, weather, soldiers, ia_max_depth)
     Manager.runing = True
     Manager.btf = btf

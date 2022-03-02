@@ -5,10 +5,10 @@ from Language.Lexer.Token import Token, TokenType
 from Language.Parser.lr1_parser import LR1Parser
 from Language.Lexer.Lexer import lexer
 from Language.Parser.ast import Context, FuncDef
-from Language.Semantic.Type_checking.type import Type
+from Language.Semantic.Type_checking.Type import Type
 from Language.Semantic.ast_transpiler import ASTtranspiler
 from Sim.Entities.Soldier import Soldier
-from Sim.battlefield import build_battlefield
+from Sim.battlefield import build_battlefield, BattleField
 
 
 def build_initial_context():
@@ -119,20 +119,29 @@ def build_initial_context():
 """  MAIN   """
 
 
+class Manager():
+    runing = False
+    f_execution = True
+    end = False
+    btf =None
+
+
+def run_btf(btf: BattleField):
+    # si esta corriendo la simulacion ejecutamos un paso
+    Manager.f_execution = False
+    if Manager.runing:
+        # si el battlefield no ha sido creado, lo creamos
+        finished = btf.run_battlefield()
+        # comprobamos si termino la simulacion
+        Manager.end = finished
+        Manager.f_execution = True
+
+
 def run(map, weather, soldiers: Soldier, ia_max_depth: int):
-    build_battlefield()
-
-
-# def run(runing, window, btf):
-#     # si esta corriendo la simulacion ejecutamos un paso
-#     if runing[0]:
-#         # si el battlefield no ha sido creado, lo creamos
-#         if btf[0] is None:
-#             btf[0] = run_test(window['Result'])
-#         finished = btf[0][0].run_battlefield(btf[1])
-#         # comprobamos si termino la simulacion
-#         if finished:
-#             runing[0] = False
+    print('aqui')
+    btf = build_battlefield(map, weather, soldiers, ia_max_depth)
+    Manager.runing = True
+    run_btf(btf)
 
 
 def execute():
@@ -206,25 +215,24 @@ def execute():
                 sg.Popup('error')
 
         elif event == '__TIMEOUT__':
-            if runing[0]:
-                pass
-                # run(runing, window, btf)
+            if Manager.runing and Manager.f_execution and not Manager.end:
+                run_btf(Manager.btf)
 
         elif event == 'Run':
             # mandamos a correr el proyecto(test por ahora)
             # if not runing[0]:
             #     runing[0] = True
             #     run(runing, window, btf)
+            if(not Manager.runing):
+                # tokenizing
+                lex = lexer()
+                tokens = lex.get_token_manager("file", values['_Code_']).tokens
+                tokens.append(Token("EOF", "EOF", TokenType.EOF))
 
-            # tokenizing
-            lex = lexer()
-            tokens = lex.get_token_manager("file", values['_Code_']).tokens
-            tokens.append(Token("EOF", "EOF", TokenType.EOF))
-
-            # parsing
-            grammar = Grammar(non_term_heads, bfs_start)
-            parser = LR1Parser(grammar)
-            ast = parser.parse(tokens)
-            python_code = ASTtranspiler().transpile(ast, build_initial_context())
-            window['Result'].print(python_code)
+                # parsing
+                grammar = Grammar(non_term_heads, bfs_start)
+                parser = LR1Parser(grammar)
+                ast = parser.parse(tokens)
+                python_code = ASTtranspiler().transpile(ast, build_initial_context())
+                exec(python_code, globals())
     window.close()

@@ -74,10 +74,8 @@ class Soldier:
     def get_map(self):
         return self.terrain_map
 
-    def set_position(self, position, terrain_map):
-        if not isinstance(position, list):
-            raise Exception('Invalid position value')
-        self.position = (position[0], position[1])
+    def set_position(self,terrain_map, row, col, ):
+        self.position = (row, col)
         if not isinstance(terrain_map, Map):
             raise Exception('Invalid map value')
         self.terrain_map = terrain_map
@@ -192,6 +190,9 @@ class Soldier:
                             enemies.append(item)
 
         return enemies
+
+    def get_team(self):
+        return self.team
 
     def _try_detect_enemy(self, enemy_pos, terrain_map, state):
         if state.building:

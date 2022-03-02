@@ -7,7 +7,12 @@ from Language.Semantic.Visitor import visitor
 
 class ASTtranspiler:
     def __init__(self):
-        self.code = ''
+        self.code = 'from Sim.Entities.Map import Map\n\n' \
+                    'from Sim.Entities.Soldier import Soldier\n\n' \
+                    'from Sim.Entities.Terrain import Terrain\n\n' \
+                    'from Sim.Entities.Weapon import Weapon\n\n' \
+                    'from Sim.Entities.Weather import Weather\n\n' \
+                    'from Visual.Console import run\n\n'
         self.tabs_counter = 0
 
     def write_code(self, text: str):

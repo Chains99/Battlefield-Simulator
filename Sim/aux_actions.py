@@ -73,7 +73,11 @@ class AuxActions:
     def detect_allies(self, soldier, terrain_map, state=None):
         return soldier.detect_allies(state.soldier_positions[soldier.id], terrain_map.terrain_matrix, state.reverse_soldier_positions)
 
-    # get_position
+    def get_position(self, soldier, state=None):
+        if state is None:
+            return [soldier.position[0], soldier.position[1]]
+        pos = state.soldier_positions[soldier.id]
+        return [pos[0], pos[1]]
 
 def decorate_aux_actions(state):
 

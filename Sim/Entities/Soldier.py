@@ -1,11 +1,13 @@
 from Sim.A_star.A_star import a_star
 from Sim.A_star.A_star import euclidean_distance
+from Sim.Entities.Map import Map
 from Sim.Entities.Utilities import Sight
 from random import uniform
 
+from Sim.Entities.Weapon import Weapon
+
 
 class Soldier:
-
     id = 0
 
     def __init__(self, health, vision_range, precision, move_speed, crit_chance, orientation, stance, max_load,
@@ -19,7 +21,8 @@ class Soldier:
         self.vision_range = vision_range
 
         self.precision = precision
-        self.stances_precision = {'standing': precision, 'crouching': min(precision * 1.05, 0.95), 'lying': min(precision * 1.1, 0.95)}
+        self.stances_precision = {'standing': precision, 'crouching': min(precision * 1.05, 0.95),
+                                  'lying': min(precision * 1.1, 0.95)}
 
         self.move_speed = move_speed
         self.crit_chance = crit_chance
@@ -30,7 +33,8 @@ class Soldier:
         self.max_load = max_load
 
         self.concealment = concealment
-        self.stances_concealment = {'standing': concealment, 'crouching': min(concealment * 1.1, 0.95), 'lying': min(concealment * 1.1, 0.95)}
+        self.stances_concealment = {'standing': concealment, 'crouching': min(concealment * 1.1, 0.95),
+                                    'lying': min(concealment * 1.1, 0.95)}
         self.next_to_object = False
 
         self.team = team
@@ -59,8 +63,52 @@ class Soldier:
     # add_extra_action (action)
     # remove_extra_action (index)
 
+    def get_map(self):
+        return self.terrain_map
+
+    def set_position(self, position, terrain_map):
+        if not isinstance(position, list):
+            raise Exception('Invalid position value')
+        self.position = (position[0], position[1])
+        if not isinstance(terrain_map, Map):
+            raise Exception('Invalid map value')
+        self.terrain_map = terrain_map
+
+    def set_weapons(self, weapons):
+        for weapon in weapons:
+            if not isinstance(weapon, Weapon):
+                raise Exception('Invalid element in weapons')
+            self.weapons.append(weapon)
+
+        self.equipped_weapon = self.weapons[0]
+
+    def set_affinity(self, name, value):
+        if not isinstance(name, str):
+            raise Exception('Invalid name value')
+        if not isinstance(value, int) and not isinstance(value, float):
+            raise Exception('Value must be a number')
+        if value < 1 or value > 2:
+            self.w_affinities[name] = 1
+        self.w_affinities[name] = value
+
+    def set_equipped_weapon(self, name):
+        if not isinstance(name, str):
+            raise Exception('Invalid name value')
+        for weapon in self.weapons:
+            if weapon.name == name:
+                self.equipped_weapon = weapon
+                break
+
     def add_extra_action(self, action_function):
         self.extra_actions.append(action_function)
+
+    def remove_extra_action(self, index):
+        try:
+            index = int(index)
+        except:
+            raise Exception('Invalid index value')
+
+        self.extra_actions.pop(index)
 
     def detect_object_next(self, position, terrain_map):
         squares = Sight.squares_within_range(position, 1, terrain_map, 'all')
@@ -88,7 +136,8 @@ class Soldier:
         speed = self.move_speed
 
         # Hallamos el camino optimo de position a destiny
-        path = a_star(restriction_map, lambda x: euclidean_distance(x, destiny), position, destiny, terrain_map, soldiers_positions_matrix)
+        path = a_star(restriction_map, lambda x: euclidean_distance(x, destiny), position, destiny, terrain_map,
+                      soldiers_positions_matrix)
         # Si no existe un camino hasta destiny no se mueve
         if path is None:
             return position
@@ -186,13 +235,13 @@ class Soldier:
             aff = self.w_affinities[self.equipped_weapon.name]
 
         damage, shots_landed = self.equipped_weapon.fire(distance, self.precision, visibility, target_concealment, aff,
-                                           self.crit_chance)
+                                                         self.crit_chance)
 
         return damage, shots_landed
 
     def take_damage(self, damage):
         self.current_health -= damage
-        if self.current_health <= self.health/2:
+        if self.current_health <= self.health / 2:
             # 20% less precision and movement
             self.precision *= 0.8
             self.move_speed = int(self.move_speed * 0.8)

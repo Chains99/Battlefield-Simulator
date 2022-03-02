@@ -5,8 +5,10 @@ from Language.Lexer.Token import Token, TokenType
 from Language.Parser.lr1_parser import LR1Parser
 from Language.Lexer.Lexer import lexer
 from Language.Parser.ast import Context, FuncDef
-from Language.Semantic.Type_checking.Type import Type
+from Language.Semantic.Type_checking.type import Type
 from Language.Semantic.ast_transpiler import ASTtranspiler
+from Sim.Entities.Soldier import Soldier
+from Sim.battlefield import build_battlefield
 
 
 def build_initial_context():
@@ -111,11 +113,14 @@ def build_initial_context():
     context.add_func(FuncDef('print', 'Void', ['text'], ['String'], None))
     context.add_func(FuncDef('run', 'Void', ['map', 'weather', 'soldiers', 'ia_max_depth'],
                              ['Map', 'Weather', 'List Soldier', 'Number'], None))
-
     return context
 
 
 """  MAIN   """
+
+
+def run(map, weather, soldiers: Soldier, ia_max_depth: int):
+    build_battlefield()
 
 
 # def run(runing, window, btf):

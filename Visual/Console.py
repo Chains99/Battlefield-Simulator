@@ -38,12 +38,13 @@ def build_initial_context():
     soldier.add_attribute('melee_damage', 'Number')
 
     soldier.define_function('get_map', 'Map', [], [])
-    soldier.define_function('set_weapons', 'Void', ['weapons'], ['List'])
+    soldier.define_function('set_weapons', 'Void', ['weapons', 'magazines' ], ['List Weapon', 'List Numbers'])
     soldier.define_function('set_affinity', 'Void', ['weapon_name', 'value'], ['String', 'Number'])
     soldier.define_function('set_position', 'Void', ['row', 'col'], ['Number', 'Number'])
     soldier.define_function('set_equiped_weapon', 'Void', ['weapon'], ['String'])
     soldier.define_function('add_extra_action', 'Void', ['action'], ['function'])
     soldier.define_function('remove_extra_action', 'Void', ['index'], ['Number'])
+    soldier.define_function('get_team', 'Number', [], [])
 
     # WEAPON
     weapon.add_attribute('name', 'String')

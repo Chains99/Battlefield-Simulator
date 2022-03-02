@@ -208,6 +208,8 @@ class Basic(Expression):
                 if self.args[0].type != 'Number':
                     raise Exception(f'List indexation takes a number type as argument')
                 self.type = expr_type.split(' ')[1]
+            else:
+                raise Exception(f'Invalid expression, expected type List or function')
         else:
             _type = context.get_type(expr_type)
             if _type.contains_attribute(self.name):

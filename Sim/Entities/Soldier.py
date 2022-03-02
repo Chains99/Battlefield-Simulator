@@ -16,23 +16,38 @@ class Soldier:
         Soldier.id += 1
 
         self.position = None
-        self.health = health
+
+        self.health = max(health, 1)
         self.current_health = health
-        self.vision_range = vision_range
+
+        vision_range = int(vision_range)
+        self.vision_range = max(vision_range, 1)
 
         self.precision = precision
+        if precision < 0 or precision > 1:
+            self.precision = 0.5
         self.stances_precision = {'standing': precision, 'crouching': min(precision * 1.05, 0.95),
                                   'lying': min(precision * 1.1, 0.95)}
 
-        self.move_speed = move_speed
+        move_speed = int(move_speed)
+        self.move_speed = max(move_speed, 1)
         self.crit_chance = crit_chance
+        if crit_chance < 0 or crit_chance > 1:
+            self.crit_chance = 0
         # diccionario nombre: valor
         self.w_affinities = {}
         self.orientation = orientation
+
         self.stance = stance
+        if stance != 'standing' and stance != 'crouching' and stance != 'lying':
+            self.stance = 'standing'
+
         self.max_load = max_load
 
         self.concealment = concealment
+        if concealment < 0 or concealment > 1:
+            self.concealment = 0
+
         self.stances_concealment = {'standing': concealment, 'crouching': min(concealment * 1.1, 0.95),
                                     'lying': min(concealment * 1.1, 0.95)}
         self.next_to_object = False
@@ -40,7 +55,7 @@ class Soldier:
         self.team = team
         self.equipped_weapon = None
         self.weapons = []
-        # dictionary weapon name: remaining ammo
+        # diccionario nombre del arma: municion de repuesto
         self.weapon_ammo = {}
 
         self.melee_damage = melee_damage
@@ -53,16 +68,6 @@ class Soldier:
         self.extra_actions = []
         self.terrain_map = None
 
-    # GET FUNCTIONS
-    # DEFINIR
-    # get_map ()
-    # set_position (position)
-    # set_weapons (weapons) also equipar arma
-    # set_affinity (name, value)
-    # set_equipped_weapon (name)
-    # add_extra_action (action)
-    # remove_extra_action (index)
-
     def get_map(self):
         return self.terrain_map
 
@@ -74,11 +79,14 @@ class Soldier:
             raise Exception('Invalid map value')
         self.terrain_map = terrain_map
 
-    def set_weapons(self, weapons):
+    def set_weapons(self, weapons, weapons_ammo):
         for weapon in weapons:
             if not isinstance(weapon, Weapon):
                 raise Exception('Invalid element in weapons')
             self.weapons.append(weapon)
+
+        for i in range(len(weapons_ammo)):
+            self.weapon_ammo[weapons[i].name] = weapons_ammo[i] * weapons[i].ammunition_capacity
 
         self.equipped_weapon = self.weapons[0]
 
@@ -267,3 +275,27 @@ class Soldier:
             if self.equipped_weapon.name == item.name:
                 self.equipped_weapon = item
                 break
+
+    def check_illegal_values(self):
+        illegal = False
+        if self.precision < 0 or self.precision > 1:
+            illegal = True
+        if self.crit_chance < 0 or self.crit_chance > 1:
+            illegal = True
+        if self.concealment < 0 or self.concealment > 1:
+            illegal = True
+        if self.position[0] < 0 or self.position[0] > self.terrain_map.rows or self.position[1] < 0 or self.position[1] > self.terrain_map.cols:
+            illegal = True
+        if self.current_health > self.health:
+            illegal = True
+        if not isinstance(self.vision_range, int) or self.vision_range < 1:
+            illegal = True
+        if not isinstance(self.move_speed, int) or self.move_speed < 1:
+            illegal = True
+        if self.stance != 'standing' and self.stance != 'crouching' and self.stance != 'lying':
+            illegal = True
+        if self.melee_damage < 0:
+            illegal = True
+
+        if illegal:
+            raise Exception('Illegal soldier properties found')

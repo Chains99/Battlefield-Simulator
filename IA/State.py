@@ -147,7 +147,11 @@ def build_new_state(factions, action_manager, state):
                 next_object = 'T'
             else:
                 next_object = 'F'
-            equipped_w_name = soldier.equipped_weapon.name
+
+            if soldier.equipped_weapon is not None:
+                equipped_w_name = soldier.equipped_weapon.name
+            else:
+                equipped_w_name = 'None'
 
             new_state.soldier_str_variables[soldier.id] = (stance, next_object, equipped_w_name)
 
@@ -157,19 +161,25 @@ def build_new_state(factions, action_manager, state):
             enemies_in_range = action_manager.amount_enemies_in_effective_range(soldier, enemies_in_sight, new_state)
             enemies_in_max_range = action_manager.amount_enemies_out_of_effective_range(soldier, enemies_in_sight,
                                                                                         new_state)
-            fire_rate = soldier.equipped_weapon.fire_rate
-            current_ammo = soldier.equipped_weapon.current_ammo
-            max_ammo = soldier.equipped_weapon.ammunition_capacity
-            weapon_damage_raw = soldier.equipped_weapon.damage
-            weapon_eff_damage = 0
-            weapon_damage = 0
+
+            if equipped_w_name != 'None':
+                fire_rate = soldier.equipped_weapon.fire_rate
+                current_ammo = soldier.equipped_weapon.current_ammo
+                max_ammo = soldier.equipped_weapon.ammunition_capacity
+                weapon_damage_raw = soldier.equipped_weapon.damage
+                weapon_aff = soldier.w_affinities[equipped_w_name]
+                weapon_eff_damage = weapon_damage_raw * fire_rate * weapon_aff
+                weapon_damage = (weapon_damage_raw * fire_rate * weapon_aff) / 2
+            else:
+                fire_rate = 0
+                current_ammo = 0
+                max_ammo = 0
+                weapon_eff_damage = 0
+                weapon_damage = 0
+
             concealment = soldier.concealment
             remaining_health = soldier.health
             precision = soldier.precision
-
-            weapon_aff = soldier.w_affinities[equipped_w_name]
-            weapon_eff_damage = weapon_damage_raw * fire_rate * weapon_aff
-            weapon_damage = (weapon_damage_raw * fire_rate * weapon_aff) / 2
 
             new_state.soldier_variables[soldier.id] = (len(enemies_in_sight),
                                                        len(allies_in_range),
@@ -215,7 +225,10 @@ def revert_general_changes(factions, old_state):
                 soldier.next_to_object = True
             else:
                 soldier.next_to_object = False
+
             eq_w_name = old_state.soldier_str_variables[soldier.id][2]
+            if eq_w_name == 'None':
+                continue
             for weapon in soldier.weapons:
                 if weapon.name == eq_w_name:
                     soldier.equipped_weapon = weapon

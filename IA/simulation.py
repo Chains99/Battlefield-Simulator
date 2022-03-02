@@ -172,7 +172,6 @@ class SimulationManager:
         state = SimulationState()
         state.building = True
 
-
         for faction in factions:
 
             state.alive_soldiers[faction.id] = len(faction.soldiers)
@@ -194,7 +193,11 @@ class SimulationManager:
                     next_object = 'T'
                 else:
                     next_object = 'F'
-                equipped_w_name = soldier.equipped_weapon.name
+
+                if soldier.equipped_weapon is not None:
+                    equipped_w_name = soldier.equipped_weapon.name
+                else:
+                    equipped_w_name = 'None'
 
                 state.soldier_str_variables[soldier.id] = (stance, next_object, equipped_w_name)
 
@@ -203,19 +206,23 @@ class SimulationManager:
                 allies_in_range = action_manager.detect_allies(soldier, state)
                 enemies_in_range = action_manager.amount_enemies_in_effective_range(soldier, enemies_in_sight, state)
                 enemies_in_max_range = action_manager.amount_enemies_out_of_effective_range(soldier, enemies_in_sight, state)
-                fire_rate = soldier.equipped_weapon.fire_rate
-                current_ammo = soldier.equipped_weapon.current_ammo
-                max_ammo = soldier.equipped_weapon.ammunition_capacity
-                weapon_damage_raw = soldier.equipped_weapon.damage
-                weapon_eff_damage = 0
-                weapon_damage = 0
+                if equipped_w_name != 'None':
+                    fire_rate = soldier.equipped_weapon.fire_rate
+                    current_ammo = soldier.equipped_weapon.current_ammo
+                    max_ammo = soldier.equipped_weapon.ammunition_capacity
+                    weapon_damage_raw = soldier.equipped_weapon.damage
+                    weapon_aff = soldier.w_affinities[equipped_w_name]
+                    weapon_eff_damage = weapon_damage_raw * fire_rate * weapon_aff
+                    weapon_damage = (weapon_damage_raw * fire_rate * weapon_aff) / 2
+                else:
+                    fire_rate = 0
+                    current_ammo = 0
+                    max_ammo = 0
+                    weapon_damage = 0
+
                 concealment = soldier.concealment
                 remaining_health = soldier.health
                 precision = soldier.precision
-
-                weapon_aff = soldier.w_affinities[equipped_w_name]
-                weapon_eff_damage = weapon_damage_raw * fire_rate * weapon_aff
-                weapon_damage = (weapon_damage_raw * fire_rate * weapon_aff)/2
 
                 state.soldier_variables[soldier.id] = (len(enemies_in_sight),
                                                        len(allies_in_range),
@@ -289,6 +296,7 @@ class SimulationManager:
         decorate_aux_actions(state)
         # execute extra action
         action[0](action[1], self.sim_map.terrain_matrix)
+        self.check_soldier_illegal_values()
         # generate new state
         result_state = build_new_state(self.fractions, self.ab.am, state)
 
@@ -308,6 +316,11 @@ class SimulationManager:
         # Revert changes to the simulation entities
         revert_general_changes(self.fractions, state)
         return result_state
+
+    def check_soldier_illegal_values(self):
+        for faction in self.fractions:
+            for soldier in faction.soldiers:
+                soldier.check_illegal_values()
 
     def reset_moves(self, state):
 

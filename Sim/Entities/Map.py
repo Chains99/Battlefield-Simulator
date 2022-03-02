@@ -13,6 +13,8 @@ class Map:
             raise Exception('invalid cols value')
         rows = int(rows)
         cols = int(cols)
+        self.rows = rows
+        self.cols = cols
         # Definimos una matriz rows x cols compuesta de Terrains
         for i in range(rows):
             self.terrain_matrix.append([])

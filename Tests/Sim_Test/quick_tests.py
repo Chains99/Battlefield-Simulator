@@ -91,7 +91,6 @@ def run_test(output_dest):
     s3.weapon_ammo['M4'] = 50
     s3.equipped_weapon = s3.weapons[0]
 
-
     s4.weapons = [Weapon(*default_weapons['M16']), Weapon(*default_weapons['Beretta M9'])]
     s4.w_affinities['M16'] = 1.2
     s4.w_affinities['Beretta M9'] = 1

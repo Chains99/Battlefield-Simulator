@@ -302,6 +302,9 @@ class ActionManager:
         weapon_eff_range = 0
         weapon_name = state.soldier_str_variables[soldier.id][2]
 
+        if weapon_name == 'None':
+            return 0
+
         for item in soldier.weapons:
             if item.name == weapon_name:
                 weapon_eff_range = item.w_effective_range
@@ -318,6 +321,9 @@ class ActionManager:
         weapon_eff_range = 0
         weapon_max_range = 0
         weapon_name = state.soldier_str_variables[soldier.id][2]
+
+        if weapon_name == 'None':
+            return 0
 
         for item in soldier.weapons:
             if item.name == weapon_name:
@@ -346,7 +352,10 @@ class ActionManager:
 
         precision = state.soldier_variables[soldier.id][11]
         weapon_name = state.soldier_str_variables[soldier.id][2]
-        current_ammo = state.soldier_weapons_current_ammo[soldier.id][weapon_name]
+        if weapon_name != 'None':
+            current_ammo = state.soldier_weapons_current_ammo[soldier.id][weapon_name]
+        else:
+            current_ammo = 0
 
         for item in soldier.weapons:
             if item.name == weapon_name:
@@ -359,8 +368,9 @@ class ActionManager:
                 ammo_cap = item.ammunition_capacity
 
         aff = 1
-        if weapon_name in soldier.w_affinities:
-            aff = soldier.w_affinities[weapon_name]
+        if weapon_name != 'None':
+            if weapon_name in soldier.w_affinities:
+                aff = soldier.w_affinities[weapon_name]
 
         damage = weapon_damage * fire_rate * precision * aff
 

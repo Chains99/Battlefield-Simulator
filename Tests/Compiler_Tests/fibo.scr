@@ -1,0 +1,17 @@
+def Number fibo(Number n):
+{	
+	if (n == 1 or n == 2):{
+	return 1;
+	};
+	
+	return fibo(n) + fibo(n - 1);
+};
+
+Number a = fibo(5);
+
+def function give_fibo():
+{
+	return fibo;
+};
+
+function b = give_fibo();

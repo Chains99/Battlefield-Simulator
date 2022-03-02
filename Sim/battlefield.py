@@ -156,6 +156,7 @@ def build_battlefield(sim_map, weather, soldiers, max_depth, heuristics=[]):
         raise Exception('Invalid max_depth value')
 
     fb = FactionBuilder()
+    fb.build_factions(soldiers)
     fb.factions[0].heuristic = heuristics[0]
     fb.factions[1].heuristic = heuristics[1]
     sim = SimulationManager(fb.get_factions(), weather, sim_map=sim_map, max_depth=max_depth)

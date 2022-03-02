@@ -74,8 +74,18 @@ class Soldier:
     def get_map(self):
         return self.terrain_map
 
+<<<<<<< Updated upstream
     def set_position(self,terrain_map, row, col, ):
         self.position = (row, col)
+=======
+    def set_position(self, terrain_map, row, col):
+        row = int(row)
+        col = int(col)
+        if row < 0 or col < 0:
+            raise Exception('Invalid row or col value')
+        self.position = (row, col)
+
+>>>>>>> Stashed changes
         if not isinstance(terrain_map, Map):
             raise Exception('Invalid map value')
         self.terrain_map = terrain_map

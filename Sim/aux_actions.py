@@ -94,6 +94,7 @@ class AuxActions:
         enemy.take_damage(damage)
 
     def move(self, soldier, position, state=None):
+        position = tuple(position)
         matrix = soldier_pos_matrix(soldier.terrain_map, state)
         sol_pos = state.soldier_positions[soldier.id]
         soldier.move_to(sol_pos, position, soldier.terrain_map.restriction_matrix, soldier.terrain_map.terrain_matrix, matrix)

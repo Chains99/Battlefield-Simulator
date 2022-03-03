@@ -12,21 +12,6 @@ class LR1Parser:
         self.grammar = grammar
         p = grammar.get_productions()
 
-        if not exists("action.json") or not exists("go_to.json"):
-            self.table: LR1Table = LR1Table(grammar)
-            with open('action.json', 'w') as fout:
-                json.dump(self.table.action_table, fout)
-
-            with open('go_to.json', 'w') as fout:
-                json.dump(self.table.go_to_table, fout)
-
-        with open("action.json") as file:
-            self.actions_table = json.load(file)
-
-        with open("go_to.json") as file:
-            self.go_to_table = json.load(file)
-
-
         self.table: LR1Table = LR1Table(grammar)
         self.action_table = self.table.action_table
         self.go_to_table = self.table.go_to_table

@@ -473,7 +473,7 @@ class ActionManager:
 
         result_state = state.copy_state()
         sol_position = state.soldier_positions[soldier.id]
-        pos_matrix = self.soldier_pos_matrix(state)
+        pos_matrix = soldier_pos_matrix(self.map, state)
 
         # STATE VALUES
         st_stance = state.soldier_str_variables[soldier.id][0]

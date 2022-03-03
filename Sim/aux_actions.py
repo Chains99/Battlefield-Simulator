@@ -10,6 +10,15 @@ def add_state_to_args(args, state):
 
     return tuple(new_args)
 
+def replace_state(args, state):
+    args_list = list(args)
+    new_args = []
+    for arg in args_list:
+        new_args.append(arg)
+    new_args[3] = state
+
+    return tuple(new_args)
+
 
 # DECORATOR
 def aux_action(state):
@@ -17,7 +26,10 @@ def aux_action(state):
     def inner(function):
 
         def inner_args(*args, **kwargs):
-            new_args = add_state_to_args(args, state)
+            if len(args) == 3:
+                new_args = add_state_to_args(args, state)
+            else:
+                new_args = replace_state(args, state)
             return function(*new_args)
 
         return inner_args

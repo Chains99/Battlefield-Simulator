@@ -61,9 +61,15 @@ class BattleField:
 
     def terminal_state(self):
 
-        for item in self.fractions:
-            if self.current_state.alive_soldiers[item.id] == 0:
+        for faction in self.fractions:
+            count = 0
+            for soldier in faction.soldiers:
+                if self.current_state.soldier_died[soldier.team][soldier.id]:
+                    count += 1
+
+            if count == len(faction.soldiers):
                 return True
+
         return False
 
     def perfom_action(self, action):
@@ -121,7 +127,7 @@ class BattleField:
         # decorate all auxiliary function to current state
         decorate_aux_actions(action[2])
         # execute extra action
-        action[0](action[1], self.sim.sim_map.terrain_matrix)
+        action[0](action[1], self.sim.sim_map)
         # generate new state
         result_state = build_new_state(self.fractions, self.sim.ab.am, action[1], action[2])
         return result_state
@@ -129,8 +135,9 @@ class BattleField:
     def needed_reset(self, state):
 
         for fraction in self.fractions:
-            if state.team_variables_moved[fraction.id] != state.alive_soldiers[fraction.id]:
-                return False
+            for soldier in fraction.soldiers:
+                if not state.soldier_died[soldier.team][soldier.id] and not state.soldier_moved[soldier.team][soldier.id]:
+                    return False
 
         return True
 

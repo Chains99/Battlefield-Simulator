@@ -337,7 +337,8 @@ class SimulationManager:
     def needed_reset(self, state):
 
         for fraction in self.fractions:
-            if state.team_variables_moved[fraction.id] != len(fraction.soldiers):
-                return False
+            for soldier in fraction.soldiers:
+                if not state.soldier_died[soldier.team][soldier.id] and not state.soldier_moved[soldier.team][soldier.id]:
+                    return False
 
         return True

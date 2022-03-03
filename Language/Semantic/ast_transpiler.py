@@ -1,3 +1,5 @@
+from Sim.aux_actions import *
+
 from Language.Parser.ast import Script, Expression, Variable, Number, Bool, _None, _List, FuncDef, If, El_if_se, \
     WhileDef, Decl, Assign, Return, Continue, Break, BinaryExpression, TernaryExpression, \
     BetwBrackExpression, String, Basic
@@ -12,7 +14,8 @@ class ASTtranspiler:
                     'from Sim.Entities.Terrain import Terrain\n\n' \
                     'from Sim.Entities.Weapon import Weapon\n\n' \
                     'from Sim.Entities.Weather import Weather\n\n' \
-                    'from Visual.Console import run\n\n'
+                    'from Visual.Console import run\n\n' \
+                    'from Sim.aux_actions import *\n\n'
         self.tabs_counter = 0
 
     def write_code(self, text: str):

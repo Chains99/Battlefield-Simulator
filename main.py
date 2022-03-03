@@ -3,6 +3,7 @@ from Language.Semantic.Type_checking.Context import Context
 from Language.Semantic.Type_checking.Type import Type
 from Visual.Console import execute
 
+
 def build_initial_context():
     context = Context('root')
     Type(context, 'Number')
@@ -23,6 +24,7 @@ def build_initial_context():
     Type(context, 'List Weapon')
     Type(context, 'List Terrain')
     Type(context, 'List Weather')
+    aux_actions = Type(context, 'AuxActions')
     map = Type(context, 'Map')
 
     # SOLDIER
@@ -48,7 +50,6 @@ def build_initial_context():
     soldier.define_function('remove_extra_action', 'Void', ['index'], ['Number'])
     soldier.define_function('get_team', 'Number', [], [])
     soldier.define_function('is_ally', 'Bool', ['soldier'], ['Soldier'])
-
 
     # WEAPON
     weapon.add_attribute('name', 'String')
@@ -90,6 +91,18 @@ def build_initial_context():
 
     # HEURISTIC
 
+    # AUX_ACTIONS
+    aux_actions.define_function(
+        'detect_enemies_within_eff_range', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'])
+    aux_actions.define_function(
+        'detect_enemies_within_max_range', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'])
+    aux_actions.define_function('detect_allies', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'])
+
+    aux_actions.define_function(
+        'shoot', 'Void', ['soldierA', 'soldierB'], ['Soldier', 'Soldier'])
+    aux_actions.define_function(
+        'move', 'Void', ['soldier', 'position'], ['Soldier', 'List Number'])
+
     # BUILDERS
     context.add_func(FuncDef('Soldier', 'Soldier',
                              ['health', 'vision_range', 'precision', 'move_speed', 'crit_chance', 'orientation',
@@ -102,6 +115,9 @@ def build_initial_context():
     context.add_func(FuncDef('Weather', 'Weather',
                              ['state', 'wind_speed', 'visibility_impairment', 'temperature', 'humidity'],
                              ['String', 'Number', 'Number', 'Number', 'Number'], None))
+    context.add_func(FuncDef('AuxActions', 'AuxActions',
+                             [],
+                             [], None))
     context.add_func(FuncDef('Map', 'Map',
                              ['row', 'col'],
                              ['Number', 'Number'], None))
@@ -120,19 +136,9 @@ def build_initial_context():
     context.add_func(FuncDef('run', 'Void', ['map', 'weather', 'soldiers', 'ia_max_depth'],
                              ['Map', 'Weather', 'List Soldier', 'Number'], None))
     #   DETECTION FUNCTIONS
-    context.add_func(
-        FuncDef('detect_enemies_within_eff_range', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'], None))
-    context.add_func(
-        FuncDef('detect_enemies_within_max_range', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'], None))
-    context.add_func(FuncDef('detect_allies', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'], None))
-
-    context.add_func(
-        FuncDef('shoot', 'Void', ['soldierA', 'soldierB'], ['Soldier', 'Soldier'], None))
-    context.add_func(
-        FuncDef('move', 'Void', ['soldier', 'position'], ['Soldier', 'List Number'], None))
-
 
     return context
+
 
 if __name__ == '__main__':
     execute(build_initial_context())

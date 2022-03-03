@@ -124,6 +124,6 @@ def execute(context:Context):
                 parser = LR1Parser(grammar)
                 ast = parser.parse(tokens)
                 translated_code = ASTtranspiler().transpile(ast, context)
-                #window['Result'].print(translated_code)
+                window['Result'].print(translated_code)
                 exec(translated_code, globals())
     window.close()

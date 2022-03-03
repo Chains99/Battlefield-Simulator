@@ -33,9 +33,30 @@ class BattleField:
             self.move_view(next_move)
 
             if self.terminal_state():
+                self.show_stats()
                 return True
 
         return False
+
+    def show_stats(self):
+        self.update_avg_stats()
+        for faction in self.fractions:
+            for soldier in faction.soldiers:
+                print(' ')
+                print('Soldier id: {} stats:'.format(soldier.id))
+                print('{} shots fired'.format(faction.soldiers_stats[soldier.id]['shots']))
+                print('{} shots landed'.format(faction.soldiers_stats[soldier.id]['shots landed']))
+                print('{} shots missed'.format(faction.soldiers_stats[soldier.id]['shots missed']))
+                print('{}% precision average'.format(faction.soldiers_stats[soldier.id]['precision avg']))
+                print('{} distance traveled'.format(faction.soldiers_stats[soldier.id]['distance traveled']))
+
+    def update_avg_stats(self):
+        for faction in self.fractions:
+            for soldier in faction.soldiers:
+                shots = faction.soldiers_stats[soldier.id]['shots']
+                shots_landed = faction.soldiers_stats[soldier.id]['shots landed']
+                if shots > 0:
+                    faction.soldiers_stats[soldier.id]['precision avg'] = (float(shots_landed) / shots) * 100
 
     def move_view(self, move):
 

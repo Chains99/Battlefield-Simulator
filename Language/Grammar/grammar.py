@@ -133,7 +133,6 @@ comma_t = Terminal(',')
 none_t = Terminal('None')
 if_t = Terminal('if')
 else_t = Terminal('else')
-elif_t = Terminal('elif')
 def_t = Terminal('def')
 true_t = Terminal('true')
 false_t = Terminal('false')
@@ -251,33 +250,14 @@ params += Production([type_nt, identifier_t], build_params_2)
 return_nt += Production([return_t, expression], build_return_1)
 return_nt += Production([return_t], build_return_2)
 
-# if Definition
-if_def += Production(
-    [if_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements, closedCurlyBraces_t,
-     elif_def],
-    build_if_def_1)
 if_def += Production(
     [if_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements, closedCurlyBraces_t,
      else_def],
-    build_if_def_2)
+    build_if_def_1)
 if_def += Production(
     [if_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
      closedCurlyBraces_t],
-    build_if_def_3)
-
-# elif Definition
-elif_def += Production(
-    [elif_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
-     closedCurlyBraces_t, elif_def],
-    build_elif_def_1)
-elif_def += Production(
-    [elif_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
-     closedCurlyBraces_t, else_def],
-    build_elif_def_2)
-elif_def += Production(
-    [elif_t, openBracket_t, expression, closedBracket_t, two_points_t, openCurlyBraces_t, statements,
-     closedCurlyBraces_t],
-    build_elif_def_3)
+    build_if_def_2)
 
 # else Definition
 else_def += Production([else_t, two_points_t, openCurlyBraces_t, statements, closedCurlyBraces_t], build_else_def)

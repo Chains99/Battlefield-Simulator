@@ -82,8 +82,6 @@ class Decl(Statement):
         context.add_var(self.name, self.expression.type, '')
 
 
-
-
 @dataclass
 class Assign(Statement):
     name: str
@@ -150,8 +148,14 @@ class BinaryExpression(Expression):
             self.type = 'Number' if self.op not in context.logical_ops and self.op not in ['and', 'or'] else 'Bool'
         typeL = self.left.type
         typeR = self.right.type
-        if typeL != typeR:
+        if self.op == '+' and ((typeL != 'Number' and typeL != 'String') or (typeR != 'Number' and typeR != 'String')):
+            raise Exception('Operation ' + ' is only valid for Number or String types"')
+        elif typeL != typeR:
             raise Exception(f'Invalid expression for operator "{self.op}"')
+
+        elif self.op in ['and', 'or'] and self.type != typeL:
+            raise Exception(f'Invalid expression for operator "{self.op}"')
+
         elif self.op in ['and', 'or'] and self.type != typeL:
             raise Exception(f'Invalid expression for operator "{self.op}"')
 
@@ -165,7 +169,7 @@ class TernaryExpression(Expression):
 
 # Atomics
 @dataclass
-class Inversion_Symbol(Expression):
+class Negation(Expression):
     expression: Expression
     type = 'bool'
 
@@ -196,7 +200,8 @@ class Basic(Expression):
                     raise Exception(f'Function "{self.expression.name}" is not defined')
                 for i in range(len(self.args)):
                     self.args[i].check_semantic(context)
-                    args[i] = self.args[i].type if self.args[i].type != 'function' or func.arg_types[i] == 'function' else args[i].return_type
+                    args[i] = self.args[i].type if self.args[i].type != 'function' or func.arg_types[
+                        i] == 'function' else args[i].return_type
                 if context.check_func_args(func, args):
                     self.type = func.return_type
                 else:
@@ -446,19 +451,6 @@ def build_continue(tokens: List[str], ast_nodes: List):
 
 
 def build_if_def_1(tokens: List[str], ast_nodes: List):
-    elif_def = ast_nodes.pop()
-    block = ast_nodes.pop()
-    expression = ast_nodes.pop()
-
-    if_def = If(expression, get_statements([], block))
-    branch = El_if_se([if_def], None)
-
-    El_if_se(branch, elif_def)
-
-    ast_nodes.append(branch)
-
-
-def build_if_def_2(tokens: List[str], ast_nodes: List):
     else_def = ast_nodes.pop()
     block = ast_nodes.pop()
     expression = ast_nodes.pop()
@@ -469,7 +461,7 @@ def build_if_def_2(tokens: List[str], ast_nodes: List):
     ast_nodes.append(branch)
 
 
-def build_if_def_3(tokens: List[str], ast_nodes: List):
+def build_if_def_2(tokens: List[str], ast_nodes: List):
     block = ast_nodes.pop()
     expression = ast_nodes.pop()
 
@@ -477,37 +469,6 @@ def build_if_def_3(tokens: List[str], ast_nodes: List):
     branch = El_if_se([if_def], None)
 
     ast_nodes.append(branch)
-
-
-def build_elif_def_1(tokens: List[str], ast_nodes: List):
-    elif_def = ast_nodes.pop()
-    block = ast_nodes.pop()
-    expression = ast_nodes.pop()
-
-    elif_def = ElifDef(expression, get_statements(
-        [], block), elif_def, None)
-
-    ast_nodes.append(elif_def)
-
-
-def build_elif_def_2(tokens: List[str], ast_nodes: List):
-    else_def = ast_nodes.pop()
-    block = ast_nodes.pop()
-    expression = ast_nodes.pop()
-
-    elif_def = ElifDef(expression, get_statements(
-        [], block), None, else_def)
-
-    ast_nodes.append(elif_def)
-
-
-def build_elif_def_3(tokens: List[str], ast_nodes: List):
-    block = ast_nodes.pop()
-    expression = ast_nodes.pop()
-
-    elif_def = ElifDef(expression, get_statements([], block), None, None)
-
-    ast_nodes.append(elif_def)
 
 
 def build_else_def(tokens: List[str], ast_nodes: List):
@@ -598,7 +559,7 @@ def build_and(tokens: List[str], ast_nodes: List):
 
 def build_inversion(tokens: List[str], ast_nodes: List):
     expr = ast_nodes.pop()
-    inversion = Inversion_Symbol(expr)
+    inversion = Negation(expr)
     ast_nodes.append(inversion)
 
 

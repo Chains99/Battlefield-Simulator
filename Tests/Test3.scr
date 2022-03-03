@@ -1,0 +1,6 @@
+def Number luda(Number a, Number b):
+{
+  return a +b * (b*2);
+};
+
+Number c = luda(2,3);

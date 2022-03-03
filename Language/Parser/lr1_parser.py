@@ -31,12 +31,14 @@ class LR1Parser:
             action = current_state_actions[token.value]
             if action[0] == 'OK':
                 return ast[0]
-
+            
+            #Apply a SHIFT Action
             elif action[0] == 'S':
                 states_id_stack.append(action[1])
                 tokens_stack.append(token.lexeme)
                 tokens = tokens[1:] if len(tokens) >= 1 else []
 
+            #Apply a REDUCE Action
             else:
                 prod = grammar_prod[action[1]]
                 if prod.ast_node_builder is not None:

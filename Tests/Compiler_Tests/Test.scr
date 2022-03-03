@@ -42,11 +42,11 @@ def Void semi_fire_on_sight(Map map, Soldier soldier):
 {
 	Number fire_rate = soldier.equipped_weapon.fire_rate;
 	set_weapon_to_semi(soldier.equipped_weapon);
-	List_Soldier soldiers = detect_enemies_within_eff_range(soldier,map);
+	List_Soldier soldier_list = detect_enemies_within_eff_range(soldier,map);
 	Number k = 0;
-	while(k < len(soldiers)):
+	while(k < len(soldier_list)):
 	{
-		shoot(soldier, soldiers[k]);
+		shoot(soldier, soldier_list[k]);
 		k = k+1;
 	};
 	soldier.equipped_weapon.set_fire_rate(fire_rate);

@@ -60,8 +60,8 @@ class Context:
             if func is not None:
                 if len(args) == len(func.arg_names):
                     for i in range(len(args)):
-                        if args[i].split(' ')[0] == 'List' != func.arg_types[i]:
-                            return False
+                        if args[i].split(' ')[0] == 'List' == func.arg_types[i]:
+                            continue
                         elif args[i] != func.arg_types[i] and \
                                 func.arg_types[i] != "Type":
                             return False
@@ -71,11 +71,13 @@ class Context:
             return False
 
         else:
-            _func = self._func.get(func.name)
-            if _func is not None:
-                if len(args) == len(self._func[func][1]):
+            if func is not None:
+                if len(args) == len(func.arg_names):
                     for i in range(len(args)):
-                        if not args[i] != _func[1][i]:
+                        if args[i].split(' ')[0] == 'List' == func.arg_types[i]:
+                            continue
+                        elif args[i] != func.arg_types[i] and \
+                                func.arg_types[i] != "Type":
                             return False
                     return True
             return self.parent.check_func_args(func, args)

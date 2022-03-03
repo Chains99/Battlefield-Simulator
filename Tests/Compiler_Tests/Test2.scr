@@ -1,19 +1,15 @@
 def Void set_weapon_to_semi(Weapon weapon):
 {
-	weapon.set_rate_of_fire(1);
+	weapon.set_fire_rate(1);
 };
 
-def Void set_weapon_to_burst(Weapon weapon):
+def Void semi_fire_on_sight(Map map, Soldier soldier):
 {
-	weapon.set_rate_of_fire(3);
-};
-
-def Void set_weapon_to_auto(Weapon weapon):
-{
-	Number a = int(weapon.ammunition_capacity / 2);
-	if(a==0):
+	set_weapon_to_semi(soldier.equipped_weapon);
+	List_Soldier soldiers = detect_enemies_within_eff_range(soldier,map);
+	Number k = 0;
+	while(k < len(soldiers)):
 	{
-		a=a+1;	
+		k = k+1;
 	};
-	weapon.set_rate_of_fire(a);
 };

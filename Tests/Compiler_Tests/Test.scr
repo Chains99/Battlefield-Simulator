@@ -1,11 +1,11 @@
 def Void set_weapon_to_semi(Weapon weapon):
 {
-	weapon.set_rate_of_fire(1);
+	weapon.set_fire_rate(1);
 };
 
 def Void set_weapon_to_burst(Weapon weapon):
 {
-	weapon.set_rate_of_fire(3);
+	weapon.set_fire_rate(3);
 };
 
 def Void set_weapon_to_auto(Weapon weapon):
@@ -15,7 +15,7 @@ def Void set_weapon_to_auto(Weapon weapon):
 	{
 		a=a+1;	
 	};
-	weapon.set_rate_of_fire(1);
+	weapon.set_fire_rate(a);
 };
 
 def Void equip_and_deploy_by_team(List_Soldier soldiers, List_Weapon weapons,Map map):
@@ -38,6 +38,19 @@ def Void equip_and_deploy_by_team(List_Soldier soldiers, List_Weapon weapons,Map
 	return;
 };
 
+def Void semi_fire_on_sight(Map map, Soldier soldier):
+{
+	Number fire_rate = soldier.equipped_weapon.fire_rate;
+	set_weapon_to_semi(soldier.equipped_weapon);
+	List_Soldier soldiers = detect_enemies_within_eff_range(soldier,map);
+	Number k = 0;
+	while(k < len(soldiers)):
+	{
+		k = k+1;
+	};
+	soldier.equipped_weapon.set_fire_rate(fire_rate);
+};
+
 Map map = Map(4,4);
 Weather weather = Weather('Sunny',15,0.5,25,10);
 
@@ -56,11 +69,8 @@ List soldiers = [s1,s2,s3,s4,s5,s6,s7,s8];
 Weapon M4 = Weapon("M4",3.52,50,100,85,65,40,90,30,30);
 Weapon AK74 = Weapon("AK74",3.07,50,100,80,55,50,70,30,30);
 
-def Void test(Soldier soldier, Map map):
-{
-	print("aqui");
-};
-s1.add_extra_action(test);
 equip_and_deploy_by_team(soldiers,[M4, AK74], map);
+
 s1.set_affinity('M4', 1.2);
+s1.add_extra_action(semi_fire_on_sight);
 run(map,weather,soldiers,2);

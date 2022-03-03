@@ -56,3 +56,16 @@ class Map:
         col = int(col)
 
         self.restriction_matrix[row][col] = item
+
+    def set_object(self, row, col):
+        row = int(row)
+        col = int(col)
+
+        self.terrain_matrix[row][col].add_object(True)
+
+    def remove_object(self, row, col):
+        row = int(row)
+        col = int(col)
+
+        self.terrain_matrix[row][col].terrain_object = None
+        self.terrain_matrix[row][col].available = True

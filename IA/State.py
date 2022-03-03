@@ -126,7 +126,7 @@ class SimulationState:
         return st
 
 
-def build_new_state(factions, action_manager, soldier, state):
+def build_new_state(factions, action_manager, soldier_action, state):
     new_state = state.copy_state()
     new_state.building = True
 
@@ -211,8 +211,8 @@ def build_new_state(factions, action_manager, soldier, state):
                 new_state.soldier_ammo_per_weapon[soldier.id][weapon.name] = soldier.weapon_ammo[weapon.name]
                 new_state.soldier_weapons_current_ammo[soldier.id][weapon.name] = weapon.current_ammo
 
-    new_state.soldier_moved[soldier.team][soldier.id] = True
-    new_state.team_variables_moved[soldier.team] += 1
+    new_state.soldier_moved[soldier_action.team][soldier_action.id] = True
+    new_state.team_variables_moved[soldier_action.team] += 1
 
     new_state.building = False
     return new_state

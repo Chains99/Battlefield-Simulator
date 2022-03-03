@@ -178,15 +178,16 @@ def run(map, weather, soldiers: Soldier, ia_max_depth: int):
 
 def execute():
     context = build_initial_context
-    sg.theme("dark")
+    sg.theme("Dark Grey 14")
     menu_def = [['&File', ['&Nothing']]]
 
     main_layout = [
         [sg.Text("Code: ")],
-        [sg.Multiline(key="_Code_", disabled=False, size=(80, 20), font='Courier 8', expand_x=True,
+        [sg.Multiline(key="_Code_", disabled=False, size=(80, 20), font='Courier 10', expand_x=True,
                       expand_y=True,
                       autoscroll=True,
-                      auto_refresh=True)],
+                      auto_refresh=True,
+                      text_color= "yellow")],
         [sg.Push(),
          sg.In(size=(25, 1), enable_events=True, key="-LOADDIR-", visible=False),
          sg.FileBrowse('Load', key='load', button_color='grey', file_types=(("SCR", ".scr"),)),
@@ -196,18 +197,16 @@ def execute():
          sg.Button('Run', key='Run', button_color='green'),
          ],
         [sg.Text("Output: ")],
-        [sg.Multiline(key="Result", disabled=True, size=(80, 20), font='Courier 8', expand_x=True,
+        [sg.Multiline(key="Result", disabled=True, size=(80, 20), font='Courier 10', expand_x=True,
                       expand_y=True,
                       write_only=True, autoscroll=True,
-                      auto_refresh=True, reroute_stdout=True)],
+                      auto_refresh=True, reroute_stdout=True,text_color= "light blue")],
         [sg.Push(),
          sg.Button('Reset', key='Reset', button_color='grey')]
     ]
 
     # App Layout
     layout = [
-        [sg.MenubarCustom(menu_def, key='-MENU-', font='Aria 10', background_color="white", bar_text_color="white",
-                          text_color="black", bar_background_color="grey", tearoff=False)],
         [main_layout]
     ]
 

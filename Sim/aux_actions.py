@@ -1,5 +1,5 @@
 from Sim.A_star.A_star import euclidean_distance
-
+from IA.Action_manager import soldier_pos_matrix
 
 def add_state_to_args(args, state):
     args_list = list(args)
@@ -93,6 +93,11 @@ class AuxActions:
 
         enemy.take_damage(damage)
 
+    def move(self, soldier, position, state=None):
+        matrix = soldier_pos_matrix(soldier.terrain_map, state)
+        sol_pos = state.soldier_positions[soldier.id]
+        soldier.move_to(sol_pos, position, soldier.terrain_map.restriction_matrix, soldier.terrain_map.terrain_matrix, matrix)
+
 
 def decorate_aux_actions(state):
     AuxActions.detect_allies = aux_action(state)(AuxActions.detect_allies)
@@ -100,3 +105,5 @@ def decorate_aux_actions(state):
     AuxActions.detect_enemies_within_eff_range = aux_action(state)(AuxActions.detect_enemies_within_eff_range)
     AuxActions.detect_enemies_within_max_range = aux_action(state)(AuxActions.detect_enemies_within_max_range)
     AuxActions.get_position = aux_action(state)(AuxActions.get_position)
+    AuxActions.shoot = aux_action(state)(AuxActions.shoot)
+    AuxActions.move = aux_action(state)(AuxActions.move)

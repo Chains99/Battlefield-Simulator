@@ -2,11 +2,28 @@ from Sim.A_star.A_star import euclidean_distance
 from Sim.Entities.Soldier import Soldier
 
 
+def soldier_pos_matrix(sim_map, state):
+    rows = len(sim_map.terrain_matrix)
+    cols = len(sim_map.terrain_matrix[0])
+
+    soldier_pos_mat = []
+    for i in range(rows):
+        soldier_pos_mat.append([])
+        for j in range(cols):
+            soldier_pos_mat[i].append(False)
+
+    sold = [*state.soldier_positions.values()]
+
+    for pos in sold:
+        soldier_pos_mat[pos[0]][pos[1]] = True
+    return soldier_pos_mat
+
 def new_changed_tuple(tuple_to_change, index_changes_list):
     tuple_list = list(tuple_to_change)
     for item in index_changes_list:
         tuple_list[item[0]] = item[1]
     return tuple(tuple_list)
+
 
 
 class ActionManager:
@@ -18,21 +35,6 @@ class ActionManager:
     Soldier actions
     """
 
-    def _soldier_pos_matrix(self, state):
-        rows = len(self.map.terrain_matrix)
-        cols = len(self.map.terrain_matrix[0])
-
-        soldier_pos_mat = []
-        for i in range(rows):
-            soldier_pos_mat.append([])
-            for j in range(cols):
-                soldier_pos_mat[i].append(False)
-
-        sold = [*state.soldier_positions.values()]
-
-        for pos in sold:
-            soldier_pos_mat[pos[0]][pos[1]] = True
-        return soldier_pos_mat
 
     def melee_attack(self, soldier, enemy_pos, state):
         result_state = state.copy_state()
@@ -112,7 +114,7 @@ class ActionManager:
 
         result_state = state.copy_state()
         sol_position = state.soldier_positions[soldier.id]
-        pos_matrix = self._soldier_pos_matrix(state)
+        pos_matrix = soldier_pos_matrix(self.map, state)
 
         # PRE SIMULATION INSTANCE VALUES
         position_instance = soldier.position
@@ -471,7 +473,7 @@ class ActionManager:
 
         result_state = state.copy_state()
         sol_position = state.soldier_positions[soldier.id]
-        pos_matrix = self._soldier_pos_matrix(state)
+        pos_matrix = self.soldier_pos_matrix(state)
 
         # STATE VALUES
         st_stance = state.soldier_str_variables[soldier.id][0]

@@ -60,7 +60,9 @@ class Context:
             if func is not None:
                 if len(args) == len(func.arg_names):
                     for i in range(len(args)):
-                        if args[i] != func.arg_types[i] and (func.arg_types[i] != 'List' == args[i].split(' ')[0]) and \
+                        if args[i].split(' ')[0] == 'List' != func.arg_types[i]:
+                            return False
+                        elif args[i] != func.arg_types[i] and \
                                 func.arg_types[i] != "Type":
                             return False
 

@@ -34,7 +34,6 @@ def build_initial_context():
     map = Type(context, 'Map')
 
     # SOLDIER
-    soldier.add_attribute('id', 'Number')
     soldier.add_attribute('health', 'Number')
     soldier.add_attribute('current_health', 'Number')
     soldier.add_attribute('vision_range', 'Number')
@@ -46,6 +45,7 @@ def build_initial_context():
     soldier.add_attribute('max_load', 'Number')
     soldier.add_attribute('concealment', 'Number')
     soldier.add_attribute('melee_damage', 'Number')
+    soldier.add_attribute('equipped_weapon', 'Weapon')
 
     soldier.define_function('get_map', 'Map', [], [])
     soldier.define_function('set_weapons', 'Void', ['weapons', 'magazines'], ['List Weapon', 'List Number'])
@@ -55,6 +55,8 @@ def build_initial_context():
     soldier.define_function('add_extra_action', 'Void', ['action'], ['function'])
     soldier.define_function('remove_extra_action', 'Void', ['index'], ['Number'])
     soldier.define_function('get_team', 'Number', [], [])
+    soldier.define_function('is_ally', 'Bool', ['soldier'], ['Soldier'])
+
 
     # WEAPON
     weapon.add_attribute('name', 'String')
@@ -109,11 +111,19 @@ def build_initial_context():
                              ['String', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number',
                               'Number'], None))
 
+    # AUXILIARY FUNCTIONS
     context.add_func(FuncDef('len', 'Number', ['list'], ['List'], None))
+    context.add_func(FuncDef('str', 'String', ['number'], ['Number'], None))
+    context.add_func(FuncDef('int', 'Number', ['number'], ['Number'], None))
     context.add_func(FuncDef('print', 'Void', ['text'], ['String'], None))
     context.add_func(FuncDef('run', 'Void', ['map', 'weather', 'soldiers', 'ia_max_depth'],
                              ['Map', 'Weather', 'List Soldier', 'Number'], None))
-    context.add_func(FuncDef('detect_enemies', 'Void', ['text'], ['String'], None))
+    #   DETECTION FUNCTIONS
+    context.add_func(
+        FuncDef('detect_enemies_within_eff_range', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'], None))
+    context.add_func(
+        FuncDef('detect_enemies_within_max_range', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'], None))
+    context.add_func(FuncDef('detect_allies', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'], None))
     return context
 
 
@@ -124,7 +134,7 @@ class Manager():
     runing = False
     f_execution = True
     end = False
-    btf =None
+    btf = None
 
 
 def run_btf(btf: BattleField):
@@ -224,7 +234,7 @@ def execute():
             # if not runing[0]:
             #     runing[0] = True
             #     run(runing, window, btf)
-            if(not Manager.runing):
+            if (not Manager.runing):
                 # tokenizing
                 lex = lexer()
                 tokens = lex.get_token_manager("file", values['_Code_']).tokens
@@ -234,7 +244,7 @@ def execute():
                 grammar = Grammar(non_term_heads, bfs_start)
                 parser = LR1Parser(grammar)
                 ast = parser.parse(tokens)
-                python_code = ASTtranspiler().transpile(ast, build_initial_context())
-                window['Result'].update(python_code)
-                exec(python_code, globals())
+                translated_code = ASTtranspiler().transpile(ast, build_initial_context())
+                window['Result'].update(translated_code)
+                #exec(translated_code, globals())
     window.close()

@@ -17,7 +17,8 @@ class Weapon:
         self.current_ammo = current_ammo
 
     def copy(self):
-        return Weapon(self.name, self.weight, self.w_effective_range, self.w_max_range, self.effective_range_precision, self.max_range_precision,
+        return Weapon(self.name, self.weight, self.w_effective_range, self.w_max_range, self.effective_range_precision,
+                      self.max_range_precision,
                       self.damage, self.fire_rate, self.ammunition_capacity, self.current_ammo)
 
     def _average_hit_chance(self, params):
@@ -65,6 +66,33 @@ class Weapon:
                     damage += self.damage
 
         return damage, shots_landed
+
+    def set_fire_rate(self, fire_rate):
+        self.fire_rate = fire_rate
+
+    def set_name(self, name):
+        self.name = name
+
+    def set_weight(self, weight):
+        self.weight = weight
+
+    def set_w_effective_range(self, w_effective_range):
+        self.w_effective_range = w_effective_range
+
+    def set_w_max_range(self, w_max_range):
+        self.w_max_range = w_max_range
+
+    def set_effective_range_precision(self, effective_range_precision):
+        self.effective_range_precision = effective_range_precision
+
+    def set_max_range_precision(self, max_range_precision):
+        self.max_range_precision = max_range_precision
+
+    def set_damage(self, damage):
+        self.damage = damage
+
+    def set_current_ammo(self, current_ammo):
+        self.current_ammo = current_ammo
 
     # Recarga una cantidad de municion: ammo_amount
     def load_ammo(self, ammo_amount):

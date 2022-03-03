@@ -311,6 +311,7 @@ class BetwBrackExpression(Expression):
     expression: Expression
 
     def check_semantic(self, context: Context):
+        self.expression.check_semantic(context)
         self.type = self.expression.type
 
 

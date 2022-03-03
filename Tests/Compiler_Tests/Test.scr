@@ -1,3 +1,8 @@
+def Void set_weapon_to_semi(Weapon weapon):
+{
+	weapon.rate_of_fire=1;
+};
+
 def Void equip_and_deploy_by_team(List_Soldier soldiers, List_Weapon weapons,Map map):
 {	
 	Number count = 0;

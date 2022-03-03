@@ -86,7 +86,6 @@ class AuxActions:
 
 
 def decorate_aux_actions(state):
-
     AuxActions.detect_allies = aux_action(state)(AuxActions.detect_allies)
     AuxActions.detect_enemies = aux_action(state)(AuxActions.detect_enemies)
     AuxActions.detect_enemies_within_eff_range = aux_action(state)(AuxActions.detect_enemies_within_eff_range)

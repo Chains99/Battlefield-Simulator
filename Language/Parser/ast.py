@@ -147,7 +147,7 @@ class BinaryExpression(Expression):
         if self.type == '':
             self.left.check_semantic(context)
             self.right.check_semantic(context)
-            self.type = 'Number' if self.op not in context.logical_ops or self.op not in ['and', 'or'] else 'Bool'
+            self.type = 'Number' if self.op not in context.logical_ops and self.op not in ['and', 'or'] else 'Bool'
         typeL = self.left.type
         typeR = self.right.type
         if typeL != typeR:
@@ -359,14 +359,6 @@ def get_params(list_params: List, params: Params):
     if params.params is not None:
         get_params(list_params, params.params)
     return list_params
-
-
-def get_El_if_se(br: El_if_se, elif_def: ElifDef):
-    br.ifs.append(If(elif_def.expression, elif_def.body))
-    if elif_def.elif_def is not None:
-        El_if_se(br, elif_def.elif_def)
-    elif elif_def.else_def is not None:
-        br.else_body = elif_def.else_def.body
 
 
 def get_expressions(list_expressions: List, expressions: Expressions):

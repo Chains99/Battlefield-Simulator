@@ -3,9 +3,16 @@ def Void set_weapon_to_semi(Weapon weapon):
 	weapon.set_fire_rate(1);
 };
 
+
+
 def Void set_weapon_to_burst(Weapon weapon):
 {
 	weapon.set_fire_rate(3);
+};
+
+def Bool are_allies(Soldier a, Soldier b):
+{
+	return a.get_team() == b.get_team();
 };
 
 def Void set_weapon_to_auto(Weapon weapon):

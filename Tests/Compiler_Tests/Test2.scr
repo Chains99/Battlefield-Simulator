@@ -1,2 +1,2 @@
-Soldier s1 = Soldier(100, 10, 0.5, 6, 0, 'north', 'standing', 10, 0.2, 1000, 0);
-AuxActions a = AuxActions();
+List_Number a = [1,2];
+a[0] =3;

@@ -429,7 +429,7 @@ def build_func_def_1(tokens: List[str], ast_nodes: List):
 
 
 def build_func_def_2(tokens: List[str], ast_nodes: List):
-    name = tokens[len(tokens) - 6]
+    name = tokens[len(tokens) - 7]
     block = ast_nodes.pop()
     return_type = ast_nodes.pop()
     func_def = FuncDef(name, return_type.type, [], [],

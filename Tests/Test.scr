@@ -75,8 +75,8 @@ Soldier s8 = Soldier(110, 10, 0.1, 6, 0, 'north', 'standing', 10, 0.2, 1000, 1);
 
 List soldiers = [s1,s2,s3,s4,s5,s6,s7,s8];
 
-Weapon M4 = Weapon("M4",3.52,50,100,10,10,40,3,30,30);
-Weapon AK74 = Weapon("AK74",3.07,50,100,10,10,30,3,30,30);
+Weapon M4 = Weapon("M4",3.52,50,100,0.5,0.5,40,3,30,30);
+Weapon AK74 = Weapon("AK74",3.07,50,100,0.5,0.5,30,3,30,30);
 
 equip_and_deploy_by_team(soldiers,[M4, AK74], map);
 

@@ -200,7 +200,7 @@ def execute():
         [sg.Multiline(key="Result", disabled=True, size=(80, 20), font='Courier 10', expand_x=True,
                       expand_y=True,
                       write_only=True, autoscroll=True,
-                      auto_refresh=True, reroute_stdout=True,text_color= "light yellow")],
+                      auto_refresh=True, reroute_stdout=True,text_color= "light blue")],
         [sg.Push(),
          sg.Button('Reset', key='Reset', button_color='grey')]
     ]

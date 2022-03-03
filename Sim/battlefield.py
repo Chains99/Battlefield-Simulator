@@ -128,7 +128,11 @@ class BattleField:
         decorate_aux_actions(action[2])
         # execute extra action
         action[0](action[1], self.sim.sim_map)
+
+        self.sim.check_soldier_illegal_values()
         # generate new state
+
+        print('soldier id:{} used {}'.format(action[1].id, action[0].__name__))
         result_state = build_new_state(self.fractions, self.sim.ab.am, action[1], action[2])
         return result_state
 

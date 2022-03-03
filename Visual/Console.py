@@ -70,6 +70,15 @@ def build_initial_context():
     weapon.add_attribute('ammunition_capacity', 'Number')
     weapon.add_attribute('current_ammo', 'Number')
 
+    weapon.define_function('set_name', 'Void', ['a'], ['String'])
+    weapon.define_function('set_weight', 'Void', ['a'], ['Number'])
+    weapon.define_function('set_w_effective_range', 'Void', ['a'], ['Number'])
+    weapon.define_function('set_w_max_range', 'Void', ['a'], ['Number'])
+    weapon.define_function('set_effective_range_precision', 'Void', ['a'], ['Number'])
+    weapon.define_function('set_damage', 'Void', ['a'], ['Number'])
+    weapon.define_function('set_fire_rate', 'Void', ['a'], ['Number'])
+    weapon.define_function('set_current_ammo', 'Void', ['a'], ['Number'])
+
     # WEATHER
     weather.add_attribute('state', 'String')
     weather.add_attribute('wind_speed', 'Number')

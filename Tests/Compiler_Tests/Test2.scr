@@ -1,22 +1,19 @@
-def Number to_int(Number a):
+def Void set_weapon_to_semi(Weapon weapon):
 {
-	Number b = a;
-	while(b>0):
-	{
-		Number count = 1;
-		if(b > 0 and b < 1 or (a < 0 and (b<0 and b>(-1)))):
-		{
-			a = a - (b*count);
-			print(str(b*count));
-			break;
-		}
-		else:
-		{
-			b = b / 10;
-			count=count*10;
-		};
-	};
-	return a;
+	weapon.set_rate_of_fire(1);
 };
 
-print(str(to_int(4.2)));
+def Void set_weapon_to_burst(Weapon weapon):
+{
+	weapon.set_rate_of_fire(3);
+};
+
+def Void set_weapon_to_auto(Weapon weapon):
+{
+	Number a = int(weapon.ammunition_capacity / 2);
+	if(a==0):
+	{
+		a=a+1;	
+	};
+	weapon.set_rate_of_fire(a);
+};

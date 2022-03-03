@@ -1,6 +1,21 @@
 def Void set_weapon_to_semi(Weapon weapon):
 {
-	weapon.rate_of_fire=1;
+	weapon.set_rate_of_fire(1);
+};
+
+def Void set_weapon_to_burst(Weapon weapon):
+{
+	weapon.set_rate_of_fire(3);
+};
+
+def Void set_weapon_to_auto(Weapon weapon):
+{
+	Number a = int(weapon.ammunition_capacity / 2);
+	if(a==0):
+	{
+		a=a+1;	
+	};
+	weapon.set_rate_of_fire(1);
 };
 
 def Void equip_and_deploy_by_team(List_Soldier soldiers, List_Weapon weapons,Map map):

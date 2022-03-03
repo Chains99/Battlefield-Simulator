@@ -29,7 +29,12 @@ class AuxActions:
 
     # DETECTION
     def detect_enemies(self, soldier, terrain_map,  state=None):
-        return soldier.detect_enemies(state.soldier_positions[soldier.id], terrain_map.terrain_matrix, state)
+        enemies_pos = soldier.detect_enemies(state.soldier_positions[soldier.id], terrain_map.terrain_matrix, state)
+        enemies = []
+        for enemy_pos in enemies_pos:
+            # add enemy instance
+            enemies.append(state.reverse_soldier_positions[enemy_pos])
+        return enemies
 
     def detect_enemies_within_eff_range(self, soldier, terrain_map, state=None):
         enemies_pos = soldier.detect_enemies(state.soldier_positions[soldier.id], terrain_map.terrain_matrix, state)
@@ -78,6 +83,7 @@ class AuxActions:
             return [soldier.position[0], soldier.position[1]]
         pos = state.soldier_positions[soldier.id]
         return [pos[0], pos[1]]
+
 
 def decorate_aux_actions(state):
 

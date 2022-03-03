@@ -1,7 +1,9 @@
 from Language.Grammar.grammar import Grammar, Symbol, Terminal, NonTerminal, Production
 from Language.Parser.lr1_item import LR1Item
 from typing import Dict, List, Tuple, Set
-
+from json import load
+import json
+from os.path import exists
 
 class NFA:
     def __init__(self, grammar: Grammar):
@@ -114,12 +116,24 @@ class State:
 class LR1Table:
     def __init__(self, grammar: Grammar):
         self.grammar = grammar
-        nfa = NFA(self.grammar)
-
-        states = nfa.list_states
-
         self.action_table = []
         self.go_to_table = []
+
+        #If the action and go_to tables do not exist, they are built and then saved in a .json file.
+        if not exists("action_table.json") or not exists("go_to_table.json"):
+            self.build_table()
+
+        else:
+            with open("action_table.json") as file:
+                self.action_table = load(file)
+
+            with open("go_to_table.json") as file:
+                self.go_to_table = load(file)
+        
+    
+    def build_table(self):
+        nfa = NFA(self.grammar)
+        states = nfa.list_states
 
         for state in states:
             state_action: Dict[str, Tuple[str, int]] = {}
@@ -144,3 +158,10 @@ class LR1Table:
 
             self.action_table.append(state_action)
             self.go_to_table.append(state_go_to)
+        
+        #The tables are saved in a .json file
+        with open('action_table.json', 'w') as file:
+            json.dump(self.action_table, file)
+
+        with open('go_to_table.json', 'w') as file:
+            json.dump(self.go_to_table, file)

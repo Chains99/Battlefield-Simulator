@@ -4,3 +4,4 @@ def Number luda(Number a, Number b):
 };
 
 Number c = luda(2,3);
+print(c);

@@ -165,7 +165,7 @@ def run_btf(btf: BattleField):
         # comprobamos si termino la simulacion
         Manager.end = finished
         Manager.f_execution = True
-        if(Manager.end):
+        if (Manager.end):
             print("Simulation end")
 
 
@@ -224,9 +224,10 @@ def execute():
             break
 
         elif event == '-SAVEDIR-':
-            with open(values['-SAVEDIR-'], 'w', encoding='UTF8') as file:
-                file.write(values["_Code_"])
-                filepath = values['-SAVEDIR-']
+            if not values['-SAVEDIR-'] == '':
+                with open(values['-SAVEDIR-'], 'w', encoding='UTF8') as file:
+                    file.write(values["_Code_"])
+                    filepath = values['-SAVEDIR-']
 
 
         elif event == 'Reset':
@@ -247,7 +248,7 @@ def execute():
                     window['_Code_'].update(script)
                     filepath = values["-LOADDIR-"]
             except:
-                sg.Popup('error')
+                pass
 
         elif event == '__TIMEOUT__':
             if Manager.runing and Manager.f_execution and not Manager.end:
@@ -270,6 +271,6 @@ def execute():
                 parser = LR1Parser(grammar)
                 ast = parser.parse(tokens)
                 translated_code = ASTtranspiler().transpile(ast, context)
-                #window['Result'].print(translated_code)
+                # window['Result'].print(translated_code)
                 exec(translated_code, globals())
     window.close()

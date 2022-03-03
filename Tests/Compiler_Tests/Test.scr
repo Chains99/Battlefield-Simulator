@@ -46,6 +46,7 @@ def Void semi_fire_on_sight(Map map, Soldier soldier):
 	Number k = 0;
 	while(k < len(soldiers)):
 	{
+		shoot(soldier, soldiers[k]);
 		k = k+1;
 	};
 	soldier.equipped_weapon.set_fire_rate(fire_rate);

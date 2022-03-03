@@ -128,6 +128,9 @@ def build_initial_context():
 
     context.add_func(
         FuncDef('shoot', 'Void', ['soldierA', 'soldierB'], ['Soldier', 'Soldier'], None))
+    context.add_func(
+        FuncDef('move', 'Void', ['soldier', 'position'], ['Soldier', 'List Number'], None))
+
 
     return context
 

@@ -56,7 +56,7 @@ def execute(context:Context):
         [sg.Multiline(key="Result", disabled=True, size=(80, 20), font='Courier 8', expand_x=True,
                       expand_y=True,
                       write_only=True, autoscroll=True,
-                      auto_refresh=True)],
+                      auto_refresh=True, reroute_stdout=True)],
         [sg.Push(),
          sg.Button('Reset', key='Reset', button_color='grey')]
     ]
@@ -124,6 +124,6 @@ def execute(context:Context):
                 parser = LR1Parser(grammar)
                 ast = parser.parse(tokens)
                 translated_code = ASTtranspiler().transpile(ast, context)
-                window['Result'].update(translated_code)
-                #exec(translated_code, globals())
+                #window['Result'].print(translated_code)
+                exec(translated_code, globals())
     window.close()

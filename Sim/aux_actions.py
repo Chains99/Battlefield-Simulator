@@ -84,6 +84,15 @@ class AuxActions:
         pos = state.soldier_positions[soldier.id]
         return [pos[0], pos[1]]
 
+    def shoot(self, soldier, enemy, state=None):
+        sol_pos = state.soldier_positions[soldier.id]
+        en_pos = state.soldier_positions[enemy.id]
+
+        terrain_camouflage = soldier.terrain_map.terrain_matrix[en_pos[0]][en_pos[1]].camouflage
+        damage, shot = soldier.shoot(euclidean_distance(sol_pos, en_pos), state.visibility_imp, min(state.soldier_variables[enemy.id][9] * terrain_camouflage, 0.95))
+
+        enemy.take_damage(damage)
+
 
 def decorate_aux_actions(state):
     AuxActions.detect_allies = aux_action(state)(AuxActions.detect_allies)

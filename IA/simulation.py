@@ -260,6 +260,7 @@ class SimulationManager:
                     state.soldier_weapons_current_ammo[soldier.id][weapon.name] = weapon.current_ammo
 
         state.building = False
+        state.visibility_imp = self.weather.visibility_impairment
         return state
 
     def is_soldier_available(self, fraction, soldier, state):

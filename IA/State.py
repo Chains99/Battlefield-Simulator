@@ -84,6 +84,7 @@ class SimulationState:
         self.soldier_died = {}
 
         self.building = False
+        self.visibility_imp = 1
 
     def _copy_list(self, list_to_copy):
         new_list = []
@@ -121,6 +122,7 @@ class SimulationState:
         st.soldier_weapons_current_ammo = self._copy_doble_dic(self.soldier_weapons_current_ammo)
         st.soldier_moved = self._copy_doble_dic(self.soldier_moved)
         st.soldier_died = self._copy_doble_dic(self.soldier_died)
+        st.visibility_imp = self.visibility_imp
         return st
 
 

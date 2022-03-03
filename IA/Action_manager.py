@@ -80,7 +80,7 @@ class ActionManager:
 
         # SIMULATE SHOT
         terrain_camouflage = self.map.terrain_matrix[enemy_pos[0]][enemy_pos[1]].camouflage
-        damage, shots_landed = soldier.shoot(euclidean_distance(pos1, enemy_pos), self.weather.visibility_impairment, min(enemy.concealment * terrain_camouflage, 0.95))
+        damage, shots_landed = soldier.shoot(euclidean_distance(pos1, enemy_pos), self.weather.visibility_impairment, min(state.soldier_variables[enemy.id][9] * terrain_camouflage, 0.95))
 
         # REVERT CHANGES
         soldier.equipped_weapon.current_ammo = current_ammo_in_instance

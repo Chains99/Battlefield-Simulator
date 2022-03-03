@@ -74,6 +74,7 @@ class Soldier:
     def get_map(self):
         return self.terrain_map
 
+    # SETS
     def set_position(self, terrain_map, row, col):
         row = int(row)
         col = int(col)
@@ -115,6 +116,43 @@ class Soldier:
             if weapon.name == name:
                 self.equipped_weapon = weapon
                 break
+
+    def set_health(self, health):
+        self.health = health
+        self.current_health = min(self.current_health, self.health)
+
+    def set_current_health(self, health_value):
+        self.current_health = min(health_value, self.health)
+
+    def set_vision_range(self, value):
+        self.vision_range = value
+
+    def set_precision(self, value):
+        self.precision = value
+
+    def set_move_speed(self, value):
+        self.move_speed = value
+
+    def set_crit_chance(self, value):
+        self.crit_chance = value
+
+    def set_orientation(self, value):
+        self.orientation = value
+
+    def set_stance(self, value):
+        self.stance = value
+
+    def set_max_load(self, value):
+        self.max_load = value
+
+    def set_concealment(self, value):
+        self.concealment = value
+
+    def set_next_to_object(self, value):
+        self.next_to_object = value
+
+    def set_melee_damage(self, value):
+        self.melee_damage = value
 
     def add_extra_action(self, action_function):
         self.extra_actions.append(action_function)

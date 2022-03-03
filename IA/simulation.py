@@ -297,7 +297,7 @@ class SimulationManager:
         # decorate all auxiliary function to current state
         decorate_aux_actions(state)
         # execute extra action
-        action[0](action[1], self.sim_map.terrain_matrix)
+        action[0](action[1], self.sim_map)
         self.check_soldier_illegal_values()
 
         soldier = action[1]

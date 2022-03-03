@@ -27,7 +27,7 @@ def aux_action(state):
 
 class AuxActions:
 
-    # DETECTION
+    # AUX ACTIONS
     def detect_enemies(self, soldier, terrain_map,  state=None):
         enemies_pos = soldier.detect_enemies(state.soldier_positions[soldier.id], terrain_map.terrain_matrix, state)
         enemies = []

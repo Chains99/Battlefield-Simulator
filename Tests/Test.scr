@@ -2,6 +2,11 @@ HeuristicManager h1 = HeuristicManager(0.5, 1, 1, 1, 0.5, 0.5, 2, 5, 2);
 HeuristicManager h2 = HeuristicManager(0.5, 1, 1, 1, 0.5, 0.5, 2, 5, 2);
 
 
+def Number euclidean_distance(Number x1, Number y1, Number x2, Number y2):
+{
+	return ((x1-x2)^2 + (y1 - y2)^2)^(0.5);
+};
+
 def Void set_weapon_to_semi(Weapon weapon):
 {
 	weapon.set_fire_rate(1);
@@ -27,7 +32,16 @@ def Void set_weapon_to_auto(Weapon weapon):
 	weapon.set_fire_rate(a);
 };
 
-# function to deploy the soldier on oposite rows equiping them with ech of the weapons on the given list
+# function to heal
+def Void heal(Soldier soldier,Number quantity):
+{
+	if(soldier.current_health > 0):
+	{
+		soldier.set_current_health(soldier.current_health + quantity);
+	};
+};
+
+# function to deploy the soldier on oposite rows equiping them with each of the weapons on the given list
 def Void equip_and_deploy_by_team(List_Soldier soldiers, List_Weapon weapons,Map map):
 {	
 	Number count = 0;
@@ -45,7 +59,6 @@ def Void equip_and_deploy_by_team(List_Soldier soldiers, List_Weapon weapons,Map
 		};
 		count = count+1;
    	};
-	return;
 };
 
 # function that defines an action where a  soldier sethis weapon to semi auto firing mode andshoots every enemy soldier on sight
@@ -64,7 +77,19 @@ def Void semi_fire_on_sight(Soldier soldier, Map map):
 	soldier.equipped_weapon.set_fire_rate(fire_rate);
 };
 
-Map map = Map(4,4);
+def Void heal_allies(Soldier soldier, Map map):
+{	
+	AuxActions aux = AuxActions(); 
+	List_Soldier allies =  aux.detect_allies(soldier,map);
+	Number count= 0;
+	while(count < len(allies)):
+	{
+		heal(allies[0], 40);
+	};
+	
+};
+
+Map map = Map(8,8);
 Weather weather = Weather('Sunny',15,0.5,25,10);
 
 Soldier s1 = Soldier(100, 10, 0.1, 6, 0, 'north', 'standing', 10, 0.2, 1000, 0);
@@ -85,5 +110,16 @@ Weapon AK74 = Weapon("AK74",3.07,50,100,0.5,0.5,30,3,30,30);
 equip_and_deploy_by_team(soldiers,[M4, AK74], map);
 
 s1.set_affinity('M4', 1.2);
+
 s1.add_extra_action(semi_fire_on_sight);
+s1.add_extra_action(heal_allies);
+
+s2.add_extra_action(semi_fire_on_sight);
+
+s3.add_extra_action(heal_allies);
+
+s7.add_extra_action(semi_fire_on_sight);
+
+s8.add_extra_action(semi_fire_on_sight);
+
 run(map,weather,soldiers,2, [h1,h2]);

@@ -12,5 +12,3 @@ Se plantea además realizar un kit de herramientas para el desarrollo de "nivele
 ## Como ejecutarlo:
 - Instale los paquetes y librerias definidos en requirements.txt.
 - Ejecute la aplicación mediante el comando en consola: python main.py
-- Cualquier cambio que se desee hacer al entorno de la simulación remítase a Tests\Sim_Tests\quick_tests.py donde podrá realizar los cambios.
-- Cualquier duda acerca de las entidades contenidas en la simulación, ver Entidades.pdf 

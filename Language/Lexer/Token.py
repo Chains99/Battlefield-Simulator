@@ -41,7 +41,6 @@ class TokenValues:
     Void = "Void"
     List = "List"
 
-
     _True = "true"
     _False = "false"
     _None = "none"

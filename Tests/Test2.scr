@@ -1,2 +1,109 @@
-List_Number a = [1,2];
-a[0] =3;
+# FULL MELEE TEST
+
+HeuristicManager h1 = HeuristicManager(0.5, 1, 1, 1, 0.5, 0.5, 2, 5, 2);
+HeuristicManager h2 = HeuristicManager(0.5, 1, 1, 1, 0.5, 0.5, 2, 5, 2);
+
+
+def Number euclidean_distance(Number x1, Number y1, Number x2, Number y2):
+{
+	return ((x1-x2)^2 + (y1 - y2)^2)^(0.5);
+};
+
+def Void set_weapon_to_semi(Weapon weapon):
+{
+	weapon.set_fire_rate(1);
+};
+
+def Void set_weapon_to_burst(Weapon weapon):
+{
+	weapon.set_fire_rate(3);
+};
+
+def Bool are_allies(Soldier a, Soldier b):
+{
+	return a.get_team() == b.get_team();
+};
+
+def Void set_weapon_to_auto(Weapon weapon):
+{
+	Number a = int(weapon.ammunition_capacity / 2);
+	if(a==0):
+	{
+		a=a+1;	
+	};
+	weapon.set_fire_rate(a);
+};
+
+# function to heal
+def Void heal(Soldier soldier,Number quantity):
+{
+	if(soldier.current_health > 0):
+	{
+		soldier.set_current_health(soldier.current_health + quantity);
+	};
+};
+
+# function to deploy the soldier on oposite rows equiping them with each of the weapons on the given list
+def Void equip_and_deploy_by_team(List_Soldier soldiers, List_Weapon weapons,Map map):
+{	
+	Number count = 0;
+	while(count < len(soldiers)):
+  	{  
+		if(soldiers[count].get_team()==0):
+		{
+			soldiers[count].set_weapons([weapons[count%len(weapons)]],[3]);
+			soldiers[count].set_position(map,0,count % map.cols);
+		}
+		else:
+		{
+			soldiers[count].set_weapons([weapons[count%len(weapons)]],[3]);
+			soldiers[count].set_position(map,map.rows-1,count % map.cols);
+		};
+		count = count+1;
+   	};
+};
+
+# function that defines an action where a  soldier sethis weapon to semi auto firing mode andshoots every enemy soldier on sight
+def Void semi_fire_on_sight(Soldier soldier, Map map):
+{
+	AuxActions aux = AuxActions(); 
+	Number fire_rate = soldier.equipped_weapon.fire_rate;
+	set_weapon_to_semi(soldier.equipped_weapon);
+	List_Soldier soldier_list = aux.detect_enemies_within_eff_range(soldier,map);
+	Number k = 0;
+	while(k < len(soldier_list)):
+	{
+		aux.shoot(soldier, soldier_list[k]);
+		k = k+1;
+	};
+	soldier.equipped_weapon.set_fire_rate(fire_rate);
+};
+
+def Void auto_heal(Soldier soldier, Map map):
+{	
+	heal(soldier, 50);
+};
+
+Map map = Map(8,8);
+Weather weather = Weather('Sunny',15,0.5,25,10);
+
+Soldier s1 = Soldier(100, 10, 0.1, 6, 0, 'north', 'standing', 10, 0.2, 1000, 0);
+Soldier s2 = Soldier(130, 10, 0.1, 6, 0, 'north', 'standing', 10, 0.2, 1000, 0);
+Soldier s3 = Soldier(120, 10, 0.1, 6, 0, 'north', 'standing', 10, 0.2, 1000, 0);
+Soldier s4 = Soldier(110, 10, 0.1, 6, 0, 'north', 'standing', 10, 0.2, 1000, 0);
+
+Soldier s5 = Soldier(100, 10, 0.1, 6, 0, 'north', 'standing', 10, 0.2, 1000, 1);
+Soldier s6 = Soldier(130, 10, 0.1, 6, 0, 'north', 'standing', 10, 0.2, 1000, 1);
+Soldier s7 = Soldier(120, 10, 0.1, 6, 0, 'north', 'standing', 10, 0.2, 1000, 1);
+Soldier s8 = Soldier(110, 10, 0.1, 6, 0, 'north', 'standing', 10, 0.2, 1000, 1);
+
+List soldiers = [s1,s2,s3,s4,s5,s6,s7,s8];
+
+Weapon M4 = Weapon("M4",3.52,50,100,0.5,0.5,40,3,0,0);
+Weapon AK74 = Weapon("AK74",3.07,50,100,0.5,0.5,30,3,0,0);
+
+equip_and_deploy_by_team(soldiers,[M4, AK74], map);
+
+s1.set_affinity('M4', 1.2);
+
+run(map,weather,soldiers,2, [h1,h2]);

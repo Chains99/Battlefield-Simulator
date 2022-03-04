@@ -4,7 +4,6 @@ from collections import deque
 
 import PySimpleGUI as sg
 from Language.Grammar.grammar import Grammar, non_term_heads, bfs_start
-from Language.Lexer.Token import Token, TokenType
 from Language.Parser.lr1_parser import LR1Parser
 from Language.Lexer.Lexer import lexer
 from Language.Parser.ast import Context, FuncDef
@@ -26,15 +25,24 @@ def build_initial_context():
     terrain = Type(context, 'Terrain')
     weather = Type(context, 'Weather')
     Type(context, 'List')
-    Type(context, 'List Soldier')
-    Type(context, 'List Number')
-    Type(context, 'List Bools')
-    Type(context, 'List String')
-    Type(context, 'List Void')
-    Type(context, 'List Weapon')
-    Type(context, 'List Terrain')
-    Type(context, 'List Weather')
-    Type(context, 'HeuristicManager')
+    list_S = Type(context, 'List Soldier')
+    list_S.define_function('append', 'Void', ['soldier'], ['Soldier'])
+    list_N = Type(context, 'List Number')
+    list_N.define_function('append', 'Void', ['Number'], ['Number'])
+    list_B = Type(context, 'List Bool')
+    list_B.define_function('append', 'Void', ['Bool'], ['Bool'])
+    list_Str = Type(context, 'List String')
+    list_Str.define_function('append', 'Void', ['String'], ['String'])
+    list_V = Type(context, 'List Void')
+    list_V.define_function('append', 'Void', ['Void'], ['Void'])
+    list_W = Type(context, 'List Weapon')
+    list_W.define_function('append', 'Void', ['Weapon'], ['Weapon'])
+    list_T = Type(context, 'List Terrain')
+    list_T.define_function('append', 'Void', ['Terrain'], ['Terrain'])
+    list_We = Type(context, 'List Weather')
+    list_We.define_function('append', 'Void', ['Weather'], ['Weather'])
+    list_H = Type(context, 'HeuristicManager')
+    list_H.define_function('append', 'Void', ['HeuristicManager'], ['HeuristicManager'])
     aux_actions = Type(context, 'AuxActions')
     map = Type(context, 'Map')
 
@@ -115,16 +123,23 @@ def build_initial_context():
     # AUX_ACTIONS
     aux_actions.define_function(
         'detect_enemies_within_eff_range', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'])
+
     aux_actions.define_function(
         'detect_enemies_within_max_range', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'])
-    aux_actions.define_function('detect_allies', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'])
+
+    aux_actions.define_function(
+        'detect_allies', 'List Soldier', ['soldier', 'map'], ['Soldier', 'Map'])
 
     aux_actions.define_function(
         'shoot', 'Void', ['soldierA', 'soldierB'], ['Soldier', 'Soldier'])
+
+    aux_actions.define_function(
+        'get_position', 'List Number', ['soldierA', 'soldierB'], ['Soldier', 'Soldier'])
+
     aux_actions.define_function(
         'move', 'Void', ['soldier', 'position'], ['Soldier', 'List Number'])
 
-    # BUILDERS
+    # TYPE INSTANCE BUILDERS
     context.add_func(FuncDef('Soldier', 'Soldier',
                              ['health', 'vision_range', 'precision', 'move_speed', 'crit_chance', 'orientation',
                               'stance', 'max_load', 'concealment', 'melee_damage', 'team'],
@@ -216,6 +231,8 @@ def reset(original_functions, window):
 
 
 def run(map, weather, soldiers: Soldier, ia_max_depth: int, heuristic):
+    if (Manager.runing):
+        raise Exception('Solo se puede ejecutar una simulaci\'on por script')
     btf = build_battlefield(map, weather, soldiers, ia_max_depth, heuristic)
     Manager.runing = True
     Manager.btf = btf
@@ -248,6 +265,7 @@ def execute():
          sg.SaveAs("Save", key="Run_S", file_types=(("SCR", ".scr"),),
                    button_color="blue"),
          sg.Button('Run', key='Run', button_color='green'),
+         sg.Button('Python Code', key='Python', button_color='blue')
          ],
         [sg.Text("Output: ")],
         [sg.Multiline(key="Result", disabled=True, size=(40, 20), font='Courier 10', expand_x=True,
@@ -322,25 +340,41 @@ def execute():
             if Manager.runing and Manager.f_execution and not Manager.end:
                 run_btf(Manager.btf)
 
+        elif event == 'Python':
+            if (not Manager.runing):
+                if values['_Code_'] == '':
+                    sg.popup('', 'Please write some code as input to run')
+                    continue
+                window['Result'].update('')
+                context = build_initial_context()
+                lex = lexer()
+                tokens = lex.get_token_manager("file", values['_Code_']).tokens
+                # Parsing
+                grammar = Grammar(non_term_heads, bfs_start)
+                parser = LR1Parser(grammar)
+                ast = parser.parse(tokens)
+                translated_code = ASTtranspiler().transpile(ast, context)
+                window['Result'].print(translated_code)
+
+
         elif event == 'Run':
             if (not Manager.runing):
-                # try:
-                    # Tokenizing
-                    if values['_Code_'] == '':
-                        sg.popup('', 'Please write some code as input to run')
-                        continue
-                    window['Result'].update('')
-                    context = build_initial_context()
-                    lex = lexer()
-                    tokens = lex.get_token_manager("file", values['_Code_']).tokens
-                    # Parsing
-                    grammar = Grammar(non_term_heads, bfs_start)
-                    parser = LR1Parser(grammar)
-                    ast = parser.parse(tokens)
-                    translated_code = ASTtranspiler().transpile(ast, context)
-                    # window['Result'].print(translated_code)
-                    window['Result'].update('')
-                    exec(translated_code, globals())
-                # except Exception as e:
-                #     window['Result'].print(e, text_color="red")
+            # try:
+                # Tokenizing
+                if values['_Code_'] == '':
+                    sg.popup('', 'Please write some code as input to run')
+                    continue
+                window['Result'].update('')
+                context = build_initial_context()
+                lex = lexer()
+                tokens = lex.get_token_manager("file", values['_Code_']).tokens
+                # Parsing
+                grammar = Grammar(non_term_heads, bfs_start)
+                parser = LR1Parser(grammar)
+                ast = parser.parse(tokens)
+                translated_code = ASTtranspiler().transpile(ast, context)
+                window['Result'].update('')
+                exec(translated_code, globals())
+            # except Exception as e:
+            #     window['Result'].print(e, text_color="red")
     window.close()

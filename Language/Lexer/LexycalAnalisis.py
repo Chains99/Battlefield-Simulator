@@ -145,7 +145,7 @@ class LexicalAnalyzer:
     def match_symbol(self, stream, tokens: List):
         for op in sorted(self.operators.keys(), key=lambda op: len(op), reverse=True):
             if stream.match(op):
-                tokens.append(Token(self.operators.get(op), op, TokenType.Symbol, stream.get_codelocation))
+                tokens.append(Token(self.operators.get(op), op, TokenType.Symbol, stream.get_codelocation()))
                 return True
         return False
 

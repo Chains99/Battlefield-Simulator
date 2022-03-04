@@ -55,7 +55,7 @@ class Soldier:
                                     'lying': min(concealment * 1.1, 0.95)}
         self.next_to_object = False
 
-        self.team = team
+        self.team = team % 2
         self.equipped_weapon = None
         self.weapons = []
         # diccionario nombre del arma: municion de repuesto

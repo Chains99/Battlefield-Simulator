@@ -1,5 +1,6 @@
 import functools
 import types
+from collections import deque
 
 import PySimpleGUI as sg
 from Language.Grammar.grammar import Grammar, non_term_heads, bfs_start
@@ -54,7 +55,7 @@ def build_initial_context():
     soldier.define_function('get_map', 'Map', [], [])
     soldier.define_function('set_weapons', 'Void', ['weapons', 'magazines'], ['List Weapon', 'List Number'])
     soldier.define_function('set_affinity', 'Void', ['weapon_name', 'value'], ['String', 'Number'])
-    soldier.define_function('set_health', 'Void', ['health'], ['Number'])
+    soldier.define_function('set_current_health', 'Void', ['health'], ['Number'])
     soldier.define_function('set_vision_range', 'Void', ['health'], ['Number'])
     soldier.define_function('set_precision', 'Void', ['precision'], ['Number'])
     soldier.define_function('set_move_speed', 'Void', ['move_speed'], ['Number'])
@@ -98,6 +99,8 @@ def build_initial_context():
     weather.add_attribute('humidity', 'Number')
 
     # MAP
+    map.add_attribute('rows', 'Number')
+    map.add_attribute('cols', 'Number')
 
     # TERRAIN
     terrain.add_attribute('floor_type', 'String')
@@ -164,6 +167,7 @@ def build_initial_context():
     return context
 
 
+# copy func function takes a function and returns a copy of it
 def copy_func(func):
     g = types.FunctionType(func.__code__, func.__globals__, name=func.__name__,
                            argdefs=func.__defaults__, closure=func.__closure__)
@@ -200,6 +204,7 @@ def reset(original_functions, window):
     Manager.end = False
     Manager.f_execution = True
     Manager.btf = None
+    Soldier.id = 0
     AuxActions.move = copy_func(original_functions[0])
     AuxActions.detect_allies = copy_func(original_functions[1])
     AuxActions.shoot = copy_func(original_functions[2])
@@ -227,17 +232,15 @@ def execute():
     original_functions[5] = copy_func(AuxActions.detect_enemies_within_max_range)
     original_functions[6] = copy_func(AuxActions.get_position)
 
-    context = build_initial_context
     sg.theme("Dark Grey 11")
-    menu_def = [['&File', ['&Nothing']]]
 
     main_layout = [
         [sg.Text("Code: ")],
-        [sg.Multiline(key="_Code_", disabled=False, size=(80, 20), font='Courier 10', expand_x=True,
+        [sg.Multiline(key="_Code_", disabled=False, size=(40, 20), font='Courier 10', expand_x=True,
                       expand_y=True,
                       autoscroll=True,
                       auto_refresh=True,
-                      text_color="yellow")],
+                      text_color="yellow", enable_events=True)],
         [sg.Push(),
          sg.In(size=(25, 1), enable_events=True, key="-LOADDIR-", visible=False),
          sg.FileBrowse('Load', key='load', button_color='grey', file_types=(("SCR", ".scr"),)),
@@ -247,12 +250,12 @@ def execute():
          sg.Button('Run', key='Run', button_color='green'),
          ],
         [sg.Text("Output: ")],
-        [sg.Multiline(key="Result", disabled=True, size=(80, 20), font='Courier 10', expand_x=True,
+        [sg.Multiline(key="Result", disabled=True, size=(40, 20), font='Courier 10', expand_x=True,
                       expand_y=True,
                       write_only=True, autoscroll=True,
                       auto_refresh=True, reroute_stdout=True, text_color="light green")],
         [sg.Push(),
-         sg.Button('Reset', key='Reset', button_color='grey')]
+         sg.Button('Reset', size=(5, 5), key='Reset', button_color='grey')]
     ]
 
     # App Layout
@@ -261,14 +264,39 @@ def execute():
     ]
 
     # Window creation
+    code = ''
+    ctrl_z_stack = deque()
     filepath = ""
-    window = sg.Window("Project", layout, size=(1366, 768), finalize=True)  # window creation
+    window = sg.Window("Project", layout, size=(1366, 788), finalize=True)  # window creation
 
+    window["_Code_"].bind("<Control-s>", "_Control-s")
+    window["_Code_"].bind("<Control-z>", "_Control-z")
     while True:
         event, values = window.read(timeout=100)
-
         if event == sg.WIN_CLOSED:
             break
+
+
+        elif event == "_Code_" + '_Control-s':
+            if filepath != '':
+                with open(filepath, 'w', encoding='UTF8') as file:
+                    file.write(values["_Code_"])
+            else:
+                window['Run_S'].click()
+
+        elif event == "_Code_" + '_Control-z' and len(ctrl_z_stack):
+            _new = ctrl_z_stack.pop()
+            window['_Code_'].update(_new[0])
+            filepath = _new[1]
+            code = _new[0]
+
+        elif event == "_Code_":
+            if code != values['_Code_']:
+                if (len(ctrl_z_stack) == 100):
+                    ctrl_z_stack.popleft()
+                ctrl_z_stack.append((code, filepath))
+                code = values['_Code_']
+
 
         elif event == '-SAVEDIR-':
             if not values['-SAVEDIR-'] == '':
@@ -280,9 +308,6 @@ def execute():
         elif event == 'Reset':
             reset(original_functions, window)
 
-        # elif runing and sim != None:
-        #     while(not sim[0].run_battlefield(sim[1])):
-        #         pass
 
         elif event == "-LOADDIR-":
             try:
@@ -298,10 +323,6 @@ def execute():
                 run_btf(Manager.btf)
 
         elif event == 'Run':
-            # mandamos a correr el proyecto(test por ahora)
-            # if not runing[0]:
-            #     runing[0] = True
-            #     run(runing, window, btf)
             if (not Manager.runing):
                 # tokenizing
                 context = build_initial_context()
@@ -315,5 +336,6 @@ def execute():
                 ast = parser.parse(tokens)
                 translated_code = ASTtranspiler().transpile(ast, context)
                 # window['Result'].print(translated_code)
+                window['Result'].update('')
                 exec(translated_code, globals())
     window.close()

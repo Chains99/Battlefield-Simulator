@@ -44,7 +44,8 @@ class token_reader:
             self.line += 1
             self.lastLB = self.pos
         self.pos += 1
-        return self.code[self.pos - 1]
+        s = self.code[self.pos - 1]
+        return s
 
     def read_blank(self):
         if str.isspace(self.peek()):
@@ -57,6 +58,8 @@ class token_reader:
         while not self.match(end):
             if not allowLB and (self.eof() or self.eol()):
                 return False
+            elif self.eof():
+                return True
             text[0] += self.read_any()
         return True
 
@@ -123,7 +126,7 @@ class LexicalAnalyzer:
         for start in sorted(self.comments.keys(), key=lambda start: len(start), reverse=True):
             comment = [""]
             if stream.match(start):
-                if not stream.ReadUntil(self.comments.get(start), True, comment):
+                if not stream.read_until(self.comments.get(start), True, comment):
                     errors.append(CompilingError(stream.location, ErrorCode.expected, self.comments.get(start)))
                 return True
         return False

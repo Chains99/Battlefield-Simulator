@@ -58,6 +58,7 @@ class lexer():
         Adders.register_operators(self.analyser, operators)
         self.analyser.register_text('"', '"', True)
         self.analyser.register_text("'", "'", True)
+        self.analyser.register_comment("#", "\n")
         self.output_info = Output_info()
 
     def get_token_manager(self, filename, code):

@@ -178,7 +178,7 @@ def run(map, weather, soldiers: Soldier, ia_max_depth: int):
 
 def execute():
     context = build_initial_context
-    sg.theme("Dark Grey 14")
+    sg.theme("Dark Grey 11")
     menu_def = [['&File', ['&Nothing']]]
 
     main_layout = [
@@ -200,7 +200,7 @@ def execute():
         [sg.Multiline(key="Result", disabled=True, size=(80, 20), font='Courier 10', expand_x=True,
                       expand_y=True,
                       write_only=True, autoscroll=True,
-                      auto_refresh=True, reroute_stdout=True,text_color= "light blue")],
+                      auto_refresh=True, reroute_stdout=True,text_color= "light green")],
         [sg.Push(),
          sg.Button('Reset', key='Reset', button_color='grey')]
     ]

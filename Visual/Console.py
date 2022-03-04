@@ -324,18 +324,23 @@ def execute():
 
         elif event == 'Run':
             if (not Manager.runing):
-                # tokenizing
-                context = build_initial_context()
-                lex = lexer()
-                tokens = lex.get_token_manager("file", values['_Code_']).tokens
-
-
-                # parsing
-                grammar = Grammar(non_term_heads, bfs_start)
-                parser = LR1Parser(grammar)
-                ast = parser.parse(tokens)
-                translated_code = ASTtranspiler().transpile(ast, context)
-                # window['Result'].print(translated_code)
-                window['Result'].update('')
-                exec(translated_code, globals())
+                # try:
+                    # Tokenizing
+                    if values['_Code_'] == '':
+                        sg.popup('', 'Please write some code as input to run')
+                        continue
+                    window['Result'].update('')
+                    context = build_initial_context()
+                    lex = lexer()
+                    tokens = lex.get_token_manager("file", values['_Code_']).tokens
+                    # Parsing
+                    grammar = Grammar(non_term_heads, bfs_start)
+                    parser = LR1Parser(grammar)
+                    ast = parser.parse(tokens)
+                    translated_code = ASTtranspiler().transpile(ast, context)
+                    # window['Result'].print(translated_code)
+                    window['Result'].update('')
+                    exec(translated_code, globals())
+                # except Exception as e:
+                #     window['Result'].print(e, text_color="red")
     window.close()

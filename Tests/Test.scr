@@ -1,8 +1,10 @@
+HeuristicManager h1 = HeuristicManager(0.5, 1, 1, 1, 0.5, 0.5, 2, 5, 2);
+HeuristicManager h2 = HeuristicManager(0.5, 1, 1, 1, 0.5, 0.5, 2, 5, 2);
+
 def Void set_weapon_to_semi(Weapon weapon):
 {
 	weapon.set_fire_rate(1);
 };
-
 
 
 def Void set_weapon_to_burst(Weapon weapon):
@@ -82,4 +84,4 @@ equip_and_deploy_by_team(soldiers,[M4, AK74], map);
 
 s1.set_affinity('M4', 1.2);
 s1.add_extra_action(semi_fire_on_sight);
-run(map,weather,soldiers,2);
+run(map,weather,soldiers,2, [h1,h2]);

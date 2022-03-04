@@ -15,7 +15,8 @@ class ASTtranspiler:
                     'from Sim.Entities.Weapon import Weapon\n\n' \
                     'from Sim.Entities.Weather import Weather\n\n' \
                     'from Visual.Console import run\n\n' \
-                    'from Sim.aux_actions import *\n\n'
+                    'from Sim.aux_actions import *\n\n' \
+                    'from IA.simulation import HeuristicManager\n\n'
         self.tabs_counter = 0
 
     def write_code(self, text: str):
@@ -172,14 +173,14 @@ class ASTtranspiler:
 
         return f'{left} {node.op if node.op != "^" else "**"} {right}'
 
-    @visitor(TernaryExpression)
-    def transpile(self, node: TernaryExpression, context: Context):
-
-        left = self.transpile(node.left, context)
-        condition = self.transpile(node.condition)
-        right = self.transpile(node.right, context)
-
-        return f'{left} if {condition} else {right}'
+    # @visitor(TernaryExpression)
+    # def transpile(self, node: TernaryExpression, context: Context):
+    #
+    #     left = self.transpile(node.left, context)
+    #     condition = self.transpile(node.condition)
+    #     right = self.transpile(node.right, context)
+    #
+    #     return f'{left} if {condition} else {right}'
 
     @visitor(Basic)
     def transpile(self, node: Basic, context: Context):

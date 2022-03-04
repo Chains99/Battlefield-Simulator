@@ -33,6 +33,7 @@ def build_initial_context():
     Type(context, 'List Weapon')
     Type(context, 'List Terrain')
     Type(context, 'List Weather')
+    Type(context, 'HeuristicManager')
     aux_actions = Type(context, 'AuxActions')
     map = Type(context, 'Map')
 
@@ -144,14 +145,21 @@ def build_initial_context():
                               'damage', 'fire_rate', 'ammunition_capacity', 'current_ammo'],
                              ['String', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number',
                               'Number'], None))
+    context.add_func(FuncDef('HeuristicManager', 'HeuristicManager',
+                             ['damage_hvalue', 'allies_hvalue', 'enemies_in_sight_hvalue', 'enemies_in_range_hvalue',
+                              'low_ammo_hvalue',
+                              'concealment_hvalue',
+                              'remaining_hvalue', 'dead_hvalue', 'damage_dealt_hvalue'],
+                             ['Number', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number', 'Number',
+                              'Number'], None))
 
     # AUXILIARY FUNCTIONS
     context.add_func(FuncDef('len', 'Number', ['list'], ['List'], None))
     context.add_func(FuncDef('str', 'String', ['number'], ['Number'], None))
     context.add_func(FuncDef('int', 'Number', ['number'], ['Number'], None))
     context.add_func(FuncDef('print', 'Void', ['text'], ['String'], None))
-    context.add_func(FuncDef('run', 'Void', ['map', 'weather', 'soldiers', 'ia_max_depth'],
-                             ['Map', 'Weather', 'List Soldier', 'Number'], None))
+    context.add_func(FuncDef('run', 'Void', ['map', 'weather', 'soldiers', 'ia_max_depth', 'heuristic'],
+                             ['Map', 'Weather', 'List Soldier', 'Number', 'List HeuristicManager'], None))
 
     return context
 
@@ -186,6 +194,7 @@ def run_btf(btf: BattleField):
         if (Manager.end):
             print("Simulation end")
 
+
 def reset(original_functions, window):
     Manager.runing = False
     Manager.end = False
@@ -200,8 +209,9 @@ def reset(original_functions, window):
     AuxActions.get_position = copy_func(original_functions[6])
     window['Result'].update("")
 
-def run(map, weather, soldiers: Soldier, ia_max_depth: int):
-    btf = build_battlefield(map, weather, soldiers, ia_max_depth)
+
+def run(map, weather, soldiers: Soldier, ia_max_depth: int, heuristic):
+    btf = build_battlefield(map, weather, soldiers, ia_max_depth, heuristic)
     Manager.runing = True
     Manager.btf = btf
     run_btf(btf)
@@ -268,7 +278,7 @@ def execute():
 
 
         elif event == 'Reset':
-            reset(original_functions,window)
+            reset(original_functions, window)
 
         # elif runing and sim != None:
         #     while(not sim[0].run_battlefield(sim[1])):

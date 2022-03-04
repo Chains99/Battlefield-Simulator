@@ -171,16 +171,7 @@ class Context:
             else:
                 return self.parent.is_type_defined(name)
 
-    # check if the context parent name's coincide with the given one
-    def is_context_parent(self, name):
-        if self.parent is None:
-            return self.name == name
 
-        else:
-            if self.parent.name == name:
-                return True
-
-            return self.parent.is_context_parent
 
     # search for the parent context recursively if it isn't the context parent or it's the current context
     def get_context_parent(self, name):

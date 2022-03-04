@@ -359,7 +359,7 @@ def execute():
 
         elif event == 'Run':
             if (not Manager.runing):
-            # try:
+             try:
                 # Tokenizing
                 if values['_Code_'] == '':
                     sg.popup('', 'Please write some code as input to run')
@@ -375,6 +375,6 @@ def execute():
                 translated_code = ASTtranspiler().transpile(ast, context)
                 window['Result'].update('')
                 exec(translated_code, globals())
-            # except Exception as e:
-            #     window['Result'].print(e, text_color="red")
+             except Exception as e:
+                 window['Result'].print(e, text_color="red")
     window.close()

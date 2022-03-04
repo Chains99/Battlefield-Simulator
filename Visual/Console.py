@@ -1,3 +1,6 @@
+import functools
+import types
+
 import PySimpleGUI as sg
 from Language.Grammar.grammar import Grammar, non_term_heads, bfs_start
 from Language.Lexer.Token import Token, TokenType
@@ -5,7 +8,7 @@ from Language.Parser.lr1_parser import LR1Parser
 from Language.Lexer.Lexer import lexer
 from Language.Parser.ast import Context, FuncDef
 from Language.Semantic.Type_checking.Type import Type
-from Language.Semantic.ast_transpiler import ASTtranspiler
+from Language.Semantic.ast_transpiler import ASTtranspiler, AuxActions
 from Sim.Entities.Soldier import Soldier
 from Sim.battlefield import build_battlefield, BattleField
 
@@ -153,6 +156,14 @@ def build_initial_context():
     return context
 
 
+def copy_func(func):
+    g = types.FunctionType(func.__code__, func.__globals__, name=func.__name__,
+                           argdefs=func.__defaults__, closure=func.__closure__)
+    g = functools.update_wrapper(g, func)
+    g.__kwdefaults__ = func.__kwdefaults__
+    return g
+
+
 """  MAIN   """
 
 
@@ -175,6 +186,19 @@ def run_btf(btf: BattleField):
         if (Manager.end):
             print("Simulation end")
 
+def reset(original_functions, window):
+    Manager.runing = False
+    Manager.end = False
+    Manager.f_execution = True
+    Manager.btf = None
+    AuxActions.move = copy_func(original_functions[0])
+    AuxActions.detect_allies = copy_func(original_functions[1])
+    AuxActions.shoot = copy_func(original_functions[2])
+    AuxActions.detect_enemies = copy_func(original_functions[3])
+    AuxActions.detect_enemies_within_eff_range = copy_func(original_functions[4])
+    AuxActions.detect_enemies_within_max_range = copy_func(original_functions[5])
+    AuxActions.get_position = copy_func(original_functions[6])
+    window['Result'].update("")
 
 def run(map, weather, soldiers: Soldier, ia_max_depth: int):
     btf = build_battlefield(map, weather, soldiers, ia_max_depth)
@@ -184,6 +208,15 @@ def run(map, weather, soldiers: Soldier, ia_max_depth: int):
 
 
 def execute():
+    original_functions = [0] * 7
+    original_functions[0] = copy_func(AuxActions.move)
+    original_functions[1] = copy_func(AuxActions.detect_allies)
+    original_functions[2] = copy_func(AuxActions.shoot)
+    original_functions[3] = copy_func(AuxActions.detect_enemies)
+    original_functions[4] = copy_func(AuxActions.detect_enemies_within_eff_range)
+    original_functions[5] = copy_func(AuxActions.detect_enemies_within_max_range)
+    original_functions[6] = copy_func(AuxActions.get_position)
+
     context = build_initial_context
     sg.theme("Dark Grey 11")
     menu_def = [['&File', ['&Nothing']]]
@@ -207,7 +240,7 @@ def execute():
         [sg.Multiline(key="Result", disabled=True, size=(80, 20), font='Courier 10', expand_x=True,
                       expand_y=True,
                       write_only=True, autoscroll=True,
-                      auto_refresh=True, reroute_stdout=True,text_color= "light green")],
+                      auto_refresh=True, reroute_stdout=True, text_color="light green")],
         [sg.Push(),
          sg.Button('Reset', key='Reset', button_color='grey')]
     ]
@@ -219,8 +252,6 @@ def execute():
 
     # Window creation
     filepath = ""
-    runing = [False]
-    btf = [None]
     window = sg.Window("Project", layout, size=(1366, 768), finalize=True)  # window creation
 
     while True:
@@ -237,11 +268,7 @@ def execute():
 
 
         elif event == 'Reset':
-            Manager.runing = False
-            Manager.end = False
-            Manager.f_execution = True
-            Manager.btf = None
-            window['Result'].update("")
+            reset(original_functions,window)
 
         # elif runing and sim != None:
         #     while(not sim[0].run_battlefield(sim[1])):

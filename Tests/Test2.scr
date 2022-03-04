@@ -26,7 +26,7 @@ def Bool are_allies(Soldier a, Soldier b):
 
 def Void set_weapon_to_auto(Weapon weapon):
 {
-	Number a = int(weapon.ammunition_capacity / 2);
+	Number a = int(weapon.ammunition_capacity / 2); 
 	if(a==0):
 	{
 		a=a+1;	
@@ -49,7 +49,7 @@ def Void equip_and_deploy_by_team(List_Soldier soldiers, List_Weapon weapons,Map
 	Number count = 0;
 	while(count < len(soldiers)):
   	{  
-		if(soldiers[count].get_team()==0):
+		if(soldiers[count].get_team()==0): 
 		{
 			soldiers[count].set_weapons([weapons[count%len(weapons)]],[3]);
 			soldiers[count].set_position(map,0,count % map.cols);

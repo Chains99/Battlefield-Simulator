@@ -61,7 +61,7 @@ def Void equip_and_deploy_by_team(List_Soldier soldiers, List_Weapon weapons,Map
    	};
 };
 
-# function that defines an action where a  soldier sethis weapon to semi auto firing mode andshoots every enemy soldier on sight
+# function that defines an action where a  soldier sethis weapon to semi auto firing mode and shoots every enemy soldier on sight
 def Void semi_fire_on_sight(Soldier soldier, Map map):
 {
 	AuxActions aux = AuxActions(); 
@@ -90,7 +90,7 @@ def Void heal_allies(Soldier soldier, Map map):
 	
 };
 
-Map map = Map(8,8);
+Map map = Map(7,7);
 Weather weather = Weather('Sunny',15,0.5,25,10);
 
 Soldier s1 = Soldier(100, 10, 0.1, 6, 0, 'north', 'standing', 10, 0.2, 1000, 0);
@@ -111,6 +111,8 @@ Weapon AK74 = Weapon("AK74",3.07,50,100,0.5,0.5,30,3,30,30);
 equip_and_deploy_by_team(soldiers,[M4, AK74], map);
 
 s1.set_affinity('M4', 1.2);
+
+map.set_object(1,0);
 
 s1.add_extra_action(semi_fire_on_sight);
 s1.add_extra_action(heal_allies);

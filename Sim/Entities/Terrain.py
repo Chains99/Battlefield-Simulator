@@ -12,3 +12,12 @@ class Terrain:
     def add_object(self, terrain_object):
         self.terrain_object = terrain_object
         self.available = False
+
+    def set_m_restriction(self, m_restriction):
+        self.m_restriction = int(m_restriction)
+
+    def set_camouflage(self, camouflage):
+        if 1 < camouflage < 2:
+            self.camouflage = camouflage
+        else:
+            raise Exception('Invalid camouflage value')

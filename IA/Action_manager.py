@@ -110,7 +110,7 @@ class ActionManager:
     def move(self, soldier, position, state):
 
         if state.soldier_str_variables[soldier.id][0] == 'lying':
-            return []
+            return state
 
         result_state = state.copy_state()
         sol_position = state.soldier_positions[soldier.id]

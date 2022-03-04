@@ -88,7 +88,14 @@ class AuxActions:
         return enemies_in_max
 
     def detect_allies(self, soldier, terrain_map, state=None):
-        return soldier.detect_allies(state.soldier_positions[soldier.id], terrain_map.terrain_matrix, state.reverse_soldier_positions)
+        allies_pos = soldier.detect_allies(state.soldier_positions[soldier.id], terrain_map.terrain_matrix, state.reverse_soldier_positions)
+        allies = []
+        for ally_pos in allies_pos:
+            # add ally instance
+            ally = state.reverse_soldier_positions[ally_pos]
+            if ally.id != soldier.id:
+                allies.append(ally)
+        return allies
 
     def get_position(self, soldier, state=None):
         if state is None:

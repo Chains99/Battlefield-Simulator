@@ -53,4 +53,5 @@ def max_value(simulation, fraction_eval, fraction_turn, state, depth):
 def minmax_search(simulation, state):
     fraction_turn = simulation.next_turn()
     value, move = max_value(simulation, fraction_turn, fraction_turn, state, 0)
+
     return move

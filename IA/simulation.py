@@ -161,8 +161,13 @@ class SimulationManager:
         if depth >= self.max_depth:
             return True
 
-        for item in self.fractions:
-            if state.alive_soldiers[item.id] == 0:
+        for faction in self.fractions:
+            count = 0
+            for soldier in faction.soldiers:
+                if state.soldier_died[soldier.team][soldier.id]:
+                    count += 1
+
+            if count == len(faction.soldiers):
                 return True
 
         return False

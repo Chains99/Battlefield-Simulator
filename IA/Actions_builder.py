@@ -104,6 +104,9 @@ class ActionBuilder:
         squares = Sight.squares_within_range(state.soldier_positions[soldier.id], soldier.vision_range, self.am.map.terrain_matrix, 'all')
 
         actions = []
+
+        if state.soldier_str_variables[soldier.id][0] == 'lying':
+            return actions
         for item in objects_in_sight:
             actions.append((self.am.move, [soldier, item, state]))
 

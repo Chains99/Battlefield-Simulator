@@ -1,4 +1,5 @@
 import functools
+import sys
 import types
 from collections import deque
 
@@ -109,6 +110,9 @@ def build_initial_context():
     # MAP
     map.add_attribute('rows', 'Number')
     map.add_attribute('cols', 'Number')
+    map.define_function('set_object', 'Void', ['row', 'col'], ['Number', 'Number'])
+    map.define_function('remove_object', 'Void', ['row', 'col'], ['Number', 'Number'])
+    map.define_function('get', 'Terrain', ['row', 'col'], ['Number', 'Number'])
 
     # TERRAIN
     terrain.add_attribute('floor_type', 'String')
@@ -117,6 +121,9 @@ def build_initial_context():
     terrain.add_attribute('camouflage', 'Number')
     terrain.add_attribute('available', 'Bool')
     terrain.add_attribute('terrain_object', 'Bool')
+
+    terrain.define_function('set_m_restriction', 'Void', ['m_restriction'], ['Number'])
+    terrain.define_function('set_camouflage', 'Void', ['camouflage'], ['Number'])
 
     # HEURISTIC
 
@@ -228,6 +235,9 @@ def reset(original_functions, window):
     AuxActions.detect_enemies_within_max_range = copy_func(original_functions[5])
     AuxActions.get_position = copy_func(original_functions[6])
     window['Result'].update("")
+
+
+sys.setrecursionlimit(100000)
 
 
 def run(map, weather, soldiers: Soldier, ia_max_depth: int, heuristic):
@@ -359,7 +369,7 @@ def execute():
 
         elif event == 'Run':
             if (not Manager.runing):
-             try:
+                # try:
                 # Tokenizing
                 if values['_Code_'] == '':
                     sg.popup('', 'Please write some code as input to run')
@@ -375,6 +385,6 @@ def execute():
                 translated_code = ASTtranspiler().transpile(ast, context)
                 window['Result'].update('')
                 exec(translated_code, globals())
-             except Exception as e:
-                 window['Result'].print(e, text_color="red")
+            # except Exception as e:
+            #     window['Result'].print(e, text_color="red")
     window.close()

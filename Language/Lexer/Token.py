@@ -12,7 +12,7 @@ class TokenType(enum.Enum):
 
 
 class Token:
-    def __init__(self, value, lexeme, type, location=0):
+    def __init__(self, value, lexeme, type, location):
         self.type = type
         self.value = value
         self.lexeme = lexeme

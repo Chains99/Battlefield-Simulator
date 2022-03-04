@@ -16,10 +16,10 @@ class LR1Parser:
         self.action_table = self.table.action_table
         self.go_to_table = self.table.go_to_table
 
-        self.final = Token('$', '$', TokenType.Symbol)
+        self.final = Token('$', '$', TokenType.Symbol, 0)
 
     def parse(self, tokens: List[Token]):
-        tokens.append(Token('$', '$', TokenType.Symbol))
+        tokens.append(Token('$', '$', TokenType.Symbol, 0))
         tokens_stack = []
         states_id_stack = [0]
         ast = []
@@ -30,19 +30,19 @@ class LR1Parser:
             current_state_actions = self.action_table[states_id_stack[-1]]
             if token.value not in current_state_actions:
                 raise Exception(
-                    f'Unexpected token {token.value} with value {token.lexeme} and type {token.type}')
+                    f'Unexpected token {token.value} with value {token.lexeme}, line {token.location.line +1}')
 
             action = current_state_actions[token.value]
             if action[0] == 'OK':
                 return ast[0]
-            
-            #Apply a SHIFT Action
+
+            # Apply a SHIFT Action
             elif action[0] == 'S':
                 states_id_stack.append(action[1])
                 tokens_stack.append(token.lexeme)
                 tokens = tokens[1:] if len(tokens) >= 1 else []
 
-            #Apply a REDUCE Action
+            # Apply a REDUCE Action
             else:
                 prod = grammar_prod[action[1]]
                 if prod.ast_node_builder is not None:

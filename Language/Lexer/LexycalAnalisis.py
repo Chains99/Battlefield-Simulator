@@ -39,8 +39,7 @@ class token_reader:
     def read_any(self):
         if self.eof:
             pass
-
-        if self.eof():
+        if self.eol():
             self.line += 1
             self.lastLB = self.pos
         self.pos += 1
@@ -189,4 +188,5 @@ class LexicalAnalyzer:
 
             unknown_str = stream.read_any()
             errors.Add(CompilingError(stream.get_codelocation(), ErrorCode.unknown, unknown_str))
+        tokens.append(Token("EOF", "EOF", TokenType.EOF,stream.get_codelocation()))
         return tokens

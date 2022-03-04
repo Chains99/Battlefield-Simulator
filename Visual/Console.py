@@ -328,7 +328,7 @@ def execute():
                 context = build_initial_context()
                 lex = lexer()
                 tokens = lex.get_token_manager("file", values['_Code_']).tokens
-                tokens.append(Token("EOF", "EOF", TokenType.EOF))
+
 
                 # parsing
                 grammar = Grammar(non_term_heads, bfs_start)

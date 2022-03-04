@@ -85,6 +85,7 @@ def Void heal_allies(Soldier soldier, Map map):
 	while(count < len(allies)):
 	{
 		heal(allies[0], 40);
+		count= count + 1;
 	};
 	
 };

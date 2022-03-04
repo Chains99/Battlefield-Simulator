@@ -18,3 +18,12 @@ class Token_Manager:
     def next_token(self):
         if self.current_pos < len(self.tokens):
             self.current_pos += 1
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        tokens = ""
+        for token in self.tokens:
+            tokens += token.__str__() + ', '
+        return tokens

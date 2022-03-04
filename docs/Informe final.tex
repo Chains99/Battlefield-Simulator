@@ -1,0 +1,641 @@
+\documentclass[twoside]{article}
+
+
+\usepackage[sc]{mathpazo} % Use the Palatino font
+
+\linespread{1.05} % Line spacing - Palatino needs more space between lines
+\usepackage{microtype} % Slightly tweak font spacing for aesthetics
+\usepackage{colortbl}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{listings}
+\usepackage[spanish]{babel}
+\usepackage[hmarginratio=1:1,top=32mm,columnsep=20pt]{geometry} % Document margins
+\usepackage{multicol} % Used for the two-column layout of the document
+\usepackage[hang, small,labelfont=bf,up,textfont=it,up]{caption} % Custom captions under/above floats in tables or figures
+\usepackage{booktabs} % Horizontal rules in tables
+\usepackage{float} % Required for tables and figures in the multi-column environment - they need to be placed in specific locations with the [H] (e.g. \begin{table}[H])
+	\usepackage{hyperref} % For hyperlinks in the PDF
+	
+	
+	\usepackage{paralist} % Used for the compactitem environment which makes bullet points with less space between them
+	\usepackage{lettrine} % The lettrine is the first enlarged letter at the beginning of the text
+	\usepackage{paralist} % Used for the compactitem environment which makes bullet points with less space between them
+	\usepackage{colortbl}
+	\usepackage{amsmath}
+	\usepackage{amsthm}
+	\usepackage{amsfonts}
+	\usepackage{amssymb}
+	\usepackage{graphicx}
+	\usepackage{subcaption}
+	\graphicspath{{images/}}
+	\usepackage{color}
+	
+	\definecolor{dkgreen}{rgb}{0,0.6,0}
+	\definecolor{gray}{rgb}{0.5,0.5,0.5}
+	\definecolor{mauve}{rgb}{0.58,0,0.82}
+	
+	\lstset{frame=tb,
+		language=Python,
+		aboveskip=3mm,
+		belowskip=3mm,
+		showstringspaces=false,
+		columns=flexible,
+		basicstyle={\small\ttfamily},
+		numbers=none,
+		numberstyle=\tiny\color{gray},
+		keywordstyle=\color{blue},
+		commentstyle=\color{dkgreen},
+		stringstyle=\color{mauve},
+		breaklines=true,
+		breakatwhitespace=true,
+		tabsize=3
+	}
+	\usepackage{tcolorbox}
+	\tcbuselibrary{listingsutf8} % o listings o minted
+	\usepackage{abstract} % Allows abstract customization
+	
+	\renewcommand{\abstractnamefont}{\normalfont\bfseries} % Set the "Abstract" text to bold
+	\renewcommand{\abstracttextfont}{\normalfont\small\itshape} % Set the abstract itself to small italic text
+	
+	
+	\usepackage{titlesec} % Allows customization of titles
+
+	\titleformat{\section}[block]{\Large\scshape\bfseries}{\thesection.}{1em}{} % Change the look of the section titles
+	\titleformat{\subsection}[block]{\large\bfseries}{\thesubsection.}{1em}{} % Change the look of the section titles
+	
+	\usepackage{fancyhdr} % Headers and footers
+	\pagestyle{fancy} % All pages have headers and footers
+	\fancyhead{} % Blank out the default header
+	\fancyfoot{} % Blank out the default footer
+	\fancyhead[C]{ $\bullet$ Marzo 2021 $\bullet$ } % Custom header text
+	\fancyfoot[RO,LE]{\thepage} % Custom footer text
+	
+	%----------------------------------------------------------------------------------------
+	%	TITLE SECTION
+	%----------------------------------------------------------------------------------------
+	
+	\title{
+		{\Huge Battlefield Simulator}
+		\\
+		{\Large IA - Simulación - Compilación}
+	} % Article title
+	
+	\author{
+		\large
+		\textsc{Juan Marrero Vald\'es-Miranda}\\ \textsc{David Campanería Cisneros}\\ \textsc{Ayl\'in Alvarez Santos}\\ \\ % Your name
+		\normalsize Universidad de La Habana \\ % Your institution
+		\normalsize 
+		\vspace{-5mm}
+	}
+	\date{}
+	\hypersetup{
+		colorlinks=true,
+		urlcolor=blue, %
+		pdfborder = {0 0 0}
+	}
+	%----------------------------------------------------------------------------------------
+	
+	\begin{document}
+		
+		\maketitle % Insert title
+		
+		\thispagestyle{fancy} % All pages have headers and footers
+		\vspace{5cm}
+		\begin{figure}
+			\centering
+			\includegraphics[scale=0.3]{logo-matcom}
+		\end{figure}
+		\vspace{5cm}
+		\newpage
+		\tableofcontents
+		\newpage
+		%----------------------------------------------------------------------------------------
+		%	ARTICLE CONTENTS
+		%----------------------------------------------------------------------------------------
+		
+\section{Mapa}
+
+El mapa donde se lleva a cabo la simulaci\'on consiste en una matriz de $n$ filas y $m$ columnas. Cada elemento de esta matriz es un componente de tipo \emph{Terrain} que describe las caracter\'isticas de cada casilla del mapa con los siguientes atributos:\\
+
+\begin{itemize}
+	\item[•] \emph{height}: Valor entero positivo que representa la altura de la casilla.
+	\item[•] \emph{m restriction}: Valor entero que representa el costo de movimiento que supone moverse desde esta casilla a una casilla adyacente.
+	\item[•] \emph{camouflage}: Valor entre $1$ y $2$ que afecta las probabilidades que tiene un soldado que ocupe la casilla de ser detectado y tambi\'en de que un disparo enemigo hacia este soldado falle.
+	\item[•] \emph{terrain object} Referencia al objeto que se encuentra en la casilla, en caso de que no se encuentre ning\'un objeto el par\'ametro ser\'a \emph{None}
+	
+\end{itemize}
+
+El mapa se crea instanciando la clase \emph{Map} con los par\'ametros \emph{rows}: cantidad de filas y \emph{cols}: cantidad de columnas. Con estos par\'ametros se crea una matriz de \emph{Terrain} con propiedades predefinidas para ser modificados luego antes de comenzar la simulaci\'on.
+
+\subsection{Distancia en el mapa}
+
+Para definir las cordenadas de una posici\'on en el mapa se trata este como un espacio cuadriculado. Considerando las filas como el eje $x$ y las columnas como el eje $y$. Se define el \'area de una casilla en la coordenada $(x, y)$ como la intersecci\'on del \'area comprendida entre $x$ y $x+1$ y el \'area comprendida entre $y$ y $y+1$.
+El espacio que ocupa cada casilla de terreno es de $1 m^2$, para calcular la distancia entre dos casillas se utiliza la distancia euclideana entre las coordenadas de ambas casillas.\\
+
+El elemento que define las dificultades que presenta el clima durante las acciones de un soldado es la clase \emph{Weather}. Sus propiedades son estado, velocidad del viento, direcci\'on del viento, afectaci\'on a la visi\'on, temperatura, humedad. Estas propiedades son iguales en todas las regiones del mapa, un cambio en el estado del clima se representa a trav\'es de una modificaci\'on de estas propiedades.
+
+\section{Armas}
+
+Las armas que utilizan los soldados en la simulaci\'on se definen a traves de la clase \emph{Weapon} con las siguientes propiedades: 
+
+\begin{itemize}
+	\item[•] \emph{name}: String con el nombre del arma que funciona como identificador de esta dentro de las armas en el inventario de un soldado. Un soldado no puede tener dos armas con el mismo nombre.
+	\item[•] \emph{weight}: Valor entero que representa el peso que suma el arma a la capacidad de carga de un soldado.
+	\item[•] \emph{w effective precision}: Valor entre $0$ y $1$ que representa el valor \'optimo de precisi\'on del arma.
+	\item[•] \emph{max range precision}: Valor entre $0$ y $1$ que representa la precisi\'on del arma fuera de su rango \'optimo.
+	\item[•] \emph{w effective range}: Valor entero que representa el rango (en metros) en que tiene efecto la precisi\'on efectiva del arma.
+	\item[•] \emph{w max range}: Valor entero que representa el rango (en metros) m\'aximo que alcanza un disparo del arma.
+	\item[•] \emph{damage}: Valor que representa el da\~no a la salud que ocasiona cada disparo individual del arma.
+	\item[•] \emph{fire rate}: Valor entero que indica la cantidad de disparo que puede realizar el arma en una acci\'on.
+	\item[•] \emph{ammunition capacity}: Valor entero que indica la cantidad de munici\'on m\'axima que puede tener equipada el arma.
+	\item[•] \emph{current ammo}: Valor que indica la cantidad de munici\'on actualmente equipada en el arma.
+	
+\end{itemize}
+
+
+\subsection{Acciones del arma}
+
+El arma solo tiene definida una acci\'on fundamental, la acci\'on de disparar a trav\'es del m\'etodo \emph{fire} que determina la probabilidad de acertar en base a los siguientes par\'ametros:
+
+\begin{itemize}
+	\item[•] Precisi\'on del soldado.
+	\item[•] Precisi\'on del arma.
+	\item[•] Par\'ametro de ocultamieno del objetivo.
+\end{itemize}
+
+La precisi\'on del arma est\'a influenciada por la distancia entre el arma y el objetivo, obtiene su valor \'optimo si la distancia es menor o igual que el rango efectivo del arma, en caso de que el valor de la distancia se encuentre entre el l\'imite del rango y el efectivo y el rango m\'aximo se emplea el segundo valor de precisi\'on del arma, orientado a ser menos efectivo.
+
+La precisi\'on del soldado puede ser altera seg\'un la postura del este y la afinidad con el arma.
+
+El ocultamiento del objetivo se ve afectado por un mayor n\'umero de factores. Adem\'as de su valor de base se toma en cuenta la postura del objetivo, el camuflaje de la casilla del mapa en que se encuentra, el par\'ametro de afectaci\'on de la visi\'on del clima y si el objetivo tiene un objeto con el cual cubrirse.
+
+Por u\'ltimo cada soldado tiene tambi\'en una probabilidad de ocacionar un golpe cr\'tico por el doble de da\~no. Esta probabilidad se aplica individualmente a cada disparo en la acci\'on.
+
+\section{Soldados}
+
+La clase \emph{Soldier} representa los soldados, que son agentes de la simulaci\'on. De cada soldado posee las siguientes propiedades: $id$ \'unico, su vida total, su vida actual, su rango de visi\'on, su precisi\'on, velocidad de movimiento, probabilidad de golpe cr\'itico, afinidad con diferentes armas, orientaci\'on, postura, carga m\'axima, ocultamiento, equipo al que pertenece, armas en el inventario y arma equipada.
+
+\begin{itemize}
+	\item[•] \emph{id}: Valor entero que representa un identificador del soldado en la simulaci\'on.
+	\item[•] \emph{health}: Valor entero que indica la vida m\'axima del soldado.
+	\item[•] \emph{current health}: Valor entero que indica la vida actual del soldado.
+	\item[•] \emph{vision range}: Valor entero que representa el rango (en metros) de la visi\'on del soldado.
+	\item[•] \emph{precision}: Valor entre $0$ y $1$ que representa la precision base de un soldado. Esta se ve afectada luego por diferentes factores durante la acci\'on de disparo.
+	\item[•] \emph{move speed}: Valor entero que indica la velocidad de movimiento del soldado. Este valor se ve afectado luego por la restricci\'on de movimiento del terreno.
+	\item[•] \emph{crit chance}: Valor entre $0$ y $1$ que indica la probalidad del soldado de ocacionar un da\~no cr\'itico con un disparo.
+	\item[•] \emph{weapon affinities}: Diccionario que usa el nombre de un arma como llave y contiene un valor entre $1$ y $2$ que representa un bono a la precisi\'on del soldado con ciertas armas de su preferencia.
+	\item[•] \emph{stance}: String de $3$ posibles valores \emph{crouching}, \emph{lying}, \emph{standing} que representan las diferentes posturas que puede tomar un soldado en una casilla. Est\'as afectan la precision y el ocultamiento del soldado.
+	\item[•] \emph{max load}: Valor que indica la capacidad m\'axima de carga del soldado.
+	\item[•] \emph{concealment}: Valor entre $0$ y $1$ que representa el ocultamiento del soldado, que influye que lo detecten y la probabilidad de que diparos enemigos fallen.
+	\item[•] \emph{team}: Valor entero que corresponde al identificador de la facci\'on a la que pertenece el soldado.
+	\item[•] \emph{weapons}: Lista con las armas en el inventario del soldado.
+	\item[•]\emph{equipped weapon}: Referencia al arma que el soldado tiene equipada actualmente.
+	\item[•] \emph{weapon ammo}: Diccionario que toma como llaves el nombre de un arma y contiene un valor que representa la munici\'on de repuesto para cada arma en el inventario del soldado.
+	\item[•] \emph{melee damage}: Valor n\'umerico que representa el da\~no que realiza en soldado en un ataque cuerpo a cuerpo.
+\end{itemize}
+
+El soldado tiene definidos tambi\'en una serie de acciones capaces de realizar como moverse a otra casilla, disparar, recargar, cambiar de arma y cambiar de postura. Tambi\'en es capaz de analizar su entorno como buscar soldados enemigos en su campo de visi\'on, buscar aliados cercanos y detectar objetos cercanos.
+
+La acci\'on de moverse a otra casilla est\'a afectada por la velocidad de movimiento del soldado y las restricciones de movimiento de las casillas del camino que se encuentre hacie el objetivo. El camino se obtiene a trav\'es de un algoritmo $A^*$ que busca el camino \'optimo, definiendo \'optimo como el camino cuya suma de restricciones sea la menor.
+
+Las acciones de detectar objetos o soldados utilizan un algoritmo de detecci\'on de colisiones entre caja y segmento. Si una casilla en la linea de visi\'on entre el soldado y el objetivo a detectar, est\'a ocupada por un objeto, no se detecta el objetivo.
+
+Las acciones de cambio de postura afectan la precisi\'on y ocultamiento del soldado seg\'un la postura que adopte.
+
+\subsection{M\'etodos complementarios de la clase Soldier}
+
+La clase soldado implementa una serie de m\'etodos complementarios que son usados constantemente a lo largo de la simulaci\'on para apoyar y adquirir el conocimiento necesario para realizar algunas de sus acciones.\\
+
+\emph{M\'etodos de detecci\'on}: Los m\'etodos de detecci\'on implementabos se basan en la simulaci\'on del sentido de visi\'on de un soldado. Se considera el \'area de visi\'on de un soldado como un cuadrado compuesto por casillas del mapa con lados de longitud igual al doble del rango de visi\'on del soldado m\'as una unidad, tomando como centro del cuadrado la casilla en la que se encuentra el soldado. 
+
+Para determinar si el soldado es capaz de ver el objeto o soldado en una casilla dentro de su \'area de visi\'on se comprueba que no exista un obst\'aculo que obstruya la visi\'on del soldado en la l\'inea de visi\'on. Para lograr esto se utiliza un algoritmo de detecci\'on de colisiones basado en considerar una casilla como un \emph{Axis Aligned Bounding Box} (\emph{AABB}) y determinar si existe una colisi\'on con la l\'inea de visi\'on del soldado representada por un vector. Se considera que la visi\'on del soldado est\'a obstruida si existe un objeto en alguna de la casillas con las que colisiona su l\'inea de visi\'on hacia el objetivo a detectar.
+
+Cuando se intentar detectar soldados enemigos se toma en cuenta una probabilidad de fallo basada en los p\'arametros de ocultamiento del soldado objetivo y los factores que influyen sobre \'el.
+Los m\'etodos de detecci\'on se aplican para soldados enemigos, soldados aliados y objetos en el mapa.\\
+
+\emph{M\'etodo de toma de da\~no}: M\'etodo que debilita al soldado seg\'un el da\~no que recibe. Si la salud actual de un soldado es inferior a la mitad de su salud m\'axima, la precisi\'on y velocidad de movimiento de este pasan a ser menos efectivas.
+
+\subsection{Acciones del soldado}
+
+Las posibles acciones de los soldados marcan todo el desarrollo de la simulaci\'on, dado que son los \'unicos agentes que act\'uan sobre ella. Todos los resultados obtenibles partiendo un estado de la simulaci\'on dependen del conjunto de acciones que un soldado puede realizar, en ese conjunto est\'an definidas las siguienes acciones:\\
+
+\emph{Acciones de movimiento}: Se define cualquier intento de traslado de un soldado desde una casilla $A$ a una casilla $B$ como una acci\'on de movimiento.
+Existen 2 par\'ametros fundamentales que definen el resultado de una acci\'on de movimiento hacia una casilla objetivo. La velocidad de movimiento del soldado que realiza la acci\'on y la restricci\'on de movimiento de las casillas por las que el soldado pase.
+La velocidad de movimiento consiste en un valor entero que representa de cierta forma la cantidad de movimiento que el soldado puede utilizar durante la acci\'on.
+La restricci\'on de movimiento de una casilla representa el costo de movimiento que gasta un soldado para moverse a una casilla adyacente.
+Antes de comenzar el traslado del soldado el primer objetivo a cumplir es obtener el camino m\'as corto, o mejor dicho es menos costoso desde el punto de partida hasta el objetivo. Definimos este camino \'optimo como la secuencia de casillas con inicio en el punto y partida y final en el objetivo cuya sumatoria de valores de restricci\'on de movimiento sea la menor. 
+Para hallar el camino \'optim se utiliza un algoritmo un algoritmo de $A^\star$ sobre la matriz de terrenos utilizando como heur\'istica las distancia euclidieanas entre las casillas y el objetivo.
+Una vez decido el camino el soldado comienza a avanzar descontado la restricci\'on de movimiento de su capacidad de moverse cada vez que se mueve a una casilla adyacente. Si la casilla en la que se encuentra supera su velocidad de movimiento restante el soldado se detiene y concluye su acci\'on.\\
+
+\emph{Acciones de disparo}: La acciones de disparo se basan en el empleo de m\'etodo \emph{fire} del arma equipada descrito anteriormente. Recibiendo los par\'ametros de distancia, visibilad y ocultamiento del objetivo se llama al m\'etodo \emph{fire} que retorna el da\~no total realizado por el arma.\\
+\emph{Acciones de combate cuerpo a cuerpo}: Este tipo de acci\'on se toma en cuenta cuando existe un enemigo en una casilla adyacente a la casilla que ocupa el soldado.\\
+
+\emph{Acciones de cambio de postura}: Conjunto de acciones orientado a alternar entre las 3 posibles posturas de un soldado, ajustando los par\'ametros de precisi\'on y ocultamiento del soldado seg\'un la postura tomada.\\
+
+\emph{Acciones de cambio de arma}: Conjunto de posibles acciones que cambian el arma equipada de un soldado por una arma diferente que tenga en el inventario.\\
+
+\emph{Acci\'on de recargar}: Acci\'on sencilla que recarga las balas del arma equipada del soldado seg\'un las balas restantes en el inventario del soldado.
+
+\section{Facciones}
+
+Se definen las facciones como los diferentes equipos de soldados. La simulaci\'on se basa en el enfrentamiento de dos facciones. Las funciones de una facci\'on consisten en listar sus soldados en el mapa adem\'as de mantener un registro de los logros de sus soldados durante la simulaci\'on.
+
+
+\chapter{Simulaci\'on}
+
+El objetivo a simular es el enfrentamiento entre dos facciones de soldados en el mapa definido hasta que uno de los bandos se quede sin soldados vivos. El desarrollo de la simulaci\'on se basa en rondas y turnos, definiendo una ronda como el tiempo que demoran todos los soldados de la simulaci\'on en realizar una acci\'on. Un soldado no puede tomar una acci\'on 2 veces en la misma ronda. Luego las 2 facciones que se enfrentan se alternan los turnos, un turno consiste en la realizaci\'on de una acci\'on por parte de un soldado de la facci\'on. Si todos los soldados de la facci\'on que le toque moverse ya se movieron esta ronda pero faltan soldados por moverse, la facci\'on pasa el turno sin realizar ninguna acci\'on.
+
+\section{Estados de la simulaci\'on}
+
+Una herramienta que definir\'a el transcurso de la simulaci\'on son los estados de esta. Definimos un estado de la simulaci\'on a trav\'es de la clase \emph{State}. Una instancia de esta clase consiste en una serie de componentes que describen la situaci\'on en que se encuentra la simulaci\'on con todo detalle. Estos componentes son los siguientes:\\
+
+\begin{itemize}
+	\item[•] \emph{soldier variables}: Diccionario que usa como llave el \emph{id} de un soldado y contiene una tupla de valores que caracterizan al soldado en ese momento concreto de la simulaci\'on. Estos valores son: cantidad enemigos en rango de visi\'on, cantidad aliados en rango, cantidad enemigos en rango efectivo, cantidad enemigos dentro del rango m\'axmimo, cadencia de fuego, munici\'on actual equipada, capacidad de munici\'on del arma equipada, rango efectivo del arma, da\~no del arma, ocultamiento, vida actual y precisi\'on.
+	\item[•] \emph{soldier str variables}: Diccionario que usa como llave el \emph{id} de un soldado y contiene una tupla de \emph{strings} para describir los siguientes valores: postura del soldado, si se encuentra junto a un objeto, nombre del arma equipada.
+	\item[•] \emph{soldier extra variables}: Diccionario que usa como llave el \emph{id} de un soldado y contiene una tupla de 
+	valores n\'umericos que representan el rango de visi\'on, la velocidad de movimiento, la probabilidad de cr\'itico, la carga m\'axima y el da\~no cuerpo a cuerpo.
+	\item[•] \emph{soldier positions}: Diccionario que usa como llave el \emph{id} de un soldado y contiene la coordena de la casilla del mapa en la que se encuentra.
+	\item[•] \emph{soldier reverse positions}: Diccionario que usa como llave una coordenada y contiene el soldado que se encuenre en ella, en caso de existir un soldado en esa casilla en ese estado de la simulaci\'on.
+	\item[•] \emph{soldiers in map}: Diccionario que usa como llave el \emph{id} de un soldado y contiene una referencia a la instancia del soldado.
+	\item[•] \emph{alive soldiers}: Diccionario que usa como llave el \emph{id} de una facci\'on y contiene la cantidad de soldados vivos actualmente que pertenecen a esta.
+	\item[•] \emph{team variables moved}: Diccionario que usa como llave el \emph{id} de una facci\'on y contiene la cantidad de soldados de esa facci\'on que ya se han movido esta ronda.
+	\item[•] \emph{soldier ammo per weapon}: Diccionario que usa como llave el \emph{id} de un soldado y contiene un segundo diccionario que usa como llave el nombre del arma y contiene la cantidad de munici\'on restantes en el inventario del soldado.
+	\item[•] \emph{soldier weapons current ammo}:  Diccionario que usa como llave el \emph{id} de un soldado y contiene un segundo diccionario que usa como llave el nombre del arma y contiene la cantidad de munici\'on actualmente equipada en las armas inventario del soldado.
+	\item[•] \emph{soldier weapons}: Diccionario que usa como llave el \emph{id} de un soldado y contiene un segundo diccionario que usa como llave el nombre del arma y contiene una referencia a la instancia del arma.
+	\item[•] \emph{soldier moved}: Diccionario que usa como llave el \emph{id} de un soldado y contiene un \emph{bool} que indica si ya se movi\'o esta ronda.
+	\item[•] \emph{soldier died}: Diccionario que usa como llave el \emph{id} de un soldado y contiene un \emph{bool} que indica si el soldado est\'a muerto en este estado de la simulaci\'on.
+	
+\end{itemize}
+
+La para manejar la simulaci\'on se define clase \emph{SimulationManager} con el objetivo de controlar los turnos y rondas de la simulaci\'on.
+
+\emph{SimulationManager} se encarga de crear el estado inicial de la simulaci\'on basado en las caracter\'isticas iniciales de los soldados, el mapa y las posiciones de los soldados en el mapa. Maneja los resultados de las acciones y la evaluaci\'on de los estados, tema que se tratar\'a m\'as adelante.
+
+
+\section{Manejo de acciones}
+
+Para simular las acciones descritas anteriormentes se define la clase \emph{ActionManager} con el objetivo de manejar los par\'ametros necesarios para la ejecuci\'on de una acci\'on y generar el nuevo estado de la simulaci\'on que resultante. Debido a la naturaleza de la simulaci\'on existen diferentes posibles estados resultantes de realizar una acci\'on concreta partiendo de un estado de la simulaci\'on.
+
+Como una herramienta para poder indentificar las mejores acciones a tomar durante un estado de la simulaci\'on, el \emph{ActionManager} define una manera de llevar a cabo una acci\'on concreta sin realizar cambios "f\'isicos" en la simulaci\'on, este m\'etodo se basa en revertir estos cambios al estado incial y quedarse solamente con el estado de la simulaci\'on resultante. Un estado de la simulaci\'on tiene toda la informaci\'on necesaria para realizar cualquier acci\'on definida. 
+
+
+\section{Comportamiento de los soldados}
+
+Durante un turno de la simulaci\'on se requieren conocer todas las posibles acciones que los soldados de la facci\'on pueden realizar, con ese objetivo se define la clase \emph{ActionBuilder} que se encarga de recoger todas estas posibles acciones y los par\'ametros necesearios para llevarse a cabo cada una. Las posibles acciones de un soldado se dividen en acciones de disparo a los enemigo en rango de su arma equipada, ya sea efectivo o no, acciones de cambio de arma, cambio de postura, recargas de arma y acciones de movimiento. En esta \'ultimas se consideran como opciones principales movimiento que te acerquen a un soldado en su campo de visi\'on, moverte hacia un objeto cercano para buscar m\'as probabilidades de supervivencia y un movimiento que siempre consideran es simplemente dirigirse hacia el centro del mapa.
+
+El comportamiento de un soldado, est\'a afectado principalmente por los intereses de la facci\'on a la que pertenece. Un soldado solo puede definir acciones a tomar basado en su conocimiento individual de su entorno, pero la decisi\'on sobre que acci\'on realizar\'a el soldado la toma la facci\'on en su turno correspondiente.
+
+\subsection{¿C\'omo se encuentra la mejor acci\'on a tomar?}
+
+La acci\'on que m\'as beneficie a la facci\'on que corresponde su turno se busca apony\'andose en un algoritmo de b\'usqueda adversarial \emph{MinMax}.
+
+Basándose en el sistema de turnos de la simulaci\'on el algoritmo el algoritmo utiliza simulaciones de la posibles acciones a tomar, alternando los turnos de las facciones hasta explorar todas las combinaciones de acciones llegando a una profundidad definida previamente. Utilizando un m\'etodo para evaluar los estados que resulten de simular estas series de acciones se obtiene la acci\'on que m\'as beneficia a la facci\'on que corresponde actuar y que al mismo tiempo permita beneficiarse lo menor posible a la facci\'on enemiga.
+
+Debido a la naturaleza de la simulaci\'on, el resultado obtenido puede no ser definitivo, la simulaci\'on de una acci\'on tiene diferentes posibles estados como resultado pero el algoritmo solo eval\'ua el resultado obtenido de una simulaci\'on
+concreta. Esto abre paso a que se el caso de que aunque una acci\'on $A$ tenga en sus posibles resultados una media de evaluaci\'on m\'as beneficiosa para la facci\'on que una acci\'on $B$ si el resultado de la acci\'on $B$ fue mejor que el de la acci\'on $A$ en el momento de evaluaci\'on, se tomar\'a la acci\'on $B$. Aunque luego durante la ejecuci\'on "real" de la acci\'on no se obtenga este resultado.
+
+
+\subsection{Acciones definidas por un usuario}
+
+A los usuarios se les brinda la posibilidad de definir una acci\'on para que un soldado realize. Est\'as acciones se vinculan a los soldados que el usuario desee. Para incorporar est\'as acciones al sistema se definieron unos m\'etodos gen\'ericos de generaci\'on de estados de la simulaci\'on. No existe diferencia en la funci\'on que realizan este tipo de acciones a lo largo de la simulaci\'on. Estas son consideradas tambi\'en por el algoritmo de \emph{MinMax} con la ayuda de los m\'etodos genéricos de creaci\'on de nuevos estados a trav\'es de los cambios que estas acciones ocasionan sobre las entidades de la simulaci\'on, dichos cambios tambi\'en se revierten durante el \emph{MinMax} al igual que las acciones predefinidas. Despu\'es de la ejecuci\'on de una de estas acciones se comprueba que no existan valores ilegales en las propiedades de las entidades de la simulaci\'on, como por ejemplo un solado con precisi\'on de valor $50$. En caso de ser detectado un valor ilegal se detiene la simulaci\'on. Las instrucciones sobre como definir una acci\'on se brindar\'an en el \emph{Manual de Usuario}.
+
+\section{¿C\'omo evaluar un estado?}
+
+Para ser capaces de evaluar que tan beneficioso es una estado para una facci\'on se define una heur\'istica manejada por la clase \emph{HeuristicManager} que consiste en una serie de valores asignados a diferentes aspectos de la simulaci\'on. Estos valores son los siguientes:
+
+\begin{itemize}
+	\item[•] \emph{damage hvalue}: Valor asignado al da\~no que es capaz de ocasionar un soldado. Toma como referencia las caracter\'isticas del arma equipada y la precisi\'on y afinidad del soldado con el arma. Un mayor valor de este par\'ametro probablemente cree una tendencia a mantener a los soldados de la facci\'on con las mejores condiciones antes de un combate. Tomando medida como el cambio a la que considere mejor arma, recargar con frecuencia, etc.
+	\item[•] \emph{allies hvalue}: Valor asignado a la cantidad de aliados cerca del soldado. Un mayor valor de este par\'ametro
+	puede crear una tendencia a los soldados de la facci\'on a andar en grupos.
+	\item[•] \emph{enemies in range hvalue}: Valor asignado a la cantidad de enemigos en el rango efectivo del arma equipada del soldado.
+	\item[•] \emph{enemies in sight hvalue}: Valor asignado a la cantidad de enemigos en el rango de visi\'on del soldado. Este valor se eval\'ua de forma negativa. Puede ser compensado por los enemigos dentro del rango del arma.
+	\item[•] \emph{low ammo hvalue}: Valor asignado a la cantidad de munici\'on restante en el arma equipada. Este valor inlfuye la tendencia a mantener el arma cargada.
+	\item[•] \emph{concealment hvalue}: Valor asignado al ocultamiento del soldado. Un mayor valor de este par\'ametro puede crear una tendencia a los soldados a priorizar la supervivencia. Puede lograrlo con diferentes tipos de acciones como cambiar de postura, moverse a zonas con mayor camuflaje, etc.
+	\item[•] \emph{remaining health hvalue}: Valor asignado a la cantidad de salud restante del soldado.
+	\item[•] \emph{dead soldier hvalue}: Valor asignado a la cantidad de soldados enemigos muertos. Aunque matar soldados enemigos sea el objetivo fundamental de una facci\'on un valor bajo en este par\'ametro puede crear tendencias a priorizar acciones relacionadas con otros aspectos.
+	\item[•] \emph{damage dealt hvalue}: Valor asignado a la cantidad de da\~no realizado a los soldados de la facci\'on enemiga. Al igual que el par\'ametro anterior este valor influye la agresividad de una facci\'on.
+	
+\end{itemize}
+
+Estas heur\'isticas est\'an vinculadas a una facci\'on. Durante el algoritmo de \emph{MinMax} se eval\'uan los estados en base a los criterios de la heur\'istica de la facci\'on a la que le corresponde el turno. Se eval\'uan sus movimientos seg\'un los estados resultados m\'as beneficiosos. A la hora de evaluar estados resultados de una acci\'on enemiga se utiliza el mismo m\'etodo lo cual permite que cada facci\'on tenga su propia interpretaci\'on de que acciones enemigas resultan m\'as problemáticas.
+
+Esto permite influenciar los comportamientos de las 2 facciones de forma independiente. Permitiendo que surjan nuevas estrategias basadas en el enfrentamiento de los intereses de ambas facciones.
+		
+		Esto permite influenciar los comportamientos de las 2 facciones de forma independiente. Permitiendo que surjan nuevas estrategias basadas en el enfrentamiento de los intereses de ambas facciones.
+		
+		\section{Compilaci\'on}
+		Para el manejo del sistema se implement\'o un lenguaje de dominio espec\'ifico (DSL, por sus siglas en ingl\'es Domain Specific Language) con el nombre de BSL. 
+		
+		\subsection{Tokenizacion}
+		Para poder realizar la transpilaci\'on del lenguaje de dominio espec\'ifico a python, se necesita primeramente determinar a partir de un texto v\'alido las palabras, n\'umeros y símbolos en orden de aparici\'on para luego ser analizados en el proceso de parsing. Para ello se cre\'o un m\'odulo dedicado al proceso de tokenizaci\'on de una cadena de texto, con lo cual se obtendr\'a el conjunto de 'tokens' determinados por las caracter\'isticas de la gram\'atica establecida.
+		Dicho m\'odulo se divide en 4 subm\'odulos:
+		\begin{itemize}
+			\item \textbf{Token:}\\
+			Dentro del subm\'odulo Token se encuentra la definici\'on del objeto Token el cual cuenta con los atributos:
+			
+			\begin{itemize}
+				\item[•] type: representa el tipo de token construido. Se definen 7 tipos de tokens: \texttt{Unknown, Number, Text, Keyword, Identifier, Symbol} y \texttt{EOF} (por sus siglas en \'ingles \texttt{End Of File})
+				\item[•] value: representa el valor del Token creado, es decir, la expresi\'on literal \texttt{tokenizada}
+				\item[•] lexeme: representa la unidad m\'inima con significado l\'exico sin morfemas gramaticales, que puede ser identificado dentro del DSL.
+			\end{itemize}
+			Podremos encontrar adem\'as el conjunto de \texttt{TokenValues} que determinan el lexema de un token a partir de que se identifique su valor y tipo.
+			
+			\item \textbf{Lexical Analyser:}\\
+			El subm\'odulo \texttt{Lexical Analyser} contiene las clases y m\'etodos que nos permitir\'an e an\'alisis y tokenizaci\'on de una cadena de textos. Para ello se definen dos clases:
+			\begin{itemize}
+				\item[•] \textbf{Token Reader}:
+				Esta clase contiene m\'etodos ,atributos que nos auxilian en el manejo del texto suministrado; es la clase que contiene el texto a tokenizar. Dentro de esta podemos encontrar:
+				\begin{itemize}
+					
+					\item[->] \textbf{m\'etodo peek}: que nos permitir\'a obtener el caract\'er en la posici\'on actual(el texto se ir\'a leyendo caract\'er a caract\'er) siempre y cuando la posici\'on sea v\'alida
+					
+					\lstinputlisting[caption = {M\'etodo peek} ,firstline=19, lastline=23]{LexycalAnalisis.py}
+					
+					\item[->] \textbf{m\'etodo Read Any}: nos permitir\'a obtener el caract\'er en la posici\'on actual del 'stream' y avanzar una posici\'on(siempre y cuando sea v\'alido).
+					
+					\lstinputlisting[caption = {M\'etodo read\_any} ,firstline=55, lastline=63]{LexycalAnalisis.py}
+					
+					\item[->] \textbf{Read Number}: nos permitir\'a definir si a partir del caract\'er en la posici\'on actual se puede conformar una cadena de caracteres que constituyan un valor num\'erico, para ello se va leyendo del stream en tanto los caracteres sean num\'ericos. En caso de que encontremos un '\. ' procederemos a determinar la parte decimal del mismo, siguiendo el mismo procedimiento. En caso de hallarse un elemento no num\'erico se determinar\'a que la cadena de caracteres le\'ida no es de tipo num\'erica.\\
+					
+					\lstinputlisting[caption = {M\'etodo read\_number} ,firstline=80, lastline=94]{LexycalAnalisis.py}
+					
+					\item[->] \textbf{Read Id}: nos permitir\'a leer una cadena de caracteres que comienza por un caract\'er que pertenece al alfabeto, seguido por un conjunto de caracteres alfanum\'ericos.
+					
+					\lstinputlisting[caption = {M\'etodo read\_id} ,firstline=97, lastline=101]{LexycalAnalisis.py}
+				\end{itemize}
+				
+				\item \textbf{LexicalAnalyser}:\\
+				Define la clase encargada de determinar los tokens a partir de un conjunto de diccionario de operadores definidos, palabras claves y agrupadores de texto.Dicha clase define los m\'etodos que determinan si a partir del caract\'er en la posici\'on actual del 'TokenReader' se puede formar un token que pertenezca a alguna de las categor\'ias definidas(texto, n\'umero, s\'imbolo) para ello cuenta con m\'etodos para el an\'alisis y categorizaci\'on:\\
+				
+				\begin{itemize}
+					\item[->] \textbf{match\_text}: comprueba si a partir del caract\'er actual se puede formar una cadena de texto agrupado entre los agrupadores de texto definido, en cuyo caso se define el token correspondiente.
+					\lstinputlisting[caption = {M\'etodo match\_text} ,firstline=140,
+					lastline=150]{LexycalAnalisis.py}
+					
+					\item[->] \textbf{match\_text}: comprueba si a partir del caract\'er actual se puede formar un s\'imbolo definido en el diccionario de s\'imbolos definidos en el lenguaje.\newpage
+					\lstinputlisting[caption = {M\'etodo match\_symbol} ,firstline=152,
+					lastline=157]{LexycalAnalisis.py}
+					
+					\item[->] \textbf{get\_tokens}: En este m\'etodo construimos el conjunto de tokens a partir del texto. Primero comprobamos si el caract\'er actual es un espacio en blanco, en cuyo caso lo ignoramos.Luego comprobamos si se obtiene un comentario a partir del caract\'er actual.En caso contrario comprobamos si se obtiene una cadena de texto a partir del caract\'er actual. Comprobamos para el caso en que constituya un valor num\'erico  o un s\'imbolo, en dicho orden y por \'ultimo comprobamos si es un identificador, es decir una cadena de caracteres alfanum\'ericos, teniendo en cuenta si constituyen una palabra clave definida en el respectivo diccionario, en cuyo caso se obtiene un token bajo esa categoría. Si a partir del caract\'er actual no se pudo categorizar una cadena de caracteres valida, entonces el sistema lo determina como token desconocido, para lo cual se generar\'a un error. Cada token se guarda en una lista que ser\'a lo que se obtenga a partir de este m\'etodo.
+					\lstinputlisting[caption = {M\'etodo match\_symbol} ,firstline=159,
+					lastline=198]{LexycalAnalisis.py}
+				\end{itemize}
+				
+				
+			\end{itemize}
+			\item \textbf{TokenManager}: En este se define la clase del mismo nombre. Esta es la clase que contiene la lista de tokens obtenidos en el an\'alisis l\'exico, y contiene los m\'etodos auxiliares para manejar el consumo de tokens en el proceso de parsing.\\
+			
+			\item \textbf{Lexer}: En este se define la clase del mismo nombre. Esta clase es la encargada de definir la instancia del LexicalAnalyzer y registrar las palabras claves, s\'imbolos y agrupadores de texto definidos en el lenguaje. Contiene el m\'etodo con el que a partir del nombre del archivo y el texto que contiene se construye una instancia de TokenManager con los tokens obtenidos por el analizador.\\
+			
+			\lstinputlisting[caption = {M\'etodo match\_symbol} ,firstline=63,
+			lastline=68]{Lexer.py}
+			
+		\end{itemize}
+		\subsection{Parser}
+		El parser implementado es el LR(1) can\'onico, el cual es un analizador sintáctico LR (k) para $k=1$, es decir, con un único terminal de búsqueda anticipada. El atributo especial de este analizador es que cualquier gramática LR (k) con $k>1$ se puede transformar en una gramática LR (1).
+		Para la implementaci\'on de este se definieron varias clases, entre ellas la clase  \texttt{LR1Item} que representa la definici\'on de Item LR(1) e Item SLR, para este \'ultimo se permite la no entrada del par\'ametro \texttt{lookahead}.
+		
+		La clase \texttt{LR1Item} tiene como atributos una producci\'on, la posici\'on del punto y el terminal lookahead. La posici\'on del punto indica los s\'imbolos que han sido recorridos y los que no, los que han sido recorridos son los s\'imbolos cuyas posiciones son menores que la posici\'on del punto y los que no son los s\'imbolos cuyas posiciones son mayor o igual que la del punto.
+		
+		A continuaci\'on se muestra la implementaci\'on de esta clase:\\
+		
+\begin{lstlisting}[language=Python]
+class LR1Item:
+	def __init__(self, production: Production, dot_index: int, lookahead: Terminal = None):
+	self._repr = ''
+	self.production = production
+	self.dot_index = dot_index
+	self.lookahead = lookahead
+	self._repr = f"{self.production.head} -> "
+	self._repr += " ".join(str(self.production.symbols[i]) for i in range(self.dot_index))
+	self._repr += " . "
+	self._repr += " ".join(str(self.production.symbols[i]) for i in range(self.dot_index,len(self.production.symbols)))
+	self._repr += f", {self.lookahead}"
+	
+	def __repr__(self) -> str:
+		return self._repr
+	
+	def get_symbol_at_dot(self) -> Symbol:
+		if self.dot_index < len(self.production.symbols):
+		return self.production.symbols[self.dot_index]
+		return None
+	
+	def __eq__(self, o):
+		if isinstance(o, LR1Item):
+		return self._repr == o._repr
+		return False
+	
+	def __hash__(self):
+		return hash(self.__repr__())			
+\end{lstlisting}
+		
+		Otra de las clases implementadas es la clase \texttt{State} que representa un estado  del aut\'omata LR(1). El constructor de esta clase recibe como par\'ametro una lista de items LR1, a partir de los cuales el m\'etodo \texttt{build} de la propia clase construir\'a el estado inicial. Otro de los m\'etodos implementados en esta es el \texttt{set\_go\_to}, el cual tiene como funci\'on calcular todas las transiciones a partir de un conjunto de items y un s\'imbolo.
+		
+		Para la representaci\'on del aut\'omata se implement\'o una clase con el mismo nombre. El constructor de esta clase recibe como par\'ametro una gram\'atica. Esta clase al instanciarse crea una lista de estados como atributo de la clase, para llegar a construir esta lista primero se extendiende la gram\'atica mediante el m\'etodo \texttt{extended\_grammar} de la propia clase el cual a\~nade una nueva producci\'on con el s\'imbolo inicial como cabeza \texttt{``S''} el cual pasar\'a a ser el nuevo comienzo de la gram\'atica. Luego se obtiene una lista de no terminales de la gram\'atica y por cada una de las producciones de este se generan los items iniciales, luego a partir de este, el estado inicial, y del estado inicial los pr\'oximos estados para cual se simula una cola utilizando los slices de Python partiendo del estado inicial.
+		
+		
+		Para el manejo de las clases anteriores y creaci\'on de las tablas \texttt{action\_table} y \texttt{go\_to\_table} se implement\'o la clase \texttt{LR1Table}. El constructor de esta clase recibe como par\'ametro una gram\'atica a partir de la cual ser\'an construidas las tablas mencionadas. El m\'etodo \texttt{build\_table} perteneciente a esta clase es el encargado de la construcción de las tablas, estas est\'an representadas por una lista de diccionarios, donde cada posici\'on $i$ de la lista corresponde a un estado de la clase \texttt{Aut\'omata}. Por cada uno de estados son creados dos diccionarios locales, uno de estos almacenar\'a las acciones a realizar y n\'umero de estado pr\'oximo, dado un s\'imbolo, la acci\'on \texttt{SHIFT} se indicar\'a por el caracter inicial de esta acci\'on si el s\'imbolo revisado es un terminal, en caso contrario (No terminal), este es a\~nadido como llave del otro diccionario \texttt{go\_to}, y el valor correspondiente ser\'a el n\'umero del estado de la proxima transici\'on.
+		
+		Luego se procede a analizar los lookaheads, y para esto se define un diccionario de Terminal como llave y lista de items LR1 como valor, luego se chequea si el lookahead est\'a contenido en el diccionario mencionado, en caso de no encontrarse, este es a\~nadido como llave al diccionario de acciones y es asignado la acci\'on \texttt{REDUCE} representada por su caracter inicial \texttt{``R''}  y la producci\'on a la q se deber\'a reducir.
+		
+		En caso de ser detectado el Terminal \texttt{\$} y que la cabeza de la producci\'on sea \texttt{S} (No terminal inicial) entonces se almacena, el terminal como llave y string \texttt{OK} como valor.
+				
+		Para fines de optimizaci\'on el resultado del m\'etodo \texttt{build\_table} se registra en un fichero .json, una vez estos almacenados en el directorio del proyecto, son detectados en un nuevo programa y se evita la reconstrucción de dichas tablas carg\'andolos desde el directorio.
+		
+		\subsection{Chequeo sem\'antico y generaci\'on de c\'odigo de python:}
+		Dentro del lenguaje, todos los tipos son predefinidos y construidos antes de comenzar  el proceso de parsing. Para ello se deifni\'o una clase espec\'ifica \texttt{Type} que cuenta con los m\'etodos y atributos que lo definen, entendi\'endose que las clases predefinidas tambi\'en se categorizan como tipos, y sus m\'etodos y atributos definidos en la instancia de \texttt{Type}.  Luego es necesario definir el entorno o contexto de ejecuci\'on en donde se definen las variables, los tipos y las funciones, adem\'as de contener los m\'etodos auxiliares que nos permitan determinar las caracter\'isticas de  dichos elementos. Para ello se defini\'o la clase context que es la encargada de definir dicho entorno de ejecuci\'on, entendi\'edose que la creaci\'on de nuevos contextos de ejecuci\'on se hacen a partir de un contexto \texttt{global} o \texttt{root} el cual no se deriva de ning\'un otro contexto y es quien realmente contiene los tipos definidos dentro del lenguaje. A partir de estas dos clases y el AST, se procede a realizar la traducci\'on del c\'odigo del DSL a lenguaje python y finalizar as\'i el proceso de transpilaci\'on. Para ello recorremos el AST siguiendo el patr\'on \texttt{visitor} comenzando por su ra\'iz que es el nodo que contiene el conjunto de \texttt{statements} definidos en el c\'odigo al que se le aplic\'o el proceso de tokenizaci\'on y \texttt{parsing}, visitando cada uno de ellos y generando el c\'odigo a partir del generado por el nodo y los nodos expresiones que lo conforman, realiz\'andose el chequeo sem\'antico en la medida en que son visitados, resolvi\'endose sus tipos a partir del contexto de ejecuci\'on y si cumplen con las reglas propias de la expresi\'on o del \texttt{statement}, para lo cual cada nodo posee una funci\'on 'check\_semantic' encargada de dicha verificaci\'on. En cada \texttt{visita} se agrega la traducci\'on a una variable \texttt{string} tom\'andose en cuenta la r\'igida indentaci\'on espec\'ifica del lenguaje Python.
+		
+		\lstinputlisting[caption = {Ejemplo de nodo de ast con su funci\'on de chequeo sem\'antico definida} ,firstline=144,
+		lastline=160]{ast.py}
+		
+		\lstinputlisting[caption = {M\'etodo de traducci\'on de un nodo binario, en donde puede verse que no se ordena el chequeo sem\'antico de este,dado que es una expresi\'on} ,firstline=168,
+		lastline=171]{ast_transpiler.py}
+		
+		\section{Reglas del lenguaje:}
+		\begin{itemize}
+			\item El programa constituye un conjunto de instrucciones.
+			
+			\item Las instrucciones permitidas son definir funciones, la instrucci\'on \texttt{return}, instrucciones \texttt{if-else}, ciclos \texttt{while}, instrucciones \texttt{break} y \texttt{continue}, as\'i como la declaraci\'on de variables y su asignaci\'on.
+			
+			\item Toda instrucci\'on debe terminar su declaraci\'on en \texttt{';'}, exceptuando una instrucci\'on \texttt{if} a la que le siga una instrucci\'on \texttt{else}.
+			
+			\item Definimos una funci\'on con la palabra clave \texttt{'def'} seguido del tipo de retorno, nombre de la funci\'on, argumentos y el tipo correspondiente entre parent\'esis, luego dos puntos y luego el conjunto de instrucciones de la funci\'on entre llaves.
+			
+			\item La instrucci\'on \texttt{if} se compone por la palabra clave \texttt{'if'} seguida de una expresi\'on condicional, dos putos y luego el cuerpo de instrucciones  entre llaves.
+			
+			\item La instruccion \texttt{else} debe estar precedida por una instrucci\'on \texttt{if}, comenzando por la palabra clave \texttt{else}, seguida de dos puntos, y el cuerpo de instrucciones entre llaves.
+			
+			\item La instrucci\'on \texttt{while} se define de igual manera que la instrucci\'on \texttt{if}.
+			
+			\item Para declarar una variable primeramente decimos su tipo, seguido de un identificador, seguido del operador de asignaci\'on \texttt{'='}, y luego la expresi\'on a la que se quiere asignar, teniendo en cuenta que debe ser del mismo tipo que el declarado.  En cuanto a la asignaci\'on, se escribe de igual forma obviando el tipo y teniendo en cuenta debe existir una variable con el mismo identificador asociado para ser asignada. La cantidad de asignaciones permitidas a una misma variable son ilimitadas, siempre y cuando se cumplan las reglas sem\'anticas de la asignaci\'on.
+			
+			\item Los tipos definidos cuentan con m\'etodos y atributos propios que pueden ser accedidos agregando un punto y luego el nombre de la instrucción o el llamado al m\'etodo correspondiente. Para modificar alg\'un atributo se debe comprobar si el tipo posee alg\'un método con dicho prop\'osito, en caso contrario, ser\'a de solo lectura.
+			
+			\item Las listas pueden ser indexadas a trav\'es de describir la posici\'on a la que se quiere acceder entre corchetes, contiguo a la lista correspondiente. Se debe tener en cuenta que a trav\'es de esta expresi\'on se puede obtener el valor asociado a la posici\'on, pero no se puede modificar.
+			
+			\item Las instrucciones \texttt{if-ese}, declaraci\'on de funciones, y ciclos \texttt{while} generan un nuevo contexto de ejecuci\'on para el bloque de instrucciones que contienen.
+			
+			\item Los argumentos de la funci\'on deben tener nombres diferentes
+			
+			\item Las funciones se consideran consideran como variables dentro del contexto, por tanto, no puede existir una variable y una funci\'on con el mismo nombre.
+			
+			\item Si se desea declarar una lista de un tipo determinado se har\'a: \texttt{'List\_NombreDelTipo'}.
+			
+			\item Toda funci\'on y variable debe estar definida antes de  ser llamada.
+			
+			\item Las operaciones aritm\'eticas solo se permiten entre elementos de tipo \texttt{'Number'}, y en el caso del tipo espec\'ifico \texttt{'String'}, solo si el operador es el de suma. En el caso de las operaciones booleanas, los miembros deben ser del mismo tipo y en el caso espec\'ifico de \texttt{'and'}, \texttt{'or'} y \texttt{'not'} deben ser booleanos.
+		\end{itemize}
+		\section{Tipos definidos:}
+		\{Soldier, Map, Terrain, Weather, Number, Bool, String, $\text{AuxActions}^{(*)}$,List \} .\\\vspace{0.1 cm}
+		
+		\begin{small}
+			(*) El tipo AuxActions solo contiene un conjunto de m\'etodos auxiliares usados en la definici\'on de acciones extras.
+			
+		\end{small}
+		
+		
+		\section{Operadores definidos:}
+		
+		\subsubsection{Aritm\'eticos:}
+		
+		\{ $+$, $-$, $*$, $/$, \^{} \}
+		\subsubsection{L\'ogicos:}
+		\{ $==$, $<=$, $>=$, $<$, $>$, $and$, $or$, $not$\}
+		
+		\section{Funciones predefinidas:}
+		\begin{itemize}
+			\item \textbf{Soldier.get\_map:}
+			\begin{itemize}
+				\item[•]Argumentos: \\ 
+				\item[•] Tipo de los argumentos:\\
+				\item[•] Tipo de retorno: Map\\
+				\item[•] Descripci\'on: Retorna el mapa asociado a la simulaci\'on, siempre y cuando se haya posicionado el soldado en el.
+			\end{itemize}\vspace{0.2cm}
+			
+			
+			\item \textbf{Soldier.set\_weapons:\\}
+			\begin{itemize}
+				\item[•] Argumentos: 'weapons', 'magazines' \\ 
+				\item[•] Tipo de los argumentos:'List Weapon', 'List Number'\\
+				\item[•] Tipo de retorno:'Void'\\
+				\item[•] Descripci\'on: Asigna 'weapons' como armas al soldado, con el n\'umero de cargadores equivalente en la misma posici\'on en magazines.
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{Soldier.add\_extra\_action:\\}
+			\begin{itemize}
+				\item[•] Argumentos: 'action'\\
+				\item[•] Tipo de los argumentos:'fuction' \\ 
+				\item[•] Tipo de retorno:'Void'\\
+				\item[•] Descripci\'on: Agrega al conjunto de acciones posibles a realizar por el soldado, la funci\'on action, teniendo en cuenta que esta funci\'on debe cumplir con las caracter\'isticas de tener como \'unicos argumentos a un soldado y el mapa en dicho orden, en caso contrario se generar\'a un error en tiempo de ejecuci\'on. Notar que el mapa de la simulaci\'on no debe ser modificado dentro de dicha funci\'on, para un comportamiento correcto de esta.
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{Soldier.remove\_extra\_action:\\}
+			\begin{itemize}
+				\item[•] Argumentos:'index' \\ 
+				\item[•] Tipo de los argumentos:'Number' \\ 
+				\item[•] Tipo de retorno:'Void'\\
+				\item[•] Descripci\'on: Remueve de la lista de acciones posibles, aquella que se encuentre en la posici\'on index.
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{Soldier.is\_ally:\\}
+			\begin{itemize}
+				\item[•] Argumentos: 'soldier' \\ 
+				\item[•] Tipo de retorno: 'Soldier'\\
+				\item[•] Descripci\'on: Determina si 'soldier' pertenece a la misma facci\'on.
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{AuxActions.detect\_enemies\_within\_eff\_range:\\}
+			\begin{itemize}
+				\item[•] Argumentos: 'soldier', 'map'\\
+				\item[•] Tipo de los argumentos: 'Soldier', 'Map'\\ 
+				\item[•] Tipo de retorno: 'List Soldier'\\
+				\item[•] Descripci\'on: Devuelve una lista con los enemigos en el campo de visi\'on dentro del rango de eficiencia del arma. 
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{AuxActions.detect\_enemies\_within\_max\_range:\\}
+			\begin{itemize}
+				\item[•] Argumentos: 'soldier', 'map'\\
+				\item[•] Tipo de los argumentos: 'Soldier', 'Map'\\ 
+				\item[•] Tipo de retorno:'List Soldier'\\
+				\item[•] Descripci\'on: Devuelve una lista con los enemigos en el campo de visi\'on dentro del rango m\'aximo del arma.  
+			\end{itemize}\vspace{0.2cm}
+			
+			
+			\item \textbf{AuxActions.move}:\\
+			\begin{itemize}
+				\item[•] Argumentos:'soldier', 'position'\\
+				\item[•] Tipo de los argumentos: 'Soldier', 'List Number'\\ 
+				\item[•] Tipo de retorno:'Void'\\
+				\item[•] Descripci\'on: Realiza el movimiento de un soldado a la posici\'on 'position'.
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{AuxActions.shoot}:\\
+			\begin{itemize}
+				\item[•] Argumentos:'soldierA', 'soldierB'\\
+				\item[•] Tipo de los argumentos: 'Soldier', 'Soldier'\\ 
+				\item[•] Tipo de retorno:'Void'\\
+				\item[•] Descripci\'on: Realiza el disparo por parte del 'soldierA' con objetivo 'soldierB'.
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{List.append}:\\
+			\begin{itemize}
+				\item[•] Argumentos: 'a'\\
+				\item[•] Tipo de los argumentos ''\\ 
+				\item[•] Tipo de retorno: 'Void'\\
+				\item[•] Descripci\'on: Agrega el elemento a al final de la lista. El tipo de este debe coincidir con el de la lista.
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{len}:\\
+			\begin{itemize}
+				\item[•] Argumentos:'list' \\
+				\item[•] Tipo de los argumentos: 'List'\\ 
+				\item[•] Tipo de retorno: 'Number'\\
+				\item[•] Descripci\'on: Devuelve el tamaño de la lista list
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{int}:\\
+			\begin{itemize}
+				\item[•] Argumentos: 'number'\\
+				\item[•] Tipo de los argumentos: 'Number'\\ 
+				\item[•] Tipo de retorno:'Number'\\
+				\item[•] Descripci\'on: Elimina la parte decimal de number.
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{str}:\\
+			\begin{itemize}
+				\item[•] Argumentos:'number'\\
+				\item[•] Tipo de los argumentos: 'Number'\\ 
+				\item[•] Tipo de retorno:'String'\\
+				\item[•] Descripci\'on: Convierte number a 'String'.
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{print}:\\
+			\begin{itemize}
+				\item[•] Argumentos: 'text' \\
+				\item[•] Tipo de los argumentos: 'String'\\ 
+				\item[•] Tipo de retorno: 'Void'\\
+				\item[•] Descripci\'on: Imprime la cadena de texto 'text' en la consola.
+			\end{itemize}\vspace{0.2cm}
+			
+			\item \textbf{run}:\\
+			\begin{itemize}
+				\item[•] Argumentos: 'map', 'weather', 'soldiers', 'ia\_max\_depth', 'heuristic'\\
+				\item[•] Tipo de los argumentos: 'Map', 'Weather', 'List Soldier', 'Number', 'List HeuristicManager'\\ 
+				\item[•] Tipo de retorno: Void\\
+				\item[•] Descripci\'on: Funci\'on que da comienzo a la ejecuci\'on de la simulaci\'on a partir de sus argumentos.
+			\end{itemize} \vspace{0.2cm}
+			
+		\end{itemize}
+		
+		Luego existen m\'etodos asociados a los tipos que nos permiten modificar sus atributos, siempre siendo llamados con el comando: Tipo.set\_nombre\_del\_atributo(elemento\_del\_mismo\_tipo). Aquellos atributos modificables son:
+		
+		\begin{itemize}
+			\item Soldier:\\
+			current\_health, vision\_range, precision, move\_speed, crit\_chance,  max\_load, concealment, melee\_damage.\\
+			
+			\item Weapon: \\
+			name, weight, w\_effective\_range, w\_max\_range, effective\_range\_precision, max\_range\_precision, damage, fire\_rate, current\_ammo.
+		\end{itemize}
+		
+		\end{document}

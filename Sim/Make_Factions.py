@@ -7,7 +7,7 @@ class FactionBuilder:
     def __init__(self):
         self.factions = {}
 
-    def build_factions(self, soldiers : List[Soldier]):
+    def build_factions(self, soldiers: List[Soldier]):
         for soldier in soldiers:
             faction = self.factions.get(soldier.team)
             if faction is None:

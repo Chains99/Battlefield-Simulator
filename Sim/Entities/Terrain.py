@@ -1,8 +1,9 @@
 class Terrain:
 
-    def __init__(self, floor_type, height=0, m_restriction=1, camouflage=0, available=True, terrain_object=None):
+    def __init__(self, floor_type, height=0, m_restriction=1, camouflage=1, available=True, terrain_object=None):
         self.height = height
         self.m_restriction = m_restriction
+        # int 1 < camouflage < 2
         self.camouflage = camouflage
         self.available = available
         self.floor_type = floor_type
@@ -11,3 +12,12 @@ class Terrain:
     def add_object(self, terrain_object):
         self.terrain_object = terrain_object
         self.available = False
+
+    def set_m_restriction(self, m_restriction):
+        self.m_restriction = int(m_restriction)
+
+    def set_camouflage(self, camouflage):
+        if 1 < camouflage < 2:
+            self.camouflage = camouflage
+        else:
+            raise Exception('Invalid camouflage value')

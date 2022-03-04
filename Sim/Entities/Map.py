@@ -7,6 +7,14 @@ class Map:
     def __init__(self, rows, cols):
         self.terrain_matrix = []
         self.restriction_matrix = []
+        if rows < 0:
+            raise Exception('invalid rows value')
+        if cols < 0:
+            raise Exception('invalid cols value')
+        rows = int(rows)
+        cols = int(cols)
+        self.rows = rows
+        self.cols = cols
         # Definimos una matriz rows x cols compuesta de Terrains
         for i in range(rows):
             self.terrain_matrix.append([])
@@ -37,4 +45,27 @@ class Map:
                         if terrain_matrix[i][j] == inf:
                             self.terrain_matrix[i][j].available = False
 
+    def get(self, row, col):
+        row = int(row)
+        col = int(col)
 
+        return self.terrain_matrix[row][col]
+
+    def set(self, row, col, item):
+        row = int(row)
+        col = int(col)
+
+        self.restriction_matrix[row][col] = item
+
+    def set_object(self, row, col):
+        row = int(row)
+        col = int(col)
+
+        self.terrain_matrix[row][col].add_object(True)
+
+    def remove_object(self, row, col):
+        row = int(row)
+        col = int(col)
+
+        self.terrain_matrix[row][col].terrain_object = None
+        self.terrain_matrix[row][col].available = True

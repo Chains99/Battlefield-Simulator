@@ -1,73 +1,199 @@
 from IA.MinMax import minmax_search
+from IA.State import build_new_state
+from IA.simulation import HeuristicManager, SimulationManager
+from Sim.Entities.Soldier import Soldier
+from Sim.Make_Factions import FactionBuilder
+from Sim.aux_actions import decorate_aux_actions
 
 
 class BattleField:
 
-    def __init__(self, simulation,  console=None):
+    def __init__(self, simulation):
         self.sim = simulation
         self.fractions = simulation.fractions
         self.finish = False
         self.started = False
         self.current_state = None
-        self.console = console
 
-    def run_battlefield(self, soldier_pos):
+    def run_battlefield(self):
 
         if not self.started:
-            self.current_state = self.sim.build_initial_state(self.sim.fractions, self.sim.ab.am, soldier_pos)
+            self.current_state = self.sim.build_initial_state(self.sim.fractions, self.sim.ab.am)
             self.started = True
 
-        if self.finish:
-
+        # while not self.finish:
+        if not self.finish:
+            current_turn = self.sim.current_turn
             next_move = minmax_search(self.sim, self.current_state)
 
             self.current_state = self.perfom_action(next_move)
 
+            self.sim.set_on_next_turn(current_turn)
+
             self.move_view(next_move)
 
             if self.terminal_state():
-               return True
+                self.show_stats()
+                return True
+
         return False
+
+    def show_stats(self):
+        self.update_avg_stats()
+        for faction in self.fractions:
+            for soldier in faction.soldiers:
+                print(' ')
+                print('Soldier id: {} stats:'.format(soldier.id))
+                print('{} shots fired'.format(faction.soldiers_stats[soldier.id]['shots']))
+                print('{} shots landed'.format(faction.soldiers_stats[soldier.id]['shots landed']))
+                print('{} shots missed'.format(faction.soldiers_stats[soldier.id]['shots missed']))
+                print('{}% precision average'.format(faction.soldiers_stats[soldier.id]['precision avg']))
+                print('{} distance traveled'.format(faction.soldiers_stats[soldier.id]['distance traveled']))
+
+    def update_avg_stats(self):
+        for faction in self.fractions:
+            for soldier in faction.soldiers:
+                shots = faction.soldiers_stats[soldier.id]['shots']
+                shots_landed = faction.soldiers_stats[soldier.id]['shots landed']
+                if shots > 0:
+                    faction.soldiers_stats[soldier.id]['precision avg'] = (float(shots_landed) / shots) * 100
+
     def move_view(self, move):
 
-        if move == self.sim.ab.am.shoot_enemy:
+        if move[0] == self.sim.ab.am.melee_attack:
             enemy = self.current_state.reverse_soldier_positions[move[1][1]]
-            self.console.print('soldier id:{} team:{} shoot soldier id:{} team:{}'.format(move[1][0].id, move[1][0].team, enemy.id, enemy.team))
+            print('soldier id:{} team:{} attacked soldier id:{} team:{}'.format(move[1][0].id, move[1][0].team, enemy.id, enemy.team))
 
-        if move == self.sim.ab.am.move:
-            self.console.print('soldier id:{} team:{} moved towards square {}'.format(move[1][0].id, move[1][0].team, self.current_state.soldier_positions[move[1][0].id]))
+        if move[0] == self.sim.ab.am.shoot_enemy:
+            enemy = self.current_state.reverse_soldier_positions[move[1][1]]
+            print('soldier id:{} team:{} shoot soldier id:{} team:{}'.format(move[1][0].id, move[1][0].team, enemy.id, enemy.team))
 
-        if move == self.sim.ab.am.change_stance:
-            self.console.print('soldier id:{} team:{} changed stance to {}'.format(move[1][0].id, move[1][0].team, move[1][0].stance))
+        if move[0] == self.sim.ab.am.move:
+            print('soldier id:{} team:{} moved towards square {}'.format(move[1][0].id, move[1][0].team, self.current_state.soldier_positions[move[1][0].id]))
 
-        if move == self.sim.ab.am.reload:
-            self.console.print('soldier id:{} team:{} reloaded'.format(move[1][0].id, move[1][0].team))
+        if move[0] == self.sim.ab.am.change_stance:
+            print('soldier id:{} team:{} changed stance to {}'.format(move[1][0].id, move[1][0].team, move[1][0].stance))
 
-        if move == self.sim.ab.am.change_weapon:
-            self.console.print('soldier id:{} change weapon to {}'.format(move[1][0].id, move[1][0].team, move[1][0].equipped_weapon.name))
+        if move[0] == self.sim.ab.am.reload:
+            print('soldier id:{} team:{} reloaded'.format(move[1][0].id, move[1][0].team))
+
+        if move[0] == self.sim.ab.am.change_weapon:
+            print('soldier id:{} change weapon to {}'.format(move[1][0].id, move[1][0].team, move[1][0].equipped_weapon.name))
 
     def terminal_state(self):
 
-        for item in self.fractions:
-            if self.current_state.team_variables[item.id] == 0:
+        for faction in self.fractions:
+            count = 0
+            for soldier in faction.soldiers:
+                if self.current_state.soldier_died[soldier.team][soldier.id]:
+                    count += 1
+
+            if count == len(faction.soldiers):
                 return True
+
         return False
 
     def perfom_action(self, action):
 
+        result_state = None
+
+        if action[0] == self.sim.ab.am.melee_attack:
+            result_state, stats = self.sim.ab.am.real_melee_attack(*action[1])
+            self.fractions[action[1][0].team].update_stats(action[1][0], stats)
+
         if action[0] == self.sim.ab.am.shoot_enemy:
-            return self.sim.ab.am.real_shoot_enemy(*action[1])
+            result_state, stats = self.sim.ab.am.real_shoot_enemy(*action[1])
+            self.fractions[action[1][0].team].update_stats(action[1][0], stats)
 
         if action[0] == self.sim.ab.am.move:
-            return self.sim.ab.am.real_move(*action[1])
+            result_state, stats = self.sim.ab.am.real_move(*action[1])
+            self.fractions[action[1][0].team].update_stats(action[1][0], stats)
 
         if action[0] == self.sim.ab.am.change_stance:
-            return self.sim.ab.am.real_change_stance(*action[1])
+            result_state = self.sim.ab.am.real_change_stance(*action[1])
 
         if action[0] == self.sim.ab.am.reload:
-            return self.sim.ab.am.real_reload(*action[1])
+            result_state = self.sim.ab.am.real_reload(*action[1])
 
         if action[0] == self.sim.ab.am.change_weapon:
-            return self.sim.ab.am.real_change_weapon(*action[1])
+            result_state = self.sim.ab.am.real_change_weapon(*action[1])
+
+        if action[0] == self.sim.ab.am.empty_action:
+            result_state = self.sim.ab.am.empty_action(*action[1])
+            if self.needed_reset(result_state):
+                result_state = self.reset_moves(result_state)
+            return result_state
+
+        if len(action) == 3:
+            soldier = action[1]
+        else:
+            soldier = action[1][0]
+        if result_state is not None:
+            result_state.team_variables_moved[soldier.team] += 1
+            result_state.soldier_moved[soldier.team][soldier.id] = True
+
+        if result_state is not None:
+            if self.needed_reset(result_state):
+                result_state = self.reset_moves(result_state)
+
+        if result_state is None:
+           return self.perform_extra_action(action)
+
+        return result_state
+
+    def perform_extra_action(self, action):
+        """
+        USE TRY
+        """
+        # decorate all auxiliary function to current state
+        decorate_aux_actions(action[2])
+        # execute extra action
+        action[0](action[1], self.sim.sim_map)
+
+        self.sim.check_soldier_illegal_values()
+        # generate new state
+
+        print('soldier id:{} used {}'.format(action[1].id, action[0].__name__))
+        result_state = build_new_state(self.fractions, self.sim.ab.am, action[1], action[2])
+        return result_state
+
+    def needed_reset(self, state):
+
+        for fraction in self.fractions:
+            for soldier in fraction.soldiers:
+                if not state.soldier_died[soldier.team][soldier.id] and not state.soldier_moved[soldier.team][soldier.id]:
+                    return False
+
+        return True
+
+    def reset_moves(self, state):
+
+        for fraction in self.fractions:
+            state.team_variables_moved[fraction.id] = 0
+            for soldier in fraction.soldiers:
+                state.soldier_moved[fraction.id][soldier.id] = False
+
+        return state
 
 
+def build_battlefield(sim_map, weather, soldiers, max_depth, heuristics=[]):
+
+    # CHECK SOLDIERS INSTANCES
+    for soldier in soldiers:
+        if not isinstance(soldier, Soldier):
+            raise Exception('Invalid element in soldiers')
+    # CHECK IF NO HEURISTICS
+    if len(heuristics) == 0:
+        heur = HeuristicManager()
+        heuristics = [heur, heur]
+    # CHECK DEPTH
+    if max_depth < 1:
+        raise Exception('Invalid max_depth value')
+
+    fb = FactionBuilder()
+    fb.build_factions(soldiers)
+    fb.factions[0].heuristic = heuristics[0]
+    fb.factions[1].heuristic = heuristics[1]
+    sim = SimulationManager(fb.get_factions(), weather, sim_map=sim_map, max_depth=max_depth)
+
+    return BattleField(sim)

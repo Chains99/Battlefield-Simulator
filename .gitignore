@@ -1,5 +1,17 @@
 
 *.pyc
+<<<<<<< HEAD
 docs/llncs.synctex.gz
 docs/llncs.aux
 docs/llncs.log
+=======
+*.xml
+docs/llncs.log
+docs/llncs.aux
+docs/llncs.synctex.gz
+*.gz
+*.aux
+*.out
+*.toc
+*.log
+>>>>>>> dev

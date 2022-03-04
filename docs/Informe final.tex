@@ -116,7 +116,7 @@
 		
 \section{Mapa}
 
-El mapa donde se lleva a cabo la simulaci\'on consiste por una matriz de $n$ filas y $m$ columnas. Cada elemento de esta matriz es un componente de tipo \emph{Terrain} que describe las caracter\'isticas de cada casilla del mapa con los siguientes atributos:\\
+El mapa donde se lleva a cabo la simulaci\'on consiste en una matriz de $n$ filas y $m$ columnas. Cada elemento de esta matriz es un componente de tipo \emph{Terrain} que describe las caracter\'isticas de cada casilla del mapa con los siguientes atributos:\\
 
 \begin{itemize}
 	\item[•] \emph{height}: Valor entero positivo que representa la altura de la casilla.
@@ -447,7 +447,7 @@ class LR1Item:
 		Dentro del lenguaje, todos los tipos son predefinidos y construidos antes de comenzar  el proceso de parsing. Para ello se deifni\'o una clase espec\'ifica \texttt{Type} que cuenta con los m\'etodos y atributos que lo definen, entendi\'endose que las clases predefinidas tambi\'en se categorizan como tipos, y sus m\'etodos y atributos definidos en la instancia de \texttt{Type}.  Luego es necesario definir el entorno o contexto de ejecuci\'on en donde se definen las variables, los tipos y las funciones, adem\'as de contener los m\'etodos auxiliares que nos permitan determinar las caracter\'isticas de  dichos elementos. Para ello se defini\'o la clase context que es la encargada de definir dicho entorno de ejecuci\'on, entendi\'edose que la creaci\'on de nuevos contextos de ejecuci\'on se hacen a partir de un contexto \texttt{global} o \texttt{root} el cual no se deriva de ning\'un otro contexto y es quien realmente contiene los tipos definidos dentro del lenguaje. A partir de estas dos clases y el AST, se procede a realizar la traducci\'on del c\'odigo del DSL a lenguaje python y finalizar as\'i el proceso de transpilaci\'on. Para ello recorremos el AST siguiendo el patr\'on \texttt{visitor} comenzando por su ra\'iz que es el nodo que contiene el conjunto de \texttt{statements} definidos en el c\'odigo al que se le aplic\'o el proceso de tokenizaci\'on y \texttt{parsing}, visitando cada uno de ellos y generando el c\'odigo a partir del generado por el nodo y los nodos expresiones que lo conforman, realiz\'andose el chequeo sem\'antico en la medida en que son visitados, resolvi\'endose sus tipos a partir del contexto de ejecuci\'on y si cumplen con las reglas propias de la expresi\'on o del \texttt{statement}, para lo cual cada nodo posee una funci\'on 'check\_semantic' encargada de dicha verificaci\'on. En cada \texttt{visita} se agrega la traducci\'on a una variable \texttt{string} tom\'andose en cuenta la r\'igida indentaci\'on espec\'ifica del lenguaje Python.
 		
 		\lstinputlisting[caption = {Ejemplo de nodo de ast con su funci\'on de chequeo sem\'antico definida} ,firstline=144,
-		lastline=160]{ast.py}\newpage
+		lastline=160]{ast.py}
 		
 		\lstinputlisting[caption = {M\'etodo de traducci\'on de un nodo binario, en donde puede verse que no se ordena el chequeo sem\'antico de este,dado que es una expresi\'on} ,firstline=168,
 		lastline=171]{ast_transpiler.py}

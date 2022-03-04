@@ -50,6 +50,14 @@ def build_initial_context():
     soldier.define_function('get_map', 'Map', [], [])
     soldier.define_function('set_weapons', 'Void', ['weapons', 'magazines'], ['List Weapon', 'List Number'])
     soldier.define_function('set_affinity', 'Void', ['weapon_name', 'value'], ['String', 'Number'])
+    soldier.define_function('set_health', 'Void', ['health'], ['Number'])
+    soldier.define_function('set_vision_range', 'Void', ['health'], ['Number'])
+    soldier.define_function('set_precision', 'Void', ['precision'], ['Number'])
+    soldier.define_function('set_move_speed', 'Void', ['move_speed'], ['Number'])
+    soldier.define_function('set_crit_chance', 'Void', ['crit_chance'], ['Number'])
+    soldier.define_function('set_max_load', 'Void', ['max_load'], ['Number'])
+    soldier.define_function('set_concealment', 'Void', ['concealment'], ['Number'])
+    soldier.define_function('set_melee_damage', 'Void', ['concealment'], ['Number'])
     soldier.define_function('set_position', 'Void', ['map', 'row', 'col'], ['Map', 'Number', 'Number'])
     soldier.define_function('set_equiped_weapon', 'Void', ['weapon'], ['String'])
     soldier.define_function('add_extra_action', 'Void', ['action'], ['function'])
@@ -141,7 +149,6 @@ def build_initial_context():
     context.add_func(FuncDef('print', 'Void', ['text'], ['String'], None))
     context.add_func(FuncDef('run', 'Void', ['map', 'weather', 'soldiers', 'ia_max_depth'],
                              ['Map', 'Weather', 'List Soldier', 'Number'], None))
-    #   DETECTION FUNCTIONS
 
     return context
 
@@ -187,7 +194,7 @@ def execute():
                       expand_y=True,
                       autoscroll=True,
                       auto_refresh=True,
-                      text_color= "yellow")],
+                      text_color="yellow")],
         [sg.Push(),
          sg.In(size=(25, 1), enable_events=True, key="-LOADDIR-", visible=False),
          sg.FileBrowse('Load', key='load', button_color='grey', file_types=(("SCR", ".scr"),)),
@@ -270,6 +277,6 @@ def execute():
                 parser = LR1Parser(grammar)
                 ast = parser.parse(tokens)
                 translated_code = ASTtranspiler().transpile(ast, context)
-                window['Result'].print(translated_code)
-                #exec(translated_code, globals())
+                # window['Result'].print(translated_code)
+                exec(translated_code, globals())
     window.close()

@@ -76,8 +76,20 @@ class Decl(Statement):
     def check_semantic(self, context: Context):
         if not context.is_type_defined(self.type):
             raise TypeError(f'"{self.type}" is not a defined type')
+        text = self.type.split('_')
+        self.type = ''.join(text)
         self.expression.check_semantic(context)
-        if self.expression.type.split(' ')[0] != self.type.split(' ')[0]:
+        if (self.expression.type == 'List'):
+            if (self.type.split(' ')[0] == 'List'):
+                pass
+            else:
+                raise TypeError(f'\"{self.name}\" doesn\'t match with the expression type')
+        elif (self.type == 'List'):
+            if (self.type.split(' ')[0] == 'List'):
+                self.type = self.expression.type
+            else:
+                raise TypeError(f'\"{self.name}\" doesn\'t match with the expression type')
+        elif self.expression.type != self.type:
             raise TypeError(f'\"{self.name}\" doesn\'t match with the expression type')
         context.add_var(self.name, self.expression.type, '')
 
@@ -285,7 +297,7 @@ class _List(Expression):
                 self.inner_type = expression.type
             if (self.inner_type != expression.type):
                 raise Exception('Type mismatch on list')
-        self.type += ' ' + self.inner_type
+        self.type = self.type + ' ' + self.inner_type if self.inner_type != '' else self.type
 
 
 @dataclass

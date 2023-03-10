@@ -5,6 +5,7 @@ from math import inf
 
 
 def min_value(simulation, fraction_eval,fraction_turn, state, depth):
+    print("hi")
     if simulation.is_terminal(state, depth):
         return simulation.evaluate_state(state, fraction_eval), None
 
